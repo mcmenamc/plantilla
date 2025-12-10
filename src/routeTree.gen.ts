@@ -28,8 +28,13 @@ import { Route as AuthenticatedSettingsRouteRouteImport } from './routes/_authen
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
+import { Route as AuthenticatedQuotesIndexRouteImport } from './routes/_authenticated/quotes/index'
+import { Route as AuthenticatedProductsIndexRouteImport } from './routes/_authenticated/products/index'
+import { Route as AuthenticatedInvoicingIndexRouteImport } from './routes/_authenticated/invoicing/index'
 import { Route as AuthenticatedHelpCenterIndexRouteImport } from './routes/_authenticated/help-center/index'
+import { Route as AuthenticatedClientsIndexRouteImport } from './routes/_authenticated/clients/index'
 import { Route as AuthenticatedChatsIndexRouteImport } from './routes/_authenticated/chats/index'
+import { Route as AuthenticatedCatalogsIndexRouteImport } from './routes/_authenticated/catalogs/index'
 import { Route as AuthenticatedAppsIndexRouteImport } from './routes/_authenticated/apps/index'
 import { Route as ClerkAuthenticatedUserManagementRouteImport } from './routes/clerk/_authenticated/user-management'
 import { Route as ClerkauthSignUpRouteImport } from './routes/clerk/(auth)/sign-up'
@@ -39,6 +44,10 @@ import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_auth
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
+import { Route as AuthenticatedReportsSalesIndexRouteImport } from './routes/_authenticated/reports/sales/index'
+import { Route as AuthenticatedInvoicingPaymentComplementsIndexRouteImport } from './routes/_authenticated/invoicing/payment-complements/index'
+import { Route as AuthenticatedInvoicingCreditNotesIndexRouteImport } from './routes/_authenticated/invoicing/credit-notes/index'
+import { Route as AuthenticatedInvoicingBillOfLadingIndexRouteImport } from './routes/_authenticated/invoicing/bill-of-lading/index'
 
 const ClerkRouteRoute = ClerkRouteRouteImport.update({
   id: '/clerk',
@@ -134,10 +143,34 @@ const AuthenticatedSettingsIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedSettingsRouteRoute,
   } as any)
+const AuthenticatedQuotesIndexRoute =
+  AuthenticatedQuotesIndexRouteImport.update({
+    id: '/quotes/',
+    path: '/quotes/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProductsIndexRoute =
+  AuthenticatedProductsIndexRouteImport.update({
+    id: '/products/',
+    path: '/products/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInvoicingIndexRoute =
+  AuthenticatedInvoicingIndexRouteImport.update({
+    id: '/invoicing/',
+    path: '/invoicing/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedHelpCenterIndexRoute =
   AuthenticatedHelpCenterIndexRouteImport.update({
     id: '/help-center/',
     path: '/help-center/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedClientsIndexRoute =
+  AuthenticatedClientsIndexRouteImport.update({
+    id: '/clients/',
+    path: '/clients/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedChatsIndexRoute = AuthenticatedChatsIndexRouteImport.update({
@@ -145,6 +178,12 @@ const AuthenticatedChatsIndexRoute = AuthenticatedChatsIndexRouteImport.update({
   path: '/chats/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCatalogsIndexRoute =
+  AuthenticatedCatalogsIndexRouteImport.update({
+    id: '/catalogs/',
+    path: '/catalogs/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppsIndexRoute = AuthenticatedAppsIndexRouteImport.update({
   id: '/apps/',
   path: '/apps/',
@@ -196,6 +235,30 @@ const AuthenticatedErrorsErrorRoute =
     path: '/errors/$error',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedReportsSalesIndexRoute =
+  AuthenticatedReportsSalesIndexRouteImport.update({
+    id: '/reports/sales/',
+    path: '/reports/sales/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInvoicingPaymentComplementsIndexRoute =
+  AuthenticatedInvoicingPaymentComplementsIndexRouteImport.update({
+    id: '/invoicing/payment-complements/',
+    path: '/invoicing/payment-complements/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInvoicingCreditNotesIndexRoute =
+  AuthenticatedInvoicingCreditNotesIndexRouteImport.update({
+    id: '/invoicing/credit-notes/',
+    path: '/invoicing/credit-notes/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInvoicingBillOfLadingIndexRoute =
+  AuthenticatedInvoicingBillOfLadingIndexRouteImport.update({
+    id: '/invoicing/bill-of-lading/',
+    path: '/invoicing/bill-of-lading/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/clerk': typeof ClerkAuthenticatedRouteRouteWithChildren
@@ -220,11 +283,20 @@ export interface FileRoutesByFullPath {
   '/clerk/sign-up': typeof ClerkauthSignUpRoute
   '/clerk/user-management': typeof ClerkAuthenticatedUserManagementRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
+  '/catalogs': typeof AuthenticatedCatalogsIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
+  '/clients': typeof AuthenticatedClientsIndexRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
+  '/invoicing': typeof AuthenticatedInvoicingIndexRoute
+  '/products': typeof AuthenticatedProductsIndexRoute
+  '/quotes': typeof AuthenticatedQuotesIndexRoute
   '/settings/': typeof AuthenticatedSettingsIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
+  '/invoicing/bill-of-lading': typeof AuthenticatedInvoicingBillOfLadingIndexRoute
+  '/invoicing/credit-notes': typeof AuthenticatedInvoicingCreditNotesIndexRoute
+  '/invoicing/payment-complements': typeof AuthenticatedInvoicingPaymentComplementsIndexRoute
+  '/reports/sales': typeof AuthenticatedReportsSalesIndexRoute
 }
 export interface FileRoutesByTo {
   '/clerk': typeof ClerkAuthenticatedRouteRouteWithChildren
@@ -248,11 +320,20 @@ export interface FileRoutesByTo {
   '/clerk/sign-up': typeof ClerkauthSignUpRoute
   '/clerk/user-management': typeof ClerkAuthenticatedUserManagementRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
+  '/catalogs': typeof AuthenticatedCatalogsIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
+  '/clients': typeof AuthenticatedClientsIndexRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
+  '/invoicing': typeof AuthenticatedInvoicingIndexRoute
+  '/products': typeof AuthenticatedProductsIndexRoute
+  '/quotes': typeof AuthenticatedQuotesIndexRoute
   '/settings': typeof AuthenticatedSettingsIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
+  '/invoicing/bill-of-lading': typeof AuthenticatedInvoicingBillOfLadingIndexRoute
+  '/invoicing/credit-notes': typeof AuthenticatedInvoicingCreditNotesIndexRoute
+  '/invoicing/payment-complements': typeof AuthenticatedInvoicingPaymentComplementsIndexRoute
+  '/reports/sales': typeof AuthenticatedReportsSalesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -281,11 +362,20 @@ export interface FileRoutesById {
   '/clerk/(auth)/sign-up': typeof ClerkauthSignUpRoute
   '/clerk/_authenticated/user-management': typeof ClerkAuthenticatedUserManagementRoute
   '/_authenticated/apps/': typeof AuthenticatedAppsIndexRoute
+  '/_authenticated/catalogs/': typeof AuthenticatedCatalogsIndexRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexRoute
+  '/_authenticated/clients/': typeof AuthenticatedClientsIndexRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexRoute
+  '/_authenticated/invoicing/': typeof AuthenticatedInvoicingIndexRoute
+  '/_authenticated/products/': typeof AuthenticatedProductsIndexRoute
+  '/_authenticated/quotes/': typeof AuthenticatedQuotesIndexRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
+  '/_authenticated/invoicing/bill-of-lading/': typeof AuthenticatedInvoicingBillOfLadingIndexRoute
+  '/_authenticated/invoicing/credit-notes/': typeof AuthenticatedInvoicingCreditNotesIndexRoute
+  '/_authenticated/invoicing/payment-complements/': typeof AuthenticatedInvoicingPaymentComplementsIndexRoute
+  '/_authenticated/reports/sales/': typeof AuthenticatedReportsSalesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -312,11 +402,20 @@ export interface FileRouteTypes {
     | '/clerk/sign-up'
     | '/clerk/user-management'
     | '/apps'
+    | '/catalogs'
     | '/chats'
+    | '/clients'
     | '/help-center'
+    | '/invoicing'
+    | '/products'
+    | '/quotes'
     | '/settings/'
     | '/tasks'
     | '/users'
+    | '/invoicing/bill-of-lading'
+    | '/invoicing/credit-notes'
+    | '/invoicing/payment-complements'
+    | '/reports/sales'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/clerk'
@@ -340,11 +439,20 @@ export interface FileRouteTypes {
     | '/clerk/sign-up'
     | '/clerk/user-management'
     | '/apps'
+    | '/catalogs'
     | '/chats'
+    | '/clients'
     | '/help-center'
+    | '/invoicing'
+    | '/products'
+    | '/quotes'
     | '/settings'
     | '/tasks'
     | '/users'
+    | '/invoicing/bill-of-lading'
+    | '/invoicing/credit-notes'
+    | '/invoicing/payment-complements'
+    | '/reports/sales'
   id:
     | '__root__'
     | '/_authenticated'
@@ -372,11 +480,20 @@ export interface FileRouteTypes {
     | '/clerk/(auth)/sign-up'
     | '/clerk/_authenticated/user-management'
     | '/_authenticated/apps/'
+    | '/_authenticated/catalogs/'
     | '/_authenticated/chats/'
+    | '/_authenticated/clients/'
     | '/_authenticated/help-center/'
+    | '/_authenticated/invoicing/'
+    | '/_authenticated/products/'
+    | '/_authenticated/quotes/'
     | '/_authenticated/settings/'
     | '/_authenticated/tasks/'
     | '/_authenticated/users/'
+    | '/_authenticated/invoicing/bill-of-lading/'
+    | '/_authenticated/invoicing/credit-notes/'
+    | '/_authenticated/invoicing/payment-complements/'
+    | '/_authenticated/reports/sales/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -529,6 +646,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsIndexRouteImport
       parentRoute: typeof AuthenticatedSettingsRouteRoute
     }
+    '/_authenticated/quotes/': {
+      id: '/_authenticated/quotes/'
+      path: '/quotes'
+      fullPath: '/quotes'
+      preLoaderRoute: typeof AuthenticatedQuotesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/products/': {
+      id: '/_authenticated/products/'
+      path: '/products'
+      fullPath: '/products'
+      preLoaderRoute: typeof AuthenticatedProductsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/invoicing/': {
+      id: '/_authenticated/invoicing/'
+      path: '/invoicing'
+      fullPath: '/invoicing'
+      preLoaderRoute: typeof AuthenticatedInvoicingIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/help-center/': {
       id: '/_authenticated/help-center/'
       path: '/help-center'
@@ -536,11 +674,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHelpCenterIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/clients/': {
+      id: '/_authenticated/clients/'
+      path: '/clients'
+      fullPath: '/clients'
+      preLoaderRoute: typeof AuthenticatedClientsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/chats/': {
       id: '/_authenticated/chats/'
       path: '/chats'
       fullPath: '/chats'
       preLoaderRoute: typeof AuthenticatedChatsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/catalogs/': {
+      id: '/_authenticated/catalogs/'
+      path: '/catalogs'
+      fullPath: '/catalogs'
+      preLoaderRoute: typeof AuthenticatedCatalogsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/apps/': {
@@ -606,6 +758,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedErrorsErrorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/reports/sales/': {
+      id: '/_authenticated/reports/sales/'
+      path: '/reports/sales'
+      fullPath: '/reports/sales'
+      preLoaderRoute: typeof AuthenticatedReportsSalesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/invoicing/payment-complements/': {
+      id: '/_authenticated/invoicing/payment-complements/'
+      path: '/invoicing/payment-complements'
+      fullPath: '/invoicing/payment-complements'
+      preLoaderRoute: typeof AuthenticatedInvoicingPaymentComplementsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/invoicing/credit-notes/': {
+      id: '/_authenticated/invoicing/credit-notes/'
+      path: '/invoicing/credit-notes'
+      fullPath: '/invoicing/credit-notes'
+      preLoaderRoute: typeof AuthenticatedInvoicingCreditNotesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/invoicing/bill-of-lading/': {
+      id: '/_authenticated/invoicing/bill-of-lading/'
+      path: '/invoicing/bill-of-lading'
+      fullPath: '/invoicing/bill-of-lading'
+      preLoaderRoute: typeof AuthenticatedInvoicingBillOfLadingIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -637,10 +817,19 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
   AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
+  AuthenticatedCatalogsIndexRoute: typeof AuthenticatedCatalogsIndexRoute
   AuthenticatedChatsIndexRoute: typeof AuthenticatedChatsIndexRoute
+  AuthenticatedClientsIndexRoute: typeof AuthenticatedClientsIndexRoute
   AuthenticatedHelpCenterIndexRoute: typeof AuthenticatedHelpCenterIndexRoute
+  AuthenticatedInvoicingIndexRoute: typeof AuthenticatedInvoicingIndexRoute
+  AuthenticatedProductsIndexRoute: typeof AuthenticatedProductsIndexRoute
+  AuthenticatedQuotesIndexRoute: typeof AuthenticatedQuotesIndexRoute
   AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
+  AuthenticatedInvoicingBillOfLadingIndexRoute: typeof AuthenticatedInvoicingBillOfLadingIndexRoute
+  AuthenticatedInvoicingCreditNotesIndexRoute: typeof AuthenticatedInvoicingCreditNotesIndexRoute
+  AuthenticatedInvoicingPaymentComplementsIndexRoute: typeof AuthenticatedInvoicingPaymentComplementsIndexRoute
+  AuthenticatedReportsSalesIndexRoute: typeof AuthenticatedReportsSalesIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -648,10 +837,22 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
   AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
+  AuthenticatedCatalogsIndexRoute: AuthenticatedCatalogsIndexRoute,
   AuthenticatedChatsIndexRoute: AuthenticatedChatsIndexRoute,
+  AuthenticatedClientsIndexRoute: AuthenticatedClientsIndexRoute,
   AuthenticatedHelpCenterIndexRoute: AuthenticatedHelpCenterIndexRoute,
+  AuthenticatedInvoicingIndexRoute: AuthenticatedInvoicingIndexRoute,
+  AuthenticatedProductsIndexRoute: AuthenticatedProductsIndexRoute,
+  AuthenticatedQuotesIndexRoute: AuthenticatedQuotesIndexRoute,
   AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
+  AuthenticatedInvoicingBillOfLadingIndexRoute:
+    AuthenticatedInvoicingBillOfLadingIndexRoute,
+  AuthenticatedInvoicingCreditNotesIndexRoute:
+    AuthenticatedInvoicingCreditNotesIndexRoute,
+  AuthenticatedInvoicingPaymentComplementsIndexRoute:
+    AuthenticatedInvoicingPaymentComplementsIndexRoute,
+  AuthenticatedReportsSalesIndexRoute: AuthenticatedReportsSalesIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
