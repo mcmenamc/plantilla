@@ -1,19 +1,19 @@
 import { z } from 'zod'
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { SignIn } from '@/features/auth/sign-in'
+import { Bienvenido } from '@/features/bienvenido'
 import { useAuthStore } from '@/stores/auth-store'
 
-const searchSchema = z.object({
-  redirect: z.string().optional(),
+const bienvenidoSearchSchema = z.object({
+  token: z.string().optional(),
 })
 
-export const Route = createFileRoute('/(auth)/sign-in')({
+export const Route = createFileRoute('/bienvenido')({
   beforeLoad: () => {
     const { accessToken } = useAuthStore.getState().auth
     if (accessToken) {
       throw redirect({ to: '/' })
     }
   },
-  component: SignIn,
-  validateSearch: searchSchema,
+  validateSearch: bienvenidoSearchSchema,
+  component: Bienvenido,
 })

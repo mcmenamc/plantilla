@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PruebaGratisRouteImport } from './routes/prueba-gratis'
+import { Route as BienvenidoRouteImport } from './routes/bienvenido'
 import { Route as ClerkRouteRouteImport } from './routes/clerk/route'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
@@ -53,6 +54,11 @@ import { Route as AuthenticatedInvoicingBillOfLadingIndexRouteImport } from './r
 const PruebaGratisRoute = PruebaGratisRouteImport.update({
   id: '/prueba-gratis',
   path: '/prueba-gratis',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BienvenidoRoute = BienvenidoRouteImport.update({
+  id: '/bienvenido',
+  path: '/bienvenido',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ClerkRouteRoute = ClerkRouteRouteImport.update({
@@ -268,8 +274,10 @@ const AuthenticatedInvoicingBillOfLadingIndexRoute =
 
 export interface FileRoutesByFullPath {
   '/clerk': typeof ClerkAuthenticatedRouteRouteWithChildren
+  '/bienvenido': typeof BienvenidoRoute
   '/prueba-gratis': typeof PruebaGratisRoute
   '/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
+  '/clerk/': typeof ClerkauthRouteRouteWithChildren
   '/forgot-password': typeof authForgotPasswordRoute
   '/otp': typeof authOtpRoute
   '/sign-in': typeof authSignInRoute
@@ -306,8 +314,9 @@ export interface FileRoutesByFullPath {
   '/reports/sales': typeof AuthenticatedReportsSalesIndexRoute
 }
 export interface FileRoutesByTo {
-  '/clerk': typeof ClerkAuthenticatedRouteRouteWithChildren
+  '/bienvenido': typeof BienvenidoRoute
   '/prueba-gratis': typeof PruebaGratisRoute
+  '/clerk': typeof ClerkAuthenticatedRouteRouteWithChildren
   '/forgot-password': typeof authForgotPasswordRoute
   '/otp': typeof authOtpRoute
   '/sign-in': typeof authSignInRoute
@@ -347,6 +356,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/clerk': typeof ClerkRouteRouteWithChildren
+  '/bienvenido': typeof BienvenidoRoute
   '/prueba-gratis': typeof PruebaGratisRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
   '/clerk/(auth)': typeof ClerkauthRouteRouteWithChildren
@@ -390,8 +400,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/clerk'
+    | '/bienvenido'
     | '/prueba-gratis'
     | '/settings'
+    | '/clerk/'
     | '/forgot-password'
     | '/otp'
     | '/sign-in'
@@ -428,8 +440,9 @@ export interface FileRouteTypes {
     | '/reports/sales'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/clerk'
+    | '/bienvenido'
     | '/prueba-gratis'
+    | '/clerk'
     | '/forgot-password'
     | '/otp'
     | '/sign-in'
@@ -468,6 +481,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_authenticated'
     | '/clerk'
+    | '/bienvenido'
     | '/prueba-gratis'
     | '/_authenticated/settings'
     | '/clerk/(auth)'
@@ -511,6 +525,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   ClerkRouteRoute: typeof ClerkRouteRouteWithChildren
+  BienvenidoRoute: typeof BienvenidoRoute
   PruebaGratisRoute: typeof PruebaGratisRoute
   authForgotPasswordRoute: typeof authForgotPasswordRoute
   authOtpRoute: typeof authOtpRoute
@@ -531,6 +546,13 @@ declare module '@tanstack/react-router' {
       path: '/prueba-gratis'
       fullPath: '/prueba-gratis'
       preLoaderRoute: typeof PruebaGratisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bienvenido': {
+      id: '/bienvenido'
+      path: '/bienvenido'
+      fullPath: '/bienvenido'
+      preLoaderRoute: typeof BienvenidoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/clerk': {
@@ -633,8 +655,8 @@ declare module '@tanstack/react-router' {
     }
     '/clerk/(auth)': {
       id: '/clerk/(auth)'
-      path: ''
-      fullPath: '/clerk'
+      path: '/'
+      fullPath: '/clerk/'
       preLoaderRoute: typeof ClerkauthRouteRouteImport
       parentRoute: typeof ClerkRouteRoute
     }
@@ -924,6 +946,7 @@ const ClerkRouteRouteWithChildren = ClerkRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   ClerkRouteRoute: ClerkRouteRouteWithChildren,
+  BienvenidoRoute: BienvenidoRoute,
   PruebaGratisRoute: PruebaGratisRoute,
   authForgotPasswordRoute: authForgotPasswordRoute,
   authOtpRoute: authOtpRoute,

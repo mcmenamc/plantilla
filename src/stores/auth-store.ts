@@ -1,10 +1,15 @@
 import { create } from 'zustand'
+import { jwtDecode } from 'jwt-decode'
 import { getCookie, setCookie, removeCookie } from '@/lib/cookies'
 
-const ACCESS_TOKEN = 'thisisjustarandomstring'
+const AUTH_TOKEN_KEY = 'haz_factura_token'
+const AUTH_USER_KEY = 'haz_factura_user'
 
 interface AuthUser {
-  accountNo: string
+  id: string
+  nombre: string
+  apellidos: string
+  imagen: string
   email: string
   role: string[]
   exp: number
@@ -22,27 +27,66 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>()((set) => {
-  const cookieState = getCookie(ACCESS_TOKEN)
-  const initToken = cookieState ? JSON.parse(cookieState) : ''
+  const cookieToken = getCookie(AUTH_TOKEN_KEY)
+  const cookieUser = getCookie(AUTH_USER_KEY)
+
+  let initToken = cookieToken || ''
+  let initUser: AuthUser | null = null
+
+  if (cookieUser) {
+    try {
+      initUser = JSON.parse(cookieUser)
+    } catch {
+      initUser = null
+    }
+  }
+
+  // Si falta uno de los dos o el token expiró, limpiamos ambos
+  const validateAuth = () => {
+    if (!initToken || !initUser) return false
+    try {
+      const decoded: any = jwtDecode(initToken)
+      const isExpired = decoded.exp * 1000 < Date.now()
+      return !isExpired
+    } catch {
+      return false
+    }
+  }
+
+  if (!validateAuth()) {
+    initToken = ''
+    initUser = null
+    // No los borramos aquí directamente para evitar efectos secundarios en el render inicial si no es necesario,
+    // pero el estado inicial será vacío. 
+  }
+
   return {
     auth: {
-      user: null,
+      user: initUser,
       setUser: (user) =>
-        set((state) => ({ ...state, auth: { ...state.auth, user } })),
+        set((state) => {
+          if (user) {
+            setCookie(AUTH_USER_KEY, JSON.stringify(user))
+          } else {
+            removeCookie(AUTH_USER_KEY)
+          }
+          return { ...state, auth: { ...state.auth, user } }
+        }),
       accessToken: initToken,
       setAccessToken: (accessToken) =>
         set((state) => {
-          setCookie(ACCESS_TOKEN, JSON.stringify(accessToken))
+          setCookie(AUTH_TOKEN_KEY, accessToken)
           return { ...state, auth: { ...state.auth, accessToken } }
         }),
       resetAccessToken: () =>
         set((state) => {
-          removeCookie(ACCESS_TOKEN)
+          removeCookie(AUTH_TOKEN_KEY)
           return { ...state, auth: { ...state.auth, accessToken: '' } }
         }),
       reset: () =>
         set((state) => {
-          removeCookie(ACCESS_TOKEN)
+          removeCookie(AUTH_TOKEN_KEY)
+          removeCookie(AUTH_USER_KEY)
           return {
             ...state,
             auth: { ...state.auth, user: null, accessToken: '' },
