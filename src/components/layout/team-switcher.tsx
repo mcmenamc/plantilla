@@ -28,6 +28,17 @@ export function TeamSwitcher({ teams }: TeamSwitcherProps) {
   const { isMobile } = useSidebar()
   const [activeTeam, setActiveTeam] = React.useState(teams[0])
 
+   // Fetch tax regimes based on current persona type
+      // const { data: regimenes, isLoading: isLoadingRegimenes } = useQuery   ({
+      //     queryKey: ["regimenes", tipoPersona],
+      //     queryFn: async () => {
+      //         const endpoint = tipoPersona === 'persona_fisica' ? 'persona-fisica' : 'persona-moral'
+      //         const response = await api.get(`/tax-regime/${endpoint}`)
+      //         return response.data
+      //     },
+      // })
+  
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>

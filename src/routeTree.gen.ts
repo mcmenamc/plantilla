@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PruebaGratisRouteImport } from './routes/prueba-gratis'
+import { Route as ConfigurarCuentaRouteImport } from './routes/configurar-cuenta'
 import { Route as BienvenidoRouteImport } from './routes/bienvenido'
 import { Route as ClerkRouteRouteImport } from './routes/clerk/route'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
@@ -54,6 +55,11 @@ import { Route as AuthenticatedInvoicingBillOfLadingIndexRouteImport } from './r
 const PruebaGratisRoute = PruebaGratisRouteImport.update({
   id: '/prueba-gratis',
   path: '/prueba-gratis',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfigurarCuentaRoute = ConfigurarCuentaRouteImport.update({
+  id: '/configurar-cuenta',
+  path: '/configurar-cuenta',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BienvenidoRoute = BienvenidoRouteImport.update({
@@ -275,6 +281,7 @@ const AuthenticatedInvoicingBillOfLadingIndexRoute =
 export interface FileRoutesByFullPath {
   '/clerk': typeof ClerkAuthenticatedRouteRouteWithChildren
   '/bienvenido': typeof BienvenidoRoute
+  '/configurar-cuenta': typeof ConfigurarCuentaRoute
   '/prueba-gratis': typeof PruebaGratisRoute
   '/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
   '/clerk/': typeof ClerkauthRouteRouteWithChildren
@@ -315,6 +322,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/bienvenido': typeof BienvenidoRoute
+  '/configurar-cuenta': typeof ConfigurarCuentaRoute
   '/prueba-gratis': typeof PruebaGratisRoute
   '/clerk': typeof ClerkAuthenticatedRouteRouteWithChildren
   '/forgot-password': typeof authForgotPasswordRoute
@@ -357,6 +365,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/clerk': typeof ClerkRouteRouteWithChildren
   '/bienvenido': typeof BienvenidoRoute
+  '/configurar-cuenta': typeof ConfigurarCuentaRoute
   '/prueba-gratis': typeof PruebaGratisRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
   '/clerk/(auth)': typeof ClerkauthRouteRouteWithChildren
@@ -401,6 +410,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/clerk'
     | '/bienvenido'
+    | '/configurar-cuenta'
     | '/prueba-gratis'
     | '/settings'
     | '/clerk/'
@@ -441,6 +451,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/bienvenido'
+    | '/configurar-cuenta'
     | '/prueba-gratis'
     | '/clerk'
     | '/forgot-password'
@@ -482,6 +493,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/clerk'
     | '/bienvenido'
+    | '/configurar-cuenta'
     | '/prueba-gratis'
     | '/_authenticated/settings'
     | '/clerk/(auth)'
@@ -526,6 +538,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   ClerkRouteRoute: typeof ClerkRouteRouteWithChildren
   BienvenidoRoute: typeof BienvenidoRoute
+  ConfigurarCuentaRoute: typeof ConfigurarCuentaRoute
   PruebaGratisRoute: typeof PruebaGratisRoute
   authForgotPasswordRoute: typeof authForgotPasswordRoute
   authOtpRoute: typeof authOtpRoute
@@ -546,6 +559,13 @@ declare module '@tanstack/react-router' {
       path: '/prueba-gratis'
       fullPath: '/prueba-gratis'
       preLoaderRoute: typeof PruebaGratisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configurar-cuenta': {
+      id: '/configurar-cuenta'
+      path: '/configurar-cuenta'
+      fullPath: '/configurar-cuenta'
+      preLoaderRoute: typeof ConfigurarCuentaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bienvenido': {
@@ -947,6 +967,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   ClerkRouteRoute: ClerkRouteRouteWithChildren,
   BienvenidoRoute: BienvenidoRoute,
+  ConfigurarCuentaRoute: ConfigurarCuentaRoute,
   PruebaGratisRoute: PruebaGratisRoute,
   authForgotPasswordRoute: authForgotPasswordRoute,
   authOtpRoute: authOtpRoute,

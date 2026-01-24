@@ -13,6 +13,12 @@ export const Route = createFileRoute('/_authenticated')({
         },
       })
     }
+
+    if (!user.business && user.role ==='Admin') {
+      throw redirect({
+        to: '/configurar-cuenta',
+      })
+    }
   },
   component: AuthenticatedLayout,
 })

@@ -11,8 +11,10 @@ interface AuthUser {
   apellidos: string
   imagen: string
   email: string
-  role: string[]
-  exp: number
+  business: string,
+  workcenter: string,
+  role: string
+  exp: number,
 }
 
 interface AuthState {

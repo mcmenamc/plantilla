@@ -47,14 +47,16 @@ export function SignIn() {
       return response.data
     },
     onSuccess: (data) => {
-      // Según el backend proporcionado: { message: "Bienvenido", usuario, token }
+      console.log(data)
       const mockUser = {
         id: data.usuario._id,
         nombre: data.usuario.nombre,
         apellidos: data.usuario.apellidos,
         email: data.usuario.email,
         imagen: data.usuario.imagen,
-        role: ['user'], // Asumimos 'user' por defecto o lo tomamos del backend si existe
+        business: data.usuario.business,
+        workcenter: data.usuario.workcenter,
+        role: data.usuario.role,
         exp: Date.now() + 24 * 60 * 60 * 1000,
       }
 
