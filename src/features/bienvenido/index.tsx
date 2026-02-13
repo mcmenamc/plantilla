@@ -94,11 +94,11 @@ export function Bienvenido() {
 
   if (!userData) {
     return (
-      <div className='min-h-screen flex items-center justify-center p-6 bg-orange-50'>
+      <div className='min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-orange-100/40 via-white to-orange-100/40 dark:from-orange-950/20 dark:via-background dark:to-orange-950/20'>
         <div className='max-w-md w-full text-center space-y-4'>
-          <div className='bg-white p-8 rounded-2xl shadow-xl border border-orange-100'>
-            <h2 className='text-3xl font-bold text-gray-900'>Acceso inválido</h2>
-            <p className='text-gray-600 mt-4 leading-relaxed'>
+          <div className='bg-white dark:bg-card p-8 rounded-2xl shadow-xl border border-orange-100 dark:border-border'>
+            <h2 className='text-3xl font-bold text-gray-900 dark:text-gray-100'>Acceso inválido</h2>
+            <p className='text-gray-600 dark:text-gray-400 mt-4 leading-relaxed'>
               El enlace de activación parece ser incorrecto o ha expirado.
               Por favor, solicita una nueva invitación de registro.
             </p>
@@ -109,39 +109,45 @@ export function Bienvenido() {
   }
 
   return (
-    <div className='min-h-screen flex flex-col lg:flex-row bg-white'>
+    <div className='min-h-screen flex flex-col lg:flex-row bg-white dark:bg-background'>
       {/* Left Panel - Formulario */}
       <div className='w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12'>
         <div className='w-full max-w-md'>
           {/* Logo/Brand */}
           <div className='mb-8'>
-            <div className='inline-flex items-center gap-2 mb-6'>
-              <div className='w-10 h-10 bg-gradient-to-br from-primary to-orange-600 rounded-lg flex items-center justify-center'>
-                <Lock className='w-6 h-6 text-white' />
-              </div>
-              <span className='text-2xl font-bold text-gray-900'>Haz Factura</span>
+            <div className='flex justify-center mb-6'>
+              <img
+                src='/logo/logo%20transparente.png'
+                alt='Haz Factura'
+                className='w-32 h-32 object-contain drop-shadow-sm dark:hidden'
+              />
+              <img
+                src='/logo/logo-light.png'
+                alt='Haz Factura'
+                className='w-32 h-32 object-contain drop-shadow-sm hidden dark:block'
+              />
             </div>
-            <h1 className='text-3xl lg:text-4xl font-bold text-gray-900 mb-2'>Configura tu contraseña</h1>
-            <p className='text-gray-600'>Último paso para activar tu cuenta</p>
+            <h1 className='text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2'>Configura tu contraseña</h1>
+            <p className='text-gray-600 dark:text-gray-400'>Último paso para activar tu cuenta</p>
           </div>
 
           {!isSubmitted ? (
             <>
               {/* User Info */}
-              <div className='mb-8 pb-6 border-b border-gray-200'>
+              <div className='mb-8 pb-6 border-b border-gray-200 dark:border-border'>
                 <div className='flex items-start gap-4'>
-                  <div className='w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0'>
+                  <div className='w-12 h-12 bg-primary/10 dark:bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0'>
                     <span className='text-primary font-bold text-lg'>
                       {userData.nombre?.charAt(0)}
                       {userData.apellidos?.charAt(0)}
                     </span>
                   </div>
                   <div className='flex-1 min-w-0'>
-                    <p className='text-sm text-gray-500 mb-1'>Bienvenido</p>
-                    <p className='font-semibold text-gray-900 truncate uppercase'>
+                    <p className='text-sm text-gray-500 dark:text-gray-400 mb-1'>Bienvenido</p>
+                    <p className='font-semibold text-gray-900 dark:text-gray-100 truncate uppercase'>
                       {userData.nombre} {userData.apellidos}
                     </p>
-                    <p className='text-sm text-gray-600 truncate'>{userData.email}</p>
+                    <p className='text-sm text-gray-600 dark:text-gray-400 truncate'>{userData.email}</p>
                   </div>
                 </div>
               </div>
@@ -153,7 +159,7 @@ export function Bienvenido() {
                     name='password'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className='text-sm font-medium text-gray-700'>
+                        <FormLabel className='text-sm font-medium text-gray-700 dark:text-gray-300'>
                           Contraseña
                         </FormLabel>
                         <div className='relative'>
@@ -161,14 +167,14 @@ export function Bienvenido() {
                             <Input
                               type={showPassword ? 'text' : 'password'}
                               placeholder='Mínimo 8 caracteres'
-                              className='h-12 pr-12'
+                              className='h-12 pr-12 bg-gray-50/50 dark:bg-muted/50 border-gray-200 dark:border-border focus:bg-white dark:focus:bg-muted'
                               {...field}
                             />
                           </FormControl>
                           <button
                             type='button'
                             onClick={() => setShowPassword(!showPassword)}
-                            className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors'
+                            className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors'
                           >
                             {showPassword ? <EyeOff className='w-5 h-5' /> : <Eye className='w-5 h-5' />}
                           </button>
@@ -183,7 +189,7 @@ export function Bienvenido() {
                     name='confirmPassword'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className='text-sm font-medium text-gray-700'>
+                        <FormLabel className='text-sm font-medium text-gray-700 dark:text-gray-300'>
                           Confirmar contraseña
                         </FormLabel>
                         <div className='relative'>
@@ -191,14 +197,14 @@ export function Bienvenido() {
                             <Input
                               type={showConfirmPassword ? 'text' : 'password'}
                               placeholder='Repite tu contraseña'
-                              className='h-12 pr-12'
+                              className='h-12 pr-12 bg-gray-50/50 dark:bg-muted/50 border-gray-200 dark:border-border focus:bg-white dark:focus:bg-muted'
                               {...field}
                             />
                           </FormControl>
                           <button
                             type='button'
                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors'
+                            className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors'
                           >
                             {showConfirmPassword ? <EyeOff className='w-5 h-5' /> : <Eye className='w-5 h-5' />}
                           </button>
@@ -208,20 +214,20 @@ export function Bienvenido() {
                     )}
                   />
 
-                  <div className='bg-orange-50 border border-orange-200 rounded-xl p-4 space-y-3'>
-                    <p className='text-sm font-medium text-gray-800'>Requerimientos de seguridad:</p>
+                  <div className='bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-900/30 rounded-xl p-4 space-y-3'>
+                    <p className='text-sm font-medium text-gray-800 dark:text-gray-200'>Requerimientos de seguridad:</p>
                     <ul className='space-y-2'>
                       <li className='flex items-center gap-2 text-sm'>
-                        <CheckCircle2 className={`w-4 h-4 ${form.watch('password').length >= 8 ? 'text-green-500' : 'text-gray-300'}`} />
-                        <span className={form.watch('password').length >= 8 ? 'text-gray-900' : 'text-gray-500'}>Mínimo 8 caracteres</span>
+                        <CheckCircle2 className={`w-4 h-4 ${form.watch('password').length >= 8 ? 'text-green-500' : 'text-gray-300 dark:text-gray-600'}`} />
+                        <span className={form.watch('password').length >= 8 ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}>Mínimo 8 caracteres</span>
                       </li>
                       <li className='flex items-center gap-2 text-sm'>
-                        <CheckCircle2 className={`w-4 h-4 ${/[A-Z]/.test(form.watch('password')) ? 'text-green-500' : 'text-gray-300'}`} />
-                        <span className={/[A-Z]/.test(form.watch('password')) ? 'text-gray-900' : 'text-gray-500'}>Una letra mayúscula</span>
+                        <CheckCircle2 className={`w-4 h-4 ${/[A-Z]/.test(form.watch('password')) ? 'text-green-500' : 'text-gray-300 dark:text-gray-600'}`} />
+                        <span className={/[A-Z]/.test(form.watch('password')) ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}>Una letra mayúscula</span>
                       </li>
                       <li className='flex items-center gap-2 text-sm'>
-                        <CheckCircle2 className={`w-4 h-4 ${/[0-9]/.test(form.watch('password')) ? 'text-green-500' : 'text-gray-300'}`} />
-                        <span className={/[0-9]/.test(form.watch('password')) ? 'text-gray-900' : 'text-gray-500'}>Un número</span>
+                        <CheckCircle2 className={`w-4 h-4 ${/[0-9]/.test(form.watch('password')) ? 'text-green-500' : 'text-gray-300 dark:text-gray-600'}`} />
+                        <span className={/[0-9]/.test(form.watch('password')) ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}>Un número</span>
                       </li>
                     </ul>
                   </div>
@@ -244,8 +250,8 @@ export function Bienvenido() {
                 </div>
               </div>
               <div className='space-y-2'>
-                <h2 className='text-3xl font-bold text-gray-900'>¡Felicidades!</h2>
-                <p className='text-lg text-gray-600 leading-relaxed'>
+                <h2 className='text-3xl font-bold text-gray-900 dark:text-gray-100'>¡Felicidades!</h2>
+                <p className='text-lg text-gray-600 dark:text-gray-400 leading-relaxed'>
                   Tu cuenta ha sido activada correctamente. Ahora puedes acceder a todas las funcionalidades de Haz Factura.
                 </p>
               </div>
@@ -258,9 +264,9 @@ export function Bienvenido() {
             </div>
           )}
 
-          <div className='mt-8 pt-6 border-t border-gray-100'>
-            <div className='flex items-start gap-3 text-sm text-gray-500'>
-              <Lock className='w-5 h-5 text-gray-400 flex-shrink-0' />
+          <div className='mt-8 pt-6 border-t border-gray-100 dark:border-border'>
+            <div className='flex items-start gap-3 text-sm text-gray-500 dark:text-gray-400'>
+              <Lock className='w-5 h-5 text-gray-400 dark:text-gray-500 flex-shrink-0' />
               <p>Tus datos son encriptados y almacenados con los más altos estándares de seguridad.</p>
             </div>
           </div>
@@ -268,22 +274,22 @@ export function Bienvenido() {
       </div>
 
       {/* Right Panel - Visual Panel */}
-      <div className='hidden lg:flex lg:w-1/2 bg-gradient-to-br from-orange-100 via-orange-50 to-white relative overflow-hidden'>
+      <div className='hidden lg:flex lg:w-1/2 bg-gradient-to-br from-orange-100 via-orange-50 to-white dark:from-orange-950/20 dark:via-background dark:to-orange-950/10 relative overflow-hidden'>
         <div className='absolute inset-0'>
-          <div className='absolute top-20 right-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl'></div>
-          <div className='absolute bottom-20 left-20 w-96 h-96 bg-orange-200/30 rounded-full blur-3xl'></div>
+          <div className='absolute top-20 right-20 w-96 h-96 bg-primary/10 dark:bg-primary/5 rounded-full blur-3xl'></div>
+          <div className='absolute bottom-20 left-20 w-96 h-96 bg-orange-200/30 dark:bg-orange-900/20 rounded-full blur-3xl'></div>
         </div>
 
         <div className='relative z-10 flex flex-col items-center justify-center p-12'>
           <div className='max-w-lg text-center space-y-12'>
             <div className='space-y-6'>
-              <div className='w-20 h-20 bg-white shadow-xl rounded-2xl flex items-center justify-center mx-auto border border-orange-100'>
+              <div className='w-20 h-20 bg-white dark:bg-card shadow-xl rounded-2xl flex items-center justify-center mx-auto border border-orange-100 dark:border-border'>
                 <ShieldCheck className='w-12 h-12 text-primary' />
               </div>
-              <h2 className='text-4xl font-bold text-gray-900 leading-tight'>
+              <h2 className='text-4xl font-bold text-gray-900 dark:text-gray-100 leading-tight'>
                 Comienza tu transformación digital
               </h2>
-              <p className='text-xl text-gray-600'>
+              <p className='text-xl text-gray-600 dark:text-gray-400'>
                 Facturación electrónica rápida, sencilla y segura para tu negocio.
               </p>
             </div>
@@ -294,13 +300,13 @@ export function Bienvenido() {
                 { title: 'Gestión completa', desc: 'Organiza todo en un solo lugar', icon: Lock },
                 { title: '100% Legal y Seguro', desc: 'Certificado ante el SAT', icon: ShieldCheck },
               ].map((item, i) => (
-                <div key={i} className='flex items-start gap-4 bg-white/50 backdrop-blur-sm p-4 rounded-2xl border border-white'>
-                  <div className='w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0'>
+                <div key={i} className='flex items-start gap-4 bg-white/50 dark:bg-card/50 backdrop-blur-sm p-4 rounded-2xl border border-white dark:border-border'>
+                  <div className='w-12 h-12 bg-primary/10 dark:bg-primary/20 rounded-xl flex items-center justify-center flex-shrink-0'>
                     <item.icon className='w-6 h-6 text-primary' />
                   </div>
                   <div>
-                    <h3 className='font-bold text-gray-900'>{item.title}</h3>
-                    <p className='text-sm text-gray-600'>{item.desc}</p>
+                    <h3 className='font-bold text-gray-900 dark:text-gray-100'>{item.title}</h3>
+                    <p className='text-sm text-gray-600 dark:text-gray-400'>{item.desc}</p>
                   </div>
                 </div>
               ))}

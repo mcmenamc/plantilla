@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useNavigate } from '@tanstack/react-router'
 import { ArrowRight, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { sleep, cn } from '@/lib/utils'
@@ -27,7 +26,6 @@ export function ForgotPasswordForm({
   className,
   ...props
 }: React.HTMLAttributes<HTMLFormElement>) {
-  const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -45,7 +43,6 @@ export function ForgotPasswordForm({
       success: () => {
         setIsLoading(false)
         form.reset()
-        navigate({ to: '/otp' })
         return `Email sent to ${data.email}`
       },
       error: 'Error',

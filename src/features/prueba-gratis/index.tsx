@@ -65,7 +65,7 @@ export function PruebaGratis() {
     }
 
     return (
-        <div className='min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50'>
+        <div className='min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 dark:from-orange-950/20 dark:via-background dark:to-orange-950/20'>
             {/* Main Content */}
             <main className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16'>
                 <div className='grid lg:grid-cols-2 gap-12 lg:gap-16 items-center'>
@@ -75,11 +75,11 @@ export function PruebaGratis() {
                             <div className='inline-block bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold'>
                                 🎁 Oferta de Lanzamiento
                             </div>
-                            <h2 className='text-4xl sm:text-5xl font-bold text-gray-900 leading-tight text-balance'>
+                            <h2 className='text-4xl sm:text-5xl font-bold text-gray-900 dark:text-gray-100 leading-tight text-balance'>
                                 Regístrate gratis y recibe
                                 <span className='text-primary'>{' '}10 timbres de regalo</span>
                             </h2>
-                            <p className='text-xl text-gray-600 leading-relaxed'>
+                            <p className='text-xl text-gray-600 dark:text-gray-400 leading-relaxed'>
                                 Empieza a facturar de manera profesional sin costo inicial.
                                 Obtén 10 timbres fiscales completamente gratis para comenzar tu
                                 negocio.
@@ -107,10 +107,10 @@ export function PruebaGratis() {
                                     </div>
                                 </div>
                                 <div>
-                                    <h3 className='font-semibold text-gray-900 mb-1'>
+                                    <h3 className='font-semibold text-gray-900 dark:text-gray-100 mb-1'>
                                         100% Legal
                                     </h3>
-                                    <p className='text-sm text-gray-600'>
+                                    <p className='text-sm text-gray-600 dark:text-gray-400'>
                                         Facturas con validez fiscal ante el SAT
                                     </p>
                                 </div>
@@ -135,10 +135,10 @@ export function PruebaGratis() {
                                     </div>
                                 </div>
                                 <div>
-                                    <h3 className='font-semibold text-gray-900 mb-1'>
+                                    <h3 className='font-semibold text-gray-900 dark:text-gray-100 mb-1'>
                                         Súper Rápido
                                     </h3>
-                                    <p className='text-sm text-gray-600'>
+                                    <p className='text-sm text-gray-600 dark:text-gray-400'>
                                         Genera tus facturas en menos de 30 segundos
                                     </p>
                                 </div>
@@ -163,8 +163,8 @@ export function PruebaGratis() {
                                     </div>
                                 </div>
                                 <div>
-                                    <h3 className='font-semibold text-gray-900 mb-1'>Seguro</h3>
-                                    <p className='text-sm text-gray-600'>
+                                    <h3 className='font-semibold text-gray-900 dark:text-gray-100 mb-1'>Seguro</h3>
+                                    <p className='text-sm text-gray-600 dark:text-gray-400'>
                                         Tus datos protegidos con encriptación
                                     </p>
                                 </div>
@@ -189,10 +189,10 @@ export function PruebaGratis() {
                                     </div>
                                 </div>
                                 <div>
-                                    <h3 className='font-semibold text-gray-900 mb-1'>
+                                    <h3 className='font-semibold text-gray-900 dark:text-gray-100 mb-1'>
                                         En la Nube
                                     </h3>
-                                    <p className='text-sm text-gray-600'>
+                                    <p className='text-sm text-gray-600 dark:text-gray-400'>
                                         Accede desde cualquier dispositivo
                                     </p>
                                 </div>
@@ -200,7 +200,7 @@ export function PruebaGratis() {
                         </div>
 
                         {/* Trust Indicators */}
-                        <div className='flex flex-wrap gap-6 items-center pt-4 border-t border-gray-200'>
+                        <div className='flex flex-wrap gap-6 items-center pt-4 border-t border-gray-200 dark:border-border'>
                             <div className='flex items-center gap-2'>
                                 <svg
                                     className='w-5 h-5 text-green-500'
@@ -213,7 +213,7 @@ export function PruebaGratis() {
                                         clipRule='evenodd'
                                     />
                                 </svg>
-                                <span className='text-sm font-medium text-gray-700'>
+                                <span className='text-sm font-medium text-gray-700 dark:text-gray-300'>
                                     +1,000 empresas confían en nosotros
                                 </span>
                             </div>
@@ -225,7 +225,7 @@ export function PruebaGratis() {
                                 >
                                     <path d='M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z' />
                                 </svg>
-                                <span className='text-sm font-medium text-gray-700'>
+                                <span className='text-sm font-medium text-gray-700 dark:text-gray-300'>
                                     4.9/5 en reseñas
                                 </span>
                             </div>
@@ -234,14 +234,14 @@ export function PruebaGratis() {
 
                     {/* Right Side - Registration Form or Success View */}
                     <div className='lg:pl-8'>
-                        <div className='bg-white rounded-2xl shadow-xl border border-orange-100 p-8 lg:p-10'>
+                        <div className='bg-white dark:bg-card rounded-2xl shadow-xl border border-orange-100 dark:border-border p-8 lg:p-10'>
                             {!isSubmitted ? (
                                 <>
                                     <div className='mb-8'>
-                                        <h3 className='text-2xl font-bold text-gray-900 mb-2'>
+                                        <h3 className='text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2'>
                                             Crea tu cuenta gratis
                                         </h3>
-                                        <p className='text-gray-600'>
+                                        <p className='text-gray-600 dark:text-gray-400'>
                                             Solo te tomará un minuto y podrás empezar a facturar
                                         </p>
                                     </div>
@@ -256,7 +256,7 @@ export function PruebaGratis() {
                                                 name='nombre'
                                                 render={({ field }) => (
                                                     <FormItem>
-                                                        <FormLabel className='text-gray-700'>
+                                                        <FormLabel className='text-gray-700 dark:text-gray-300'>
                                                             Nombre(s)
                                                         </FormLabel>
                                                         <FormControl>
@@ -276,7 +276,7 @@ export function PruebaGratis() {
                                                 name='apellidos'
                                                 render={({ field }) => (
                                                     <FormItem>
-                                                        <FormLabel className='text-gray-700'>
+                                                        <FormLabel className='text-gray-700 dark:text-gray-300'>
                                                             Apellidos
                                                         </FormLabel>
                                                         <FormControl>
@@ -296,7 +296,7 @@ export function PruebaGratis() {
                                                 name='correo'
                                                 render={({ field }) => (
                                                     <FormItem>
-                                                        <FormLabel className='text-gray-700'>
+                                                        <FormLabel className='text-gray-700 dark:text-gray-300'>
                                                             Correo electrónico
                                                         </FormLabel>
                                                         <FormControl>
@@ -324,7 +324,7 @@ export function PruebaGratis() {
                                                             />
                                                         </FormControl>
                                                         <div className='space-y-1 leading-none'>
-                                                            <FormLabel className='text-sm text-gray-600 font-normal'>
+                                                            <FormLabel className='text-sm text-gray-600 dark:text-gray-400 font-normal'>
                                                                 <span>
                                                                     Acepto los{' '}
                                                                     <a
@@ -356,7 +356,7 @@ export function PruebaGratis() {
                                                 {isPending ? 'Procesando...' : 'Crear cuenta y obtener 10 timbres gratis'}
                                             </Button>
 
-                                            <p className='text-xs text-center text-gray-500 mt-4'>
+                                            <p className='text-xs text-center text-gray-500 dark:text-gray-400 mt-4'>
                                                 🔒 Tus datos están protegidos y nunca los compartiremos con
                                                 terceros
                                             </p>
@@ -366,31 +366,31 @@ export function PruebaGratis() {
                             ) : (
                                 <div className='text-center py-8 space-y-6'>
                                     <div className='flex justify-center'>
-                                        <div className='bg-green-100 p-4 rounded-full'>
+                                        <div className='bg-green-100 dark:bg-green-900/30 p-4 rounded-full'>
                                             <CheckCircle2 className='w-16 h-16 text-green-600' />
                                         </div>
                                     </div>
                                     <div className='space-y-2'>
-                                        <h3 className='text-3xl font-bold text-gray-900'>
+                                        <h3 className='text-3xl font-bold text-gray-900 dark:text-gray-100'>
                                             ¡Casi listo!
                                         </h3>
-                                        <p className='text-lg text-gray-600'>
+                                        <p className='text-lg text-gray-600 dark:text-gray-400'>
                                             Hemos enviado un correo de verificación a:
                                         </p>
                                         <p className='text-xl font-bold text-primary break-all'>
                                             {submittedEmail}
                                         </p>
                                     </div>
-                                    <div className='bg-orange-50 p-6 rounded-xl border border-orange-100 flex items-start gap-4 text-left'>
+                                    <div className='bg-orange-50 dark:bg-orange-950/20 p-6 rounded-xl border border-orange-100 dark:border-orange-900/30 flex items-start gap-4 text-left'>
                                         <Mail className='w-6 h-6 text-orange-500 mt-1 flex-shrink-0' />
                                         <div className='space-y-2'>
-                                            <p className='font-semibold text-gray-900'>
+                                            <p className='font-semibold text-gray-900 dark:text-gray-100'>
                                                 Siguiente paso:
                                             </p>
-                                            <p className='text-sm text-gray-600 leading-relaxed'>
+                                            <p className='text-sm text-gray-600 dark:text-gray-400 leading-relaxed'>
                                                 Haz clic en el enlace que te enviamos para activar tu cuenta y empezar a disfrutar tus 10 timbres gratis.
                                             </p>
-                                            <p className='text-xs text-gray-500 italic'>
+                                            <p className='text-xs text-gray-500 dark:text-gray-400 italic'>
                                                 ¿No ves el correo? Revisa tu carpeta de spam o correo no deseado.
                                             </p>
                                         </div>
@@ -398,7 +398,7 @@ export function PruebaGratis() {
                                     <Button
                                         onClick={() => setIsSubmitted(false)}
                                         variant='outline'
-                                        className='text-gray-500 hover:text-primary transition-colors'
+                                        className='text-gray-500 dark:text-gray-400 hover:text-primary transition-colors'
                                     >
                                         ¿Te equivocaste de correo? Editar datos
                                     </Button>
@@ -409,12 +409,12 @@ export function PruebaGratis() {
                 </div>
 
                 {/* Features Section */}
-                <div className='mt-20 pt-16 border-t border-gray-200'>
+                <div className='mt-20 pt-16 border-t border-gray-200 dark:border-border'>
                     <div className='text-center mb-12'>
-                        <h2 className='text-3xl font-bold text-gray-900 mb-4'>
+                        <h2 className='text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4'>
                             ¿Qué incluye tu registro gratuito?
                         </h2>
-                        <p className='text-lg text-gray-600'>
+                        <p className='text-lg text-gray-600 dark:text-gray-400'>
                             Todo lo que necesitas para facturar profesionalmente
                         </p>
                     </div>
@@ -436,10 +436,10 @@ export function PruebaGratis() {
                                     />
                                 </svg>
                             </div>
-                            <h3 className='text-xl font-semibold text-gray-900 mb-2'>
+                            <h3 className='text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2'>
                                 10 Timbres Fiscales
                             </h3>
-                            <p className='text-gray-600'>
+                            <p className='text-gray-600 dark:text-gray-400'>
                                 Facturas válidas ante el SAT desde el primer momento. Sin letras
                                 pequeñas ni cargos ocultos.
                             </p>
@@ -461,10 +461,10 @@ export function PruebaGratis() {
                                     />
                                 </svg>
                             </div>
-                            <h3 className='text-xl font-semibold text-gray-900 mb-2'>
+                            <h3 className='text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2'>
                                 Panel de Control
                             </h3>
-                            <p className='text-gray-600'>
+                            <p className='text-gray-600 dark:text-gray-400'>
                                 Administra todas tus facturas desde un solo lugar. Intuitivo y
                                 fácil de usar.
                             </p>
@@ -486,10 +486,10 @@ export function PruebaGratis() {
                                     />
                                 </svg>
                             </div>
-                            <h3 className='text-xl font-semibold text-gray-900 mb-2'>
+                            <h3 className='text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2'>
                                 Soporte Técnico
                             </h3>
-                            <p className='text-gray-600'>
+                            <p className='text-gray-600 dark:text-gray-400'>
                                 Equipo de expertos listo para ayudarte cuando lo necesites. Por
                                 chat, email o teléfono.
                             </p>

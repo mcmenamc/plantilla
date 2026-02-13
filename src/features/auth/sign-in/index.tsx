@@ -81,37 +81,46 @@ export function SignIn() {
   }
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 flex items-center justify-center p-6'>
-      <div className='w-full max-w-md'>
+    <div className='min-h-screen bg-gradient-to-br from-orange-100/40 via-white to-orange-100/40 dark:from-orange-950/20 dark:via-background dark:to-orange-950/20 flex items-center justify-center p-6 font-sans'>
+      <div className='w-full max-w-md space-y-8'>
         {/* Logo/Brand */}
-        <div className='mb-8 text-center'>
-          <div className='inline-flex items-center gap-2 mb-6'>
-            <div className='w-12 h-12 bg-gradient-to-br from-primary to-orange-600 rounded-lg flex items-center justify-center shadow-lg'>
-              <ShieldCheck className='w-7 h-7 text-white' />
-            </div>
-            <span className='text-2xl font-bold text-gray-900'>Haz Factura</span>
+        <div className='text-center space-y-2'>
+          <div className='flex justify-center mb-2'>
+            <img
+              src='/logo/logo%20transparente.png'
+              alt='Haz Factura'
+              className='w-32 h-32 object-contain drop-shadow-sm dark:hidden'
+            />
+            <img
+              src='/logo/logo-light.png'
+              alt='Haz Factura'
+              className='w-32 h-32 object-contain drop-shadow-sm hidden dark:block'
+            />
           </div>
-          <h1 className='text-3xl font-bold text-gray-900 mb-2'>Inicia sesión</h1>
-          <p className='text-gray-600'>Accede a tu panel de facturación</p>
+          <h1 className='text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100'>Inicia sesión</h1>
+          <p className='text-gray-500 dark:text-gray-400 text-sm'>
+            Accede a tu panel de facturación electrónica
+          </p>
         </div>
 
-        <div className='bg-white rounded-2xl shadow-xl p-8 border border-gray-100'>
+
+        <div className='bg-white dark:bg-card rounded-2xl shadow-xl shadow-orange-100/20 dark:shadow-orange-950/20 p-8 border border-gray-100 dark:border-border ring-1 ring-gray-100/50 dark:ring-border/50 backdrop-blur-xl'>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-5'>
+            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
               <FormField
                 control={form.control}
                 name='correo'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className='text-gray-700'>Correo electrónico</FormLabel>
+                    <FormLabel className='text-gray-700 dark:text-gray-300 font-medium'>Correo electrónico</FormLabel>
                     <FormControl>
-                      <div className='relative'>
+                      <div className='relative group'>
                         <Input
-                          placeholder='tu@correo.com'
-                          className='h-12 pl-11 focus-visible:ring-primary'
+                          placeholder='tu@empresa.com'
+                          className='h-12 pl-11 bg-gray-50/50 dark:bg-muted/50 border-gray-200 dark:border-border focus:bg-white dark:focus:bg-muted focus:border-orange-500/50 focus:ring-4 focus:ring-orange-500/10 transition-all duration-200 rounded-xl'
                           {...field}
                         />
-                        <Mail className='w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2' />
+                        <Mail className='w-5 h-5 text-gray-400 dark:text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 group-focus-within:text-orange-500 transition-colors' />
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -125,18 +134,18 @@ export function SignIn() {
                 render={({ field }) => (
                   <FormItem>
                     <div className='flex items-center justify-between mb-2'>
-                      <FormLabel className='text-gray-700'>Contraseña</FormLabel>
+                      <FormLabel className='text-gray-700 dark:text-gray-300 font-medium'>Contraseña</FormLabel>
                       <Link
                         to='/forgot-password'
-                        className='text-sm text-primary hover:text-orange-600 font-medium transition-colors'
+                        className='text-sm text-orange-600 dark:text-orange-500 hover:text-orange-700 dark:hover:text-orange-400 font-medium transition-colors hover:underline underline-offset-4'
                       >
                         ¿Olvidaste tu contraseña?
                       </Link>
                     </div>
                     <FormControl>
                       <PasswordInput
-                        placeholder='Tu contraseña'
-                        className='h-12 focus-visible:ring-primary'
+                        placeholder='••••••••'
+                        className='h-12 bg-gray-50/50 dark:bg-muted/50 border-gray-200 dark:border-border focus:bg-white dark:focus:bg-muted focus:border-orange-500/50 focus:ring-4 focus:ring-orange-500/10 transition-all duration-200 rounded-xl'
                         {...field}
                       />
                     </FormControl>
@@ -145,14 +154,16 @@ export function SignIn() {
                 )}
               />
 
-              {/* Remember me - Mock implementation as it's not handled by backend yet */}
-              <div className='flex items-center gap-2'>
-                <input
-                  type='checkbox'
-                  id='remember'
-                  className='w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary'
-                />
-                <label htmlFor='remember' className='text-sm text-gray-700 cursor-pointer'>
+              {/* Remember me - Mock implementation */}
+              <div className='flex items-center gap-3'>
+                <div className="flex h-6 items-center">
+                  <input
+                    type='checkbox'
+                    id='remember'
+                    className='h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-orange-600 focus:ring-orange-500/20 dark:bg-muted'
+                  />
+                </div>
+                <label htmlFor='remember' className='text-sm text-gray-600 dark:text-gray-400 cursor-pointer select-none'>
                   Mantener sesión iniciada
                 </label>
               </div>
@@ -160,7 +171,7 @@ export function SignIn() {
               <Button
                 type='submit'
                 disabled={isLoading}
-                className='w-full bg-gradient-to-r from-primary to-orange-600 text-white font-semibold h-auto text-lg rounded-xl hover:shadow-lg hover:scale-[1.01] transition-all duration-200'
+                className='w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold h-12 rounded-xl shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200'
               >
                 {isLoading ? (
                   <Loader2 className='mr-2 h-5 w-5 animate-spin' />
@@ -173,26 +184,26 @@ export function SignIn() {
           </Form>
 
           {/* Register Link */}
-          <div className='mt-6 pt-6 border-t border-gray-200 text-center'>
-            <p className='text-gray-600'>
-              ¿No tienes una cuenta?{' '}
+          <div className='mt-8 pt-6 border-t border-gray-100 dark:border-border text-center'>
+            <p className='text-gray-600 dark:text-gray-400 text-sm'>
+              ¿Aún no tienes cuenta?{' '}
               <Link
                 to='/prueba-gratis'
-                className='text-primary hover:text-orange-600 font-semibold transition-colors'
+                className='text-orange-600 dark:text-orange-500 hover:text-orange-700 dark:hover:text-orange-400 font-semibold transition-colors hover:underline underline-offset-4'
               >
-                Regístrate gratis
+                Comienza tu prueba gratis
               </Link>
             </p>
           </div>
         </div>
 
         {/* Security Note */}
-        <div className='mt-6'>
-          <div className='flex items-start gap-3 text-sm text-gray-600 bg-white/80 backdrop-blur-sm p-4 rounded-lg border border-gray-100'>
-            <ShieldCheck className='w-5 h-5 text-primary flex-shrink-0 mt-0.5' />
-            <p>Tu información está protegida con encriptación de nivel bancario.</p>
+        {/* <div className='flex justify-center'>
+          <div className='inline-flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 bg-white/50 dark:bg-card/50 backdrop-blur-sm px-4 py-2 rounded-full border border-gray-100/50 dark:border-border/50 shadow-sm'>
+            <ShieldCheck className='w-4 h-4 text-green-600 dark:text-green-500' />
+            <span>Encriptación de 256-bits activada</span>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   )

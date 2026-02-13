@@ -103,9 +103,9 @@ export function ConfigurarCuenta() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col lg:flex-row">
+        <div className="min-h-screen flex flex-col lg:flex-row bg-white dark:bg-background">
             {/* Left Panel - Formulario */}
-            <div className="w-full lg:w-1/2 bg-white flex items-center justify-center p-6 lg:p-12 overflow-y-auto">
+            <div className="w-full lg:w-1/2 bg-white dark:bg-background flex items-center justify-center p-6 lg:p-12 overflow-y-auto">
                 <div className="w-full max-w-md">
                     {/* Logo/Brand */}
                     <div className="mb-8">
@@ -114,21 +114,21 @@ export function ConfigurarCuenta() {
                                 <div className="w-8 h-8 bg-gradient-to-br from-primary to-orange-600 rounded flex items-center justify-center">
                                     <FileText className="w-5 h-5 text-white" />
                                 </div>
-                                <span className="text-xl font-bold text-gray-900">Haz Factura</span>
+                                <span className="text-xl font-bold text-gray-900 dark:text-gray-100">Haz Factura</span>
                             </div>
                         </div>
-                        <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">Casi completas tu perfil</h1>
-                        <p className="text-gray-600">Configura los datos fiscales de tu empresa para empezar a facturar.</p>
+                        <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">Casi completas tu perfil</h1>
+                        <p className="text-gray-600 dark:text-gray-400">Configura los datos fiscales de tu empresa para empezar a facturar.</p>
                     </div>
 
                     {/* Progress Indicator */}
-                    <div className="mb-8 pb-6 border-b border-gray-200">
+                    <div className="mb-8 pb-6 border-b border-gray-200 dark:border-border">
                         <div className="flex items-center gap-2 mb-2">
                             <div className="flex-1 h-2 bg-primary rounded-full"></div>
                             <div className="flex-1 h-2 bg-primary rounded-full"></div>
                             <div className="flex-1 h-2 bg-primary rounded-full animate-pulse"></div>
                         </div>
-                        <p className="text-sm font-medium text-primary text-center">Paso 3 de 3: Datos Fiscales</p>
+                        <p className="text-sm font-medium text-primary dark:text-primary text-center">Paso 3 de 3: Datos Fiscales</p>
                     </div>
 
                     <Form {...form}>
@@ -139,7 +139,7 @@ export function ConfigurarCuenta() {
                                 name="tipo_persona"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Tipo de persona</FormLabel>
+                                        <FormLabel className="text-gray-700 dark:text-gray-300">Tipo de persona</FormLabel>
                                         <div className="grid grid-cols-2 gap-3 mt-2">
                                             {tiposPersona.map((tipo) => (
                                                 <button
@@ -147,8 +147,8 @@ export function ConfigurarCuenta() {
                                                     type="button"
                                                     onClick={() => handleTipoPersonaChange(tipo.value as any)}
                                                     className={`py-3 px-4 rounded-lg border-2 font-medium transition-all ${tipoPersona === tipo.value
-                                                        ? "border-primary bg-primary/5 text-primary shadow-sm"
-                                                        : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+                                                        ? "border-primary bg-primary/5 dark:bg-primary/10 text-primary shadow-sm"
+                                                        : "border-gray-200 dark:border-border text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-muted"
                                                         }`}
                                                 >
                                                     {tipo.label}
@@ -166,15 +166,15 @@ export function ConfigurarCuenta() {
                                 name="rfc"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>RFC</FormLabel>
+                                        <FormLabel className="text-gray-700 dark:text-gray-300">RFC</FormLabel>
                                         <FormControl>
                                             <div className="relative">
                                                 <Input
                                                     {...field}
                                                     placeholder={tipoPersona === "persona_fisica" ? "GABC800101ABC" : "ABC010101ABC"}
-                                                    className="pl-11 h-12 rounded-xl focus-visible:ring-primary uppercase"
+                                                    className="pl-11 h-12 rounded-xl focus-visible:ring-primary uppercase bg-gray-50/50 dark:bg-muted/50 border-gray-200 dark:border-border"
                                                 />
-                                                <Building className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                                <Building className="w-5 h-5 text-gray-400 dark:text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
                                             </div>
                                         </FormControl>
                                         <FormMessage />
@@ -188,7 +188,7 @@ export function ConfigurarCuenta() {
                                 name="nombre"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>
+                                        <FormLabel className="text-gray-700 dark:text-gray-300">
                                             {tipoPersona === "persona_fisica" ? "Nombre o Razón Social" : "Razón Social"}
                                         </FormLabel>
                                         <FormControl>
@@ -196,9 +196,9 @@ export function ConfigurarCuenta() {
                                                 <Input
                                                     {...field}
                                                     placeholder={tipoPersona === "persona_fisica" ? "Juan García López" : "Empresa SA de CV"}
-                                                    className="pl-11 h-12 rounded-xl focus-visible:ring-primary"
+                                                    className="pl-11 h-12 rounded-xl focus-visible:ring-primary bg-gray-50/50 dark:bg-muted/50 border-gray-200 dark:border-border"
                                                 />
-                                                <Building className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                                <Building className="w-5 h-5 text-gray-400 dark:text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
                                             </div>
                                         </FormControl>
                                         <FormMessage />
@@ -212,7 +212,7 @@ export function ConfigurarCuenta() {
                                 name="phone"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Teléfono de contacto</FormLabel>
+                                        <FormLabel className="text-gray-700 dark:text-gray-300">Teléfono de contacto</FormLabel>
                                         <FormControl>
                                             <div className="relative">
                                                 <Input
@@ -220,9 +220,9 @@ export function ConfigurarCuenta() {
                                                     type="tel"
                                                     maxLength={10}
                                                     placeholder="5512345678"
-                                                    className="pl-11 h-12 rounded-xl focus-visible:ring-primary"
+                                                    className="pl-11 h-12 rounded-xl focus-visible:ring-primary bg-gray-50/50 dark:bg-muted/50 border-gray-200 dark:border-border"
                                                 />
-                                                <Phone className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                                <Phone className="w-5 h-5 text-gray-400 dark:text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
                                             </div>
                                         </FormControl>
                                         <FormMessage />
@@ -236,7 +236,7 @@ export function ConfigurarCuenta() {
                                 name="regimenFiscal"
                                 render={({ field }) => (
                                     <FormItem className="flex flex-col">
-                                        <FormLabel>Régimen fiscal</FormLabel>
+                                        <FormLabel className="text-gray-700 dark:text-gray-300">Régimen fiscal</FormLabel>
                                         <FormControl>
                                             <Combobox
                                                 items={regimenItems}
@@ -272,9 +272,9 @@ export function ConfigurarCuenta() {
                     </Form>
 
                     {/* Help Text */}
-                    <div className="mt-8 p-4 bg-blue-50 border border-blue-100 rounded-xl flex gap-3">
-                        <Info className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
-                        <p className="text-xs text-blue-700 leading-relaxed">
+                    <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/30 rounded-xl flex gap-3">
+                        <Info className="w-5 h-5 text-blue-500 dark:text-blue-400 shrink-0 mt-0.5" />
+                        <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
                             Esta información es necesaria para emitir facturas válidas ante el SAT.
                             Tu información fiscal está protegida y encriptada bajo estándares de seguridad bancaria.
                         </p>
@@ -283,20 +283,20 @@ export function ConfigurarCuenta() {
             </div>
 
             {/* Right Panel - Contenido visual naranja */}
-            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-orange-100 via-orange-50 to-white relative overflow-hidden">
+            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-orange-100 via-orange-50 to-white dark:from-orange-950/20 dark:via-background dark:to-orange-950/10 relative overflow-hidden">
                 <div className="absolute inset-0">
-                    <div className="absolute top-20 right-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
-                    <div className="absolute bottom-20 left-20 w-96 h-96 bg-orange-200/30 rounded-full blur-3xl"></div>
+                    <div className="absolute top-20 right-20 w-96 h-96 bg-primary/10 dark:bg-primary/5 rounded-full blur-3xl"></div>
+                    <div className="absolute bottom-20 left-20 w-96 h-96 bg-orange-200/30 dark:bg-orange-900/20 rounded-full blur-3xl"></div>
                 </div>
 
                 <div className="relative z-10 flex flex-col items-center justify-center p-12 w-full">
                     <div className="max-w-lg w-full">
                         <div className="mb-12 text-center">
-                            <div className="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border-2 border-primary/20">
+                            <div className="w-20 h-20 bg-primary/10 dark:bg-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-6 border-2 border-primary/20 dark:border-primary/30">
                                 <CheckCircle2 className="w-12 h-12 text-primary" />
                             </div>
-                            <h2 className="text-4xl font-bold mb-4 text-gray-900">Validado por el SAT</h2>
-                            <p className="text-xl text-gray-700 leading-relaxed">
+                            <h2 className="text-4xl font-bold mb-4 text-gray-900 dark:text-gray-100">Validado por el SAT</h2>
+                            <p className="text-xl text-gray-700 dark:text-gray-400 leading-relaxed">
                                 Todas tus facturaciones cumplirán automáticamente con la normativa fiscal vigente.
                             </p>
                         </div>
@@ -307,31 +307,31 @@ export function ConfigurarCuenta() {
                                 { title: "Seguridad Bancaria", desc: "Tus sellos digitales y archivos están protegidos.", icon: Info },
                                 { title: "Fácil de Administrar", desc: "Gestiona múltiples empresas desde un solo lugar.", icon: Building2 },
                             ].map((item, i) => (
-                                <div key={i} className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-sm border border-orange-100 flex items-start gap-4 hover:shadow-md transition-shadow">
-                                    <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center flex-shrink-0 border border-gray-100">
+                                <div key={i} className="bg-white/80 dark:bg-card/80 backdrop-blur-sm p-6 rounded-2xl shadow-sm border border-orange-100 dark:border-border flex items-start gap-4 hover:shadow-md transition-shadow">
+                                    <div className="w-12 h-12 bg-white dark:bg-card rounded-xl shadow-sm flex items-center justify-center flex-shrink-0 border border-gray-100 dark:border-border">
                                         <item.icon className="w-6 h-6 text-primary" />
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-lg text-gray-900">{item.title}</h3>
-                                        <p className="text-gray-600 text-sm leading-relaxed">{item.desc}</p>
+                                        <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100">{item.title}</h3>
+                                        <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">{item.desc}</p>
                                     </div>
                                 </div>
                             ))}
                         </div>
 
-                        <div className="mt-12 pt-8 border-t border-orange-200">
+                        <div className="mt-12 pt-8 border-t border-orange-200 dark:border-border">
                             <div className="grid grid-cols-3 gap-8 text-center">
                                 <div>
                                     <div className="text-3xl font-bold text-primary mb-1">2min</div>
-                                    <div className="text-xs text-gray-600 uppercase tracking-wider font-semibold">Configuración</div>
+                                    <div className="text-xs text-gray-600 dark:text-gray-400 uppercase tracking-wider font-semibold">Configuración</div>
                                 </div>
                                 <div>
                                     <div className="text-3xl font-bold text-primary mb-1">100%</div>
-                                    <div className="text-xs text-gray-600 uppercase tracking-wider font-semibold">Legalidad</div>
+                                    <div className="text-xs text-gray-600 dark:text-gray-400 uppercase tracking-wider font-semibold">Legalidad</div>
                                 </div>
                                 <div>
                                     <div className="text-3xl font-bold text-primary mb-1">24/7</div>
-                                    <div className="text-xs text-gray-600 uppercase tracking-wider font-semibold">Soporte</div>
+                                    <div className="text-xs text-gray-600 dark:text-gray-400 uppercase tracking-wider font-semibold">Soporte</div>
                                 </div>
                             </div>
                         </div>
