@@ -5,7 +5,7 @@ import { z } from "zod"
 import { useQuery, useMutation } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
 import { toast } from "sonner"
-import { Loader2, Building, Phone, FileText, CheckCircle, Info, Building2, CheckCircle2 } from "lucide-react"
+import { Loader2, Building, Phone, FileText, Info, Building2, CheckCircle2 } from "lucide-react"
 
 import { api } from "@/lib/api"
 import { useAuthStore } from "@/stores/auth-store"
@@ -137,7 +137,7 @@ export function ConfigurarCuenta() {
                             <FormField
                                 control={form.control}
                                 name="tipo_persona"
-                                render={({ field }) => (
+                                render={({  }) => (
                                     <FormItem>
                                         <FormLabel className="text-gray-700 dark:text-gray-300">Tipo de persona</FormLabel>
                                         <div className="grid grid-cols-2 gap-3 mt-2">
