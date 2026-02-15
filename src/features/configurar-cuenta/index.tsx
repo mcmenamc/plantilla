@@ -76,7 +76,7 @@ export function ConfigurarCuenta() {
             const response = await api.post("/business/registro-business", payload)
             return response.data
         },
-        onSuccess: async (data) => {
+        onSuccess: async () => {
             try {
                 // Refresh token to get updated claims/permissions with the new business
                 await auth.refreshToken()

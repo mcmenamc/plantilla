@@ -57,6 +57,7 @@ export function SignIn() {
         business: data.usuario.business,
         workcenter: data.usuario.workcenter,
         role: data.usuario.role,
+        workcenters: [],
         exp: Date.now() + 24 * 60 * 60 * 1000,
       }
 

@@ -32,7 +32,7 @@ function AddClient() {
                     <Button
                         variant='outline'
                         size='icon'
-                        onClick={() => navigate({ to: '/clients' })}
+                        onClick={() => navigate({ to: '/clients', search: { page: 1, perPage: 10 } })}
                         title='Regresar'
                     >
                         <ArrowLeft className='h-4 w-4' />

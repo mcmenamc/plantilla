@@ -4,14 +4,11 @@ import {
   GalleryVerticalEnd,
   LayoutDashboard,
   Settings,
-  HelpCircle,
-  Map,
-  FileText,
-  Files,
-  CreditCard,
-  Truck,
-  BarChart3,
   Database,
+  Map,
+  Files,
+  FileText,
+  CreditCard,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 

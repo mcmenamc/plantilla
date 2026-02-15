@@ -23,7 +23,7 @@ export function ClientsDeleteDialog({
     const [value, setValue] = useState('')
 
     const handleDelete = () => {
-        if (value.trim() !== currentRow.name) return
+        if (value.trim() !== currentRow.razonSocial) return
 
         onOpenChange(false)
         showSubmittedData(currentRow, 'El cliente ha sido eliminado:')
@@ -34,7 +34,7 @@ export function ClientsDeleteDialog({
             open={open}
             onOpenChange={onOpenChange}
             handleConfirm={handleDelete}
-            disabled={value.trim() !== currentRow.name}
+            disabled={value.trim() !== currentRow.razonSocial}
             title={
                 <span className='text-destructive'>
                     <AlertTriangle
@@ -48,7 +48,7 @@ export function ClientsDeleteDialog({
                 <div className='space-y-4'>
                     <p className='mb-2'>
                         ¿Estás seguro de que quieres eliminar a{' '}
-                        <span className='font-bold'>{currentRow.name}</span>?
+                        <span className='font-bold'>{currentRow.razonSocial}</span>?
                         <br />
                         Esta acción eliminará permanentemente al cliente del sistema.
                     </p>
