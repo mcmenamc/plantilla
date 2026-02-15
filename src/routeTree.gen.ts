@@ -27,6 +27,7 @@ import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-p
 import { Route as ClerkAuthenticatedRouteRouteImport } from './routes/clerk/_authenticated/route'
 import { Route as ClerkauthRouteRouteImport } from './routes/clerk/(auth)/route'
 import { Route as AuthenticatedSettingsRouteRouteImport } from './routes/_authenticated/settings/route'
+import { Route as AuthenticatedWorkCentersIndexRouteImport } from './routes/_authenticated/work-centers/index'
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
@@ -41,15 +42,19 @@ import { Route as AuthenticatedAppsIndexRouteImport } from './routes/_authentica
 import { Route as ClerkAuthenticatedUserManagementRouteImport } from './routes/clerk/_authenticated/user-management'
 import { Route as ClerkauthSignUpRouteImport } from './routes/clerk/(auth)/sign-up'
 import { Route as ClerkauthSignInRouteImport } from './routes/clerk/(auth)/sign-in'
+import { Route as AuthenticatedWorkCentersAddRouteImport } from './routes/_authenticated/work-centers/add'
 import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes/_authenticated/settings/notifications'
 import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_authenticated/settings/display'
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
+import { Route as AuthenticatedClientsAddRouteImport } from './routes/_authenticated/clients/add'
 import { Route as AuthenticatedReportsSalesIndexRouteImport } from './routes/_authenticated/reports/sales/index'
 import { Route as AuthenticatedInvoicingPaymentComplementsIndexRouteImport } from './routes/_authenticated/invoicing/payment-complements/index'
 import { Route as AuthenticatedInvoicingCreditNotesIndexRouteImport } from './routes/_authenticated/invoicing/credit-notes/index'
 import { Route as AuthenticatedInvoicingBillOfLadingIndexRouteImport } from './routes/_authenticated/invoicing/bill-of-lading/index'
+import { Route as AuthenticatedWorkCentersWorkCenterIdEditRouteImport } from './routes/_authenticated/work-centers/$workCenterId/edit'
+import { Route as AuthenticatedClientsClientIdEditRouteImport } from './routes/_authenticated/clients/$clientId/edit'
 
 const PruebaGratisRoute = PruebaGratisRouteImport.update({
   id: '/prueba-gratis',
@@ -139,6 +144,12 @@ const AuthenticatedSettingsRouteRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedWorkCentersIndexRoute =
+  AuthenticatedWorkCentersIndexRouteImport.update({
+    id: '/work-centers/',
+    path: '/work-centers/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedUsersIndexRoute = AuthenticatedUsersIndexRouteImport.update({
   id: '/users/',
   path: '/users/',
@@ -217,6 +228,12 @@ const ClerkauthSignInRoute = ClerkauthSignInRouteImport.update({
   path: '/sign-in',
   getParentRoute: () => ClerkauthRouteRoute,
 } as any)
+const AuthenticatedWorkCentersAddRoute =
+  AuthenticatedWorkCentersAddRouteImport.update({
+    id: '/work-centers/add',
+    path: '/work-centers/add',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSettingsNotificationsRoute =
   AuthenticatedSettingsNotificationsRouteImport.update({
     id: '/notifications',
@@ -247,6 +264,11 @@ const AuthenticatedErrorsErrorRoute =
     path: '/errors/$error',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedClientsAddRoute = AuthenticatedClientsAddRouteImport.update({
+  id: '/clients/add',
+  path: '/clients/add',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedReportsSalesIndexRoute =
   AuthenticatedReportsSalesIndexRouteImport.update({
     id: '/reports/sales/',
@@ -271,6 +293,18 @@ const AuthenticatedInvoicingBillOfLadingIndexRoute =
     path: '/invoicing/bill-of-lading/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedWorkCentersWorkCenterIdEditRoute =
+  AuthenticatedWorkCentersWorkCenterIdEditRouteImport.update({
+    id: '/work-centers/$workCenterId/edit',
+    path: '/work-centers/$workCenterId/edit',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedClientsClientIdEditRoute =
+  AuthenticatedClientsClientIdEditRouteImport.update({
+    id: '/clients/$clientId/edit',
+    path: '/clients/$clientId/edit',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/clerk': typeof ClerkAuthenticatedRouteRouteWithChildren
@@ -289,11 +323,13 @@ export interface FileRoutesByFullPath {
   '/500': typeof errors500Route
   '/503': typeof errors503Route
   '/': typeof AuthenticatedIndexRoute
+  '/clients/add': typeof AuthenticatedClientsAddRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
+  '/work-centers/add': typeof AuthenticatedWorkCentersAddRoute
   '/clerk/sign-in': typeof ClerkauthSignInRoute
   '/clerk/sign-up': typeof ClerkauthSignUpRoute
   '/clerk/user-management': typeof ClerkAuthenticatedUserManagementRoute
@@ -308,6 +344,9 @@ export interface FileRoutesByFullPath {
   '/settings/': typeof AuthenticatedSettingsIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
+  '/work-centers': typeof AuthenticatedWorkCentersIndexRoute
+  '/clients/$clientId/edit': typeof AuthenticatedClientsClientIdEditRoute
+  '/work-centers/$workCenterId/edit': typeof AuthenticatedWorkCentersWorkCenterIdEditRoute
   '/invoicing/bill-of-lading': typeof AuthenticatedInvoicingBillOfLadingIndexRoute
   '/invoicing/credit-notes': typeof AuthenticatedInvoicingCreditNotesIndexRoute
   '/invoicing/payment-complements': typeof AuthenticatedInvoicingPaymentComplementsIndexRoute
@@ -328,11 +367,13 @@ export interface FileRoutesByTo {
   '/500': typeof errors500Route
   '/503': typeof errors503Route
   '/': typeof AuthenticatedIndexRoute
+  '/clients/add': typeof AuthenticatedClientsAddRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
+  '/work-centers/add': typeof AuthenticatedWorkCentersAddRoute
   '/clerk/sign-in': typeof ClerkauthSignInRoute
   '/clerk/sign-up': typeof ClerkauthSignUpRoute
   '/clerk/user-management': typeof ClerkAuthenticatedUserManagementRoute
@@ -347,6 +388,9 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
+  '/work-centers': typeof AuthenticatedWorkCentersIndexRoute
+  '/clients/$clientId/edit': typeof AuthenticatedClientsClientIdEditRoute
+  '/work-centers/$workCenterId/edit': typeof AuthenticatedWorkCentersWorkCenterIdEditRoute
   '/invoicing/bill-of-lading': typeof AuthenticatedInvoicingBillOfLadingIndexRoute
   '/invoicing/credit-notes': typeof AuthenticatedInvoicingCreditNotesIndexRoute
   '/invoicing/payment-complements': typeof AuthenticatedInvoicingPaymentComplementsIndexRoute
@@ -372,11 +416,13 @@ export interface FileRoutesById {
   '/(errors)/500': typeof errors500Route
   '/(errors)/503': typeof errors503Route
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/clients/add': typeof AuthenticatedClientsAddRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/_authenticated/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
+  '/_authenticated/work-centers/add': typeof AuthenticatedWorkCentersAddRoute
   '/clerk/(auth)/sign-in': typeof ClerkauthSignInRoute
   '/clerk/(auth)/sign-up': typeof ClerkauthSignUpRoute
   '/clerk/_authenticated/user-management': typeof ClerkAuthenticatedUserManagementRoute
@@ -391,6 +437,9 @@ export interface FileRoutesById {
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
+  '/_authenticated/work-centers/': typeof AuthenticatedWorkCentersIndexRoute
+  '/_authenticated/clients/$clientId/edit': typeof AuthenticatedClientsClientIdEditRoute
+  '/_authenticated/work-centers/$workCenterId/edit': typeof AuthenticatedWorkCentersWorkCenterIdEditRoute
   '/_authenticated/invoicing/bill-of-lading/': typeof AuthenticatedInvoicingBillOfLadingIndexRoute
   '/_authenticated/invoicing/credit-notes/': typeof AuthenticatedInvoicingCreditNotesIndexRoute
   '/_authenticated/invoicing/payment-complements/': typeof AuthenticatedInvoicingPaymentComplementsIndexRoute
@@ -415,11 +464,13 @@ export interface FileRouteTypes {
     | '/500'
     | '/503'
     | '/'
+    | '/clients/add'
     | '/errors/$error'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
     | '/settings/notifications'
+    | '/work-centers/add'
     | '/clerk/sign-in'
     | '/clerk/sign-up'
     | '/clerk/user-management'
@@ -434,6 +485,9 @@ export interface FileRouteTypes {
     | '/settings/'
     | '/tasks'
     | '/users'
+    | '/work-centers'
+    | '/clients/$clientId/edit'
+    | '/work-centers/$workCenterId/edit'
     | '/invoicing/bill-of-lading'
     | '/invoicing/credit-notes'
     | '/invoicing/payment-complements'
@@ -454,11 +508,13 @@ export interface FileRouteTypes {
     | '/500'
     | '/503'
     | '/'
+    | '/clients/add'
     | '/errors/$error'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
     | '/settings/notifications'
+    | '/work-centers/add'
     | '/clerk/sign-in'
     | '/clerk/sign-up'
     | '/clerk/user-management'
@@ -473,6 +529,9 @@ export interface FileRouteTypes {
     | '/settings'
     | '/tasks'
     | '/users'
+    | '/work-centers'
+    | '/clients/$clientId/edit'
+    | '/work-centers/$workCenterId/edit'
     | '/invoicing/bill-of-lading'
     | '/invoicing/credit-notes'
     | '/invoicing/payment-complements'
@@ -497,11 +556,13 @@ export interface FileRouteTypes {
     | '/(errors)/500'
     | '/(errors)/503'
     | '/_authenticated/'
+    | '/_authenticated/clients/add'
     | '/_authenticated/errors/$error'
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/display'
     | '/_authenticated/settings/notifications'
+    | '/_authenticated/work-centers/add'
     | '/clerk/(auth)/sign-in'
     | '/clerk/(auth)/sign-up'
     | '/clerk/_authenticated/user-management'
@@ -516,6 +577,9 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/'
     | '/_authenticated/tasks/'
     | '/_authenticated/users/'
+    | '/_authenticated/work-centers/'
+    | '/_authenticated/clients/$clientId/edit'
+    | '/_authenticated/work-centers/$workCenterId/edit'
     | '/_authenticated/invoicing/bill-of-lading/'
     | '/_authenticated/invoicing/credit-notes/'
     | '/_authenticated/invoicing/payment-complements/'
@@ -667,6 +731,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/work-centers/': {
+      id: '/_authenticated/work-centers/'
+      path: '/work-centers'
+      fullPath: '/work-centers'
+      preLoaderRoute: typeof AuthenticatedWorkCentersIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/users/': {
       id: '/_authenticated/users/'
       path: '/users'
@@ -765,6 +836,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClerkauthSignInRouteImport
       parentRoute: typeof ClerkauthRouteRoute
     }
+    '/_authenticated/work-centers/add': {
+      id: '/_authenticated/work-centers/add'
+      path: '/work-centers/add'
+      fullPath: '/work-centers/add'
+      preLoaderRoute: typeof AuthenticatedWorkCentersAddRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/settings/notifications': {
       id: '/_authenticated/settings/notifications'
       path: '/notifications'
@@ -800,6 +878,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedErrorsErrorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/clients/add': {
+      id: '/_authenticated/clients/add'
+      path: '/clients/add'
+      fullPath: '/clients/add'
+      preLoaderRoute: typeof AuthenticatedClientsAddRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/reports/sales/': {
       id: '/_authenticated/reports/sales/'
       path: '/reports/sales'
@@ -826,6 +911,20 @@ declare module '@tanstack/react-router' {
       path: '/invoicing/bill-of-lading'
       fullPath: '/invoicing/bill-of-lading'
       preLoaderRoute: typeof AuthenticatedInvoicingBillOfLadingIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/work-centers/$workCenterId/edit': {
+      id: '/_authenticated/work-centers/$workCenterId/edit'
+      path: '/work-centers/$workCenterId/edit'
+      fullPath: '/work-centers/$workCenterId/edit'
+      preLoaderRoute: typeof AuthenticatedWorkCentersWorkCenterIdEditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/clients/$clientId/edit': {
+      id: '/_authenticated/clients/$clientId/edit'
+      path: '/clients/$clientId/edit'
+      fullPath: '/clients/$clientId/edit'
+      preLoaderRoute: typeof AuthenticatedClientsClientIdEditRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
   }
@@ -857,7 +956,9 @@ const AuthenticatedSettingsRouteRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedClientsAddRoute: typeof AuthenticatedClientsAddRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
+  AuthenticatedWorkCentersAddRoute: typeof AuthenticatedWorkCentersAddRoute
   AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
   AuthenticatedCatalogsIndexRoute: typeof AuthenticatedCatalogsIndexRoute
   AuthenticatedChatsIndexRoute: typeof AuthenticatedChatsIndexRoute
@@ -868,6 +969,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedQuotesIndexRoute: typeof AuthenticatedQuotesIndexRoute
   AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
+  AuthenticatedWorkCentersIndexRoute: typeof AuthenticatedWorkCentersIndexRoute
+  AuthenticatedClientsClientIdEditRoute: typeof AuthenticatedClientsClientIdEditRoute
+  AuthenticatedWorkCentersWorkCenterIdEditRoute: typeof AuthenticatedWorkCentersWorkCenterIdEditRoute
   AuthenticatedInvoicingBillOfLadingIndexRoute: typeof AuthenticatedInvoicingBillOfLadingIndexRoute
   AuthenticatedInvoicingCreditNotesIndexRoute: typeof AuthenticatedInvoicingCreditNotesIndexRoute
   AuthenticatedInvoicingPaymentComplementsIndexRoute: typeof AuthenticatedInvoicingPaymentComplementsIndexRoute
@@ -877,7 +981,9 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRouteRoute: AuthenticatedSettingsRouteRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedClientsAddRoute: AuthenticatedClientsAddRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
+  AuthenticatedWorkCentersAddRoute: AuthenticatedWorkCentersAddRoute,
   AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
   AuthenticatedCatalogsIndexRoute: AuthenticatedCatalogsIndexRoute,
   AuthenticatedChatsIndexRoute: AuthenticatedChatsIndexRoute,
@@ -888,6 +994,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedQuotesIndexRoute: AuthenticatedQuotesIndexRoute,
   AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
+  AuthenticatedWorkCentersIndexRoute: AuthenticatedWorkCentersIndexRoute,
+  AuthenticatedClientsClientIdEditRoute: AuthenticatedClientsClientIdEditRoute,
+  AuthenticatedWorkCentersWorkCenterIdEditRoute:
+    AuthenticatedWorkCentersWorkCenterIdEditRoute,
   AuthenticatedInvoicingBillOfLadingIndexRoute:
     AuthenticatedInvoicingBillOfLadingIndexRoute,
   AuthenticatedInvoicingCreditNotesIndexRoute:

@@ -26,13 +26,29 @@ api.interceptors.request.use(
 // Response interceptor to handle 401 Unauthorized errors
 api.interceptors.response.use(
     (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
-            // Token expired or invalid
-            const { reset } = useAuthStore.getState().auth
-            reset()
-            // Force redirect to sign-in
-            window.location.href = '/sign-in'
+    async (error) => {
+        const originalRequest = error.config
+
+        // Prevent infinite loops
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true
+
+            try {
+                const { refreshToken } = useAuthStore.getState().auth
+                await refreshToken()
+
+                // Update header with new token
+                const newToken = useAuthStore.getState().auth.accessToken
+                originalRequest.headers.Authorization = `Bearer ${newToken}`
+
+                return api(originalRequest)
+            } catch (refreshError) {
+                // Token refresh failed, logout
+                const { reset } = useAuthStore.getState().auth
+                reset()
+                window.location.href = '/sign-in'
+                return Promise.reject(refreshError)
+            }
         }
         return Promise.reject(error)
     }

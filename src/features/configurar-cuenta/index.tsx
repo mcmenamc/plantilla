@@ -76,15 +76,18 @@ export function ConfigurarCuenta() {
             const response = await api.post("/business/registro-business", payload)
             return response.data
         },
-        onSuccess: (data) => {
-            if (auth.user) {
-                auth.setUser({
-                    ...auth.user,
-                    business: data.business?._id
-                })
+        onSuccess: async (data) => {
+            try {
+                // Refresh token to get updated claims/permissions with the new business
+                await auth.refreshToken()
+                toast.success("¡Configuración completada con éxito!")
+                navigate({ to: "/" })
+            } catch (error) {
+                console.error("Error al refrescar token:", error)
+                // Even if refresh fails, we might want to redirect, but maybe warn user
+                toast.error("Negocio creado, pero hubo un error al actualizar la sesión.")
+                navigate({ to: "/" })
             }
-            toast.success("¡Configuración completada con éxito!")
-            navigate({ to: "/" })
         },
         onError: (error: any) => {
             toast.error(error.response?.data?.message || "Ocurrió un error al guardar la configuración")
@@ -137,7 +140,7 @@ export function ConfigurarCuenta() {
                             <FormField
                                 control={form.control}
                                 name="tipo_persona"
-                                render={({  }) => (
+                                render={({ }) => (
                                     <FormItem>
                                         <FormLabel className="text-gray-700 dark:text-gray-300">Tipo de persona</FormLabel>
                                         <div className="grid grid-cols-2 gap-3 mt-2">
@@ -206,29 +209,6 @@ export function ConfigurarCuenta() {
                                 )}
                             />
 
-                            {/* Celular */}
-                            <FormField
-                                control={form.control}
-                                name="phone"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="text-gray-700 dark:text-gray-300">Teléfono de contacto</FormLabel>
-                                        <FormControl>
-                                            <div className="relative">
-                                                <Input
-                                                    {...field}
-                                                    type="tel"
-                                                    maxLength={10}
-                                                    placeholder="5512345678"
-                                                    className="pl-11 h-12 rounded-xl focus-visible:ring-primary bg-gray-50/50 dark:bg-muted/50 border-gray-200 dark:border-border"
-                                                />
-                                                <Phone className="w-5 h-5 text-gray-400 dark:text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
-                                            </div>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
 
                             {/* Régimen Fiscal */}
                             <FormField
@@ -253,6 +233,30 @@ export function ConfigurarCuenta() {
                                 )}
                             />
 
+
+                            {/* Celular */}
+                            <FormField
+                                control={form.control}
+                                name="phone"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="text-gray-700 dark:text-gray-300">Teléfono de contacto</FormLabel>
+                                        <FormControl>
+                                            <div className="relative">
+                                                <Input
+                                                    {...field}
+                                                    type="tel"
+                                                    maxLength={10}
+                                                    placeholder="5512345678"
+                                                    className="pl-11 h-12 rounded-xl focus-visible:ring-primary bg-gray-50/50 dark:bg-muted/50 border-gray-200 dark:border-border"
+                                                />
+                                                <Phone className="w-5 h-5 text-gray-400 dark:text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
                             <Button
                                 type="submit"

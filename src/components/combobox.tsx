@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Check, ChevronsUpDown, Loader2 } from "lucide-react"
+import { Check, ChevronsUpDown } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -49,17 +49,16 @@ export function Combobox({
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
-                    className={cn("w-full justify-between font-normal", className)}
+                    className={cn("w-full justify-between font-normal min-w-0", className)}
                     disabled={disabled || isLoading}
                 >
-                    {isLoading ? (
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            Cargando...
-                        </div>
-                    ) : value
-                        ? items.find((item) => item.value === value)?.label || value
-                        : placeholder}
+                    <span className="truncate flex-1 text-left">
+                        {isLoading ? (
+                            "Cargando..."
+                        ) : value
+                            ? items.find((item) => item.value === value)?.label || value
+                            : placeholder}
+                    </span>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>

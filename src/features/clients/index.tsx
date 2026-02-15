@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query'
 import { getRouteApi } from '@tanstack/react-router'
 import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
@@ -5,17 +6,25 @@ import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
+import { useWorkCenterStore } from '@/stores/work-center-store'
 import { ClientsDialogs } from './components/clients-dialogs'
 import { ClientsPrimaryButtons } from './components/clients-primary-buttons'
 import { ClientsProvider } from './components/clients-provider'
 import { ClientsTable } from './components/clients-table'
-import { clients } from './data/data'
+import { getClientsByWorkCenter } from './data/clients-api'
 
 const route = getRouteApi('/_authenticated/clients/')
 
 export function Clients() {
     const search = route.useSearch()
     const navigate = route.useNavigate()
+    const { selectedWorkCenterId } = useWorkCenterStore()
+
+    const { data: clients = [], isLoading } = useQuery({
+        queryKey: ['clients', selectedWorkCenterId],
+        queryFn: () => getClientsByWorkCenter(selectedWorkCenterId || ''),
+        enabled: !!selectedWorkCenterId,
+    })
 
     return (
         <ClientsProvider>
@@ -38,7 +47,12 @@ export function Clients() {
                     </div>
                     <ClientsPrimaryButtons />
                 </div>
-                <ClientsTable data={clients} search={search} navigate={navigate as any} />
+                <ClientsTable
+                    data={clients}
+                    search={search}
+                    navigate={navigate as any}
+                    isLoading={isLoading}
+                />
             </Main>
 
             <ClientsDialogs />

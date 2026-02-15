@@ -44,8 +44,10 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
         email: userData.email,
         imagen: userData.imagen,
         business: userData.business,
-        workcenter: userData.workcenter,
+        workcenters: userData.workcenters,
         role: userData.role,
+        regimenFiscal: userData.regimenFiscal,
+        tipoPersona: userData.tipoPersona,
         exp: auth.user?.exp || Date.now() + 24 * 60 * 60 * 1000,
       })
     }

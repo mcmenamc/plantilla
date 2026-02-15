@@ -43,15 +43,20 @@ export const sidebarData: SidebarData = {
       title: 'General',
       items: [
         {
+          title: 'Centros de Trabajo',
+          url: '/work-centers',
+          icon: Database,
+        },
+        {
           title: 'Dashboard',
           url: '/',
           icon: LayoutDashboard,
         },
-        {
-          title: 'Cotizador',
-          url: '/quotes',
-          icon: FileText,
-        },
+        // {
+        //   title: 'Cotizador',
+        //   url: '/quotes',
+        //   icon: FileText,
+        // },
       ],
     },
     {
@@ -82,28 +87,28 @@ export const sidebarData: SidebarData = {
           url: '/invoicing/payment-complements',
           icon: CreditCard,
         },
-        {
-          title: 'Notas de Crédito',
-          url: '/invoicing/credit-notes',
-          icon: FileText,
-        },
-        {
-          title: 'Carta Porte',
-          url: '/invoicing/bill-of-lading',
-          icon: Truck,
-        },
+        // {
+        //   title: 'Notas de Crédito',
+        //   url: '/invoicing/credit-notes',
+        //   icon: FileText,
+        // },
+        // {
+        //   title: 'Carta Porte',
+        //   url: '/invoicing/bill-of-lading',
+        //   icon: Truck,
+        // },
       ],
     },
-    {
-      title: 'Reportes',
-      items: [
-        {
-          title: 'Reporte de Ventas',
-          url: '/reports/sales',
-          icon: BarChart3,
-        },
-      ],
-    },
+    // {
+    //   title: 'Reportes',
+    //   items: [
+    //     {
+    //       title: 'Reporte de Ventas',
+    //       url: '/reports/sales',
+    //       icon: BarChart3,
+    //     },
+    //   ],
+    // },
     {
       title: 'Configuración',
       items: [
@@ -119,15 +124,15 @@ export const sidebarData: SidebarData = {
         },
       ],
     },
-    {
-      title: 'Soporte',
-      items: [
-        {
-          title: 'Ayuda',
-          url: '/help-center',
-          icon: HelpCircle,
-        },
-      ],
-    },
+    // {
+    //   title: 'Soporte',
+    //   items: [
+    //     {
+    //       title: 'Ayuda',
+    //       url: '/help-center',
+    //       icon: HelpCircle,
+    //     },
+    //   ],
+    // },
   ],
 }
