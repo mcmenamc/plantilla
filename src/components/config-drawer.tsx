@@ -1,4 +1,33 @@
 import { type SVGProps } from 'react'
+import { NotificationBell } from '@/components/notifications/notification-bell'
+
+export function ConfigDrawer() {
+  return (
+    <>
+      {/* Notification Bell - Replaces Config Button */}
+      <NotificationBell />
+
+      {/* Config Drawer - Commented out but keeping the component for future use 
+      
+      To re-enable the config drawer, uncomment the code below and comment out the NotificationBell above.
+      
+      The original config drawer allowed users to customize:
+      - Theme (System, Light, Dark)
+      - Sidebar variant (Inset, Floating, Sidebar)
+      - Layout (Default, Compact, Full)
+      - Direction (LTR, RTL)
+      
+      All the helper components (ThemeConfig, SidebarConfig, LayoutConfig, DirConfig, etc.) 
+      are preserved below and can be uncommented when needed.
+      */}
+    </>
+  )
+}
+
+/* ============================================================================
+   COMMENTED OUT CONFIG DRAWER CODE - Preserved for future use
+   ============================================================================
+
 import { Root as Radio, Item } from '@radix-ui/react-radio-group'
 import { CircleCheck, RotateCcw, Settings } from 'lucide-react'
 import { IconDir } from '@/assets/custom/icon-dir'
@@ -352,3 +381,5 @@ function DirConfig() {
     </div>
   )
 }
+
+============================================================================ */
