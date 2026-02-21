@@ -1,34 +1,9 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { Checkbox } from '@/components/ui/checkbox'
 import { LongText } from '@/components/long-text'
 import { Product } from '../data/schema'
 import { DataTableRowActions } from './data-table-row-actions'
 
 export const productsColumns: ColumnDef<Product>[] = [
-    {
-        id: 'select',
-        header: ({ table }) => (
-            <Checkbox
-                checked={
-                    table.getIsAllPageRowsSelected() ||
-                    (table.getIsSomePageRowsSelected() && 'indeterminate')
-                }
-                onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                aria-label='Select all'
-                className='translate-y-[2px]'
-            />
-        ),
-        cell: ({ row }) => (
-            <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={(value) => row.toggleSelected(!!value)}
-                aria-label='Select row'
-                className='translate-y-[2px]'
-            />
-        ),
-        enableSorting: false,
-        enableHiding: false,
-    },
     {
         accessorKey: 'description',
         header: 'Descripción',
@@ -40,7 +15,14 @@ export const productsColumns: ColumnDef<Product>[] = [
     {
         accessorKey: 'product_key',
         header: 'Clave SAT',
-        cell: ({ row }) => <div className='w-fit text-nowrap'>{row.getValue('product_key')}</div>,
+        cell: ({ row }) => (
+            <div className='flex flex-col'>
+                <span className='font-medium text-nowrap'>{row.original.product_key}</span>
+                <span className='text-xs text-muted-foreground line-clamp-1'>
+                    {row.original.product_key_nombre}
+                </span>
+            </div>
+        ),
     },
     {
         accessorKey: 'price',
@@ -57,7 +39,38 @@ export const productsColumns: ColumnDef<Product>[] = [
     {
         accessorKey: 'unit_name',
         header: 'Unidad',
-        cell: ({ row }) => <div className='w-fit text-nowrap'>{row.getValue('unit_name')}</div>,
+        cell: ({ row }) => (
+            <div className='flex flex-col'>
+                <span className='font-medium text-nowrap'>{row.original.unit_name}</span>
+                <span className='text-xs text-muted-foreground line-clamp-1'>
+                    {row.original.unit_key}
+                </span>
+            </div>
+        ),
+    },
+    {
+        accessorKey: 'taxability',
+        header: 'Objeto SAT',
+        filterFn: 'arrIncludesSome',
+        cell: ({ row }) => {
+            const val = row.getValue('taxability') as string
+            const labels: Record<string, string> = {
+                '01': '01 - No objeto de impuesto',
+                '02': '02 - Sí objeto de impuesto',
+                '03': '03 - Sí objeto de impuesto, pero no obligado a desglose',
+                '04': '04 - Sí objeto de impuesto, y no causa impuesto',
+            }
+            return <div className='w-fit text-nowrap'>{labels[val] || val}</div>
+        },
+    },
+    {
+        accessorKey: 'tax_included',
+        header: 'IVA Incluido',
+        cell: ({ row }) => (
+            <div className='w-fit text-nowrap'>
+                {row.getValue('tax_included') ? 'Sí' : 'No'}
+            </div>
+        ),
     },
     {
         accessorKey: 'sku',

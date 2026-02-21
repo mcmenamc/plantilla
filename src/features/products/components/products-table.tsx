@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
     type SortingState,
     type VisibilityState,
@@ -7,7 +7,6 @@ import {
     getFacetedRowModel,
     getFacetedUniqueValues,
     getFilteredRowModel,
-    getPaginationRowModel,
     getSortedRowModel,
     useReactTable,
 } from '@tanstack/react-table'
@@ -21,7 +20,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
-import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
+import { DataTableToolbar } from '@/components/data-table'
 import { type Product } from '../data/schema'
 import { productsColumns as columns } from './products-columns'
 
@@ -33,23 +32,19 @@ type DataTableProps = {
 }
 
 export function ProductsTable({ data, search, navigate, isLoading }: DataTableProps) {
-    const [rowSelection, setRowSelection] = useState({})
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
     const [sorting, setSorting] = useState<SortingState>([])
 
     const {
         columnFilters,
         onColumnFiltersChange,
-        pagination,
-        onPaginationChange,
-        ensurePageInRange,
     } = useTableUrlState({
         search,
         navigate,
-        pagination: { defaultPage: 1, defaultPageSize: 10 },
         globalFilter: { enabled: false },
         columnFilters: [
             { columnId: 'description', searchKey: 'q', type: 'string' },
+            { columnId: 'taxability', searchKey: 'taxability', type: 'array' },
         ],
     })
 
@@ -58,18 +53,12 @@ export function ProductsTable({ data, search, navigate, isLoading }: DataTablePr
         columns,
         state: {
             sorting,
-            pagination,
-            rowSelection,
             columnFilters,
             columnVisibility,
         },
-        enableRowSelection: true,
-        onPaginationChange,
         onColumnFiltersChange,
-        onRowSelectionChange: setRowSelection,
         onSortingChange: setSorting,
         onColumnVisibilityChange: setColumnVisibility,
-        getPaginationRowModel: getPaginationRowModel(),
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),
@@ -77,17 +66,24 @@ export function ProductsTable({ data, search, navigate, isLoading }: DataTablePr
         getFacetedUniqueValues: getFacetedUniqueValues(),
     })
 
-    useEffect(() => {
-        ensurePageInRange(table.getPageCount())
-    }, [table, ensurePageInRange])
-
     return (
         <div className='flex flex-1 flex-col gap-4'>
             <DataTableToolbar
                 table={table}
                 searchPlaceholder='Buscar productos...'
                 searchKey='description'
-                filters={[]}
+                filters={[
+                    {
+                        columnId: 'taxability',
+                        title: 'Objeto SAT',
+                        options: [
+                            { label: '01 - No objeto de impuesto', value: '01' },
+                            { label: '02 - Sí objeto de impuesto', value: '02' },
+                            { label: '03 - Sí objeto de impuesto, pero no obligado a desglose', value: '03' },
+                            { label: '04 - Sí objeto de impuesto, y no causa impuesto', value: '04' },
+                        ],
+                    },
+                ]}
             />
             <div className='overflow-hidden rounded-md border'>
                 <Table>
@@ -127,14 +123,13 @@ export function ProductsTable({ data, search, navigate, isLoading }: DataTablePr
                             table.getRowModel().rows.map((row) => (
                                 <TableRow
                                     key={row.id}
-                                    data-state={row.getIsSelected() && 'selected'}
                                     className='group/row'
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell
                                             key={cell.id}
                                             className={cn(
-                                                'bg-background group-hover/row:bg-muted group-data-[state=selected]/row:bg-muted',
+                                                'bg-background group-hover/row:bg-muted',
                                                 cell.column.columnDef.meta?.className
                                             )}
                                         >
@@ -159,7 +154,6 @@ export function ProductsTable({ data, search, navigate, isLoading }: DataTablePr
                     </TableBody>
                 </Table>
             </div>
-            <DataTablePagination table={table} className='mt-auto' />
         </div>
     )
 }

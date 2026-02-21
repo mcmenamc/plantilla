@@ -2,7 +2,7 @@ import { api } from '@/lib/api'
 import { Product, CreateProductPayload } from './schema'
 
 export const getProductosByWorkCenter = async (workCenterId: string): Promise<Product[]> => {
-    const response = await api.get(`/productos/${workCenterId}`)
+    const response = await api.get(`/productos/by-workcenter/${workCenterId}`)
     return response.data
 }
 
@@ -15,7 +15,7 @@ export const updateProducto = async (id: string, data: Partial<CreateProductPayl
 }
 
 export const getProductoById = async (id: string): Promise<Product> => {
-    const response = await api.get(`/productos/detail/${id}`)
+    const response = await api.get(`/productos/${id}`)
     return response.data
 }
 

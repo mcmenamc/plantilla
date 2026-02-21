@@ -8,7 +8,8 @@ import { ConfigDrawer } from '@/components/config-drawer'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Button } from '@/components/ui/button'
 import { ProductsForm } from '@/features/products/components/products-form'
-import { ProductsProvider } from '@/features/products/components/products-provider'
+import { ProductsProvider, useProducts } from '@/features/products/components/products-provider'
+import { ProductsDeleteDialog } from '@/features/products/components/products-delete-dialog'
 
 export const Route = createFileRoute('/_authenticated/products/$productId/edit')({
     component: EditProduct,
@@ -46,10 +47,27 @@ function EditProduct() {
                         </p>
                     </div>
                 </div>
-                <div className='mx-auto max-w-5xl'>
+                <div className='mx-auto max-w-5xl space-y-4'>
                     <ProductsForm productId={productId} />
+                    <ProductDeleteSection />
                 </div>
             </Main>
         </ProductsProvider>
+    )
+}
+
+function ProductDeleteSection() {
+    const { open, setOpen, currentRow } = useProducts()
+
+    return (
+        <>
+            {currentRow && (
+                <ProductsDeleteDialog
+                    open={open === 'delete'}
+                    onOpenChange={(val) => setOpen(val ? 'delete' : null)}
+                    currentRow={currentRow}
+                />
+            )}
+        </>
     )
 }
