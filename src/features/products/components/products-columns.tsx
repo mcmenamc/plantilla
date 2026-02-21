@@ -1,5 +1,4 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { cn } from '@/lib/utils'
 import { Checkbox } from '@/components/ui/checkbox'
 import { LongText } from '@/components/long-text'
 import { Product } from '../data/schema'
@@ -31,17 +30,17 @@ export const productsColumns: ColumnDef<Product>[] = [
         enableHiding: false,
     },
     {
-        accessorKey: 'name',
-        header: 'Nombre',
-        cell: ({ row }) => <LongText className='max-w-36'>{row.getValue('name')}</LongText>,
+        accessorKey: 'description',
+        header: 'Descripción',
+        cell: ({ row }) => <LongText className='max-w-36'>{row.getValue('description')}</LongText>,
         meta: {
             className: 'w-36',
         },
     },
     {
-        accessorKey: 'code',
-        header: 'Código',
-        cell: ({ row }) => <div className='w-fit text-nowrap'>{row.getValue('code')}</div>,
+        accessorKey: 'product_key',
+        header: 'Clave SAT',
+        cell: ({ row }) => <div className='w-fit text-nowrap'>{row.getValue('product_key')}</div>,
     },
     {
         accessorKey: 'price',
@@ -56,24 +55,14 @@ export const productsColumns: ColumnDef<Product>[] = [
         },
     },
     {
-        accessorKey: 'stock',
-        header: 'Stock',
-        cell: ({ row }) => <div className='w-fit text-nowrap'>{row.getValue('stock')}</div>,
+        accessorKey: 'unit_name',
+        header: 'Unidad',
+        cell: ({ row }) => <div className='w-fit text-nowrap'>{row.getValue('unit_name')}</div>,
     },
     {
-        accessorKey: 'status',
-        header: 'Estado',
-        cell: ({ row }) => {
-            const status = row.getValue('status') as string
-            return (
-                <div className={cn(
-                    'w-fit rounded-full px-2 py-1 text-xs font-medium',
-                    status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                )}>
-                    {status === 'active' ? 'Activo' : 'Inactivo'}
-                </div>
-            )
-        },
+        accessorKey: 'sku',
+        header: 'SKU',
+        cell: ({ row }) => <div className='w-fit text-nowrap'>{row.getValue('sku') || '-'}</div>,
     },
     {
         id: 'actions',

@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query'
 import { getRouteApi } from '@tanstack/react-router'
 import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
@@ -5,17 +6,25 @@ import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
+import { useWorkCenterStore } from '@/stores/work-center-store'
 import { ProductsDialogs } from './components/products-dialogs'
 import { ProductsPrimaryButtons } from './components/products-primary-buttons'
 import { ProductsProvider } from './components/products-provider'
 import { ProductsTable } from './components/products-table'
-import { products } from './data/data'
+import { getProductosByWorkCenter } from './data/products-api'
 
 const route = getRouteApi('/_authenticated/products/')
 
 export function Products() {
     const search = route.useSearch()
     const navigate = route.useNavigate()
+    const { selectedWorkCenterId } = useWorkCenterStore()
+
+    const { data: products = [], isLoading } = useQuery({
+        queryKey: ['products', selectedWorkCenterId],
+        queryFn: () => getProductosByWorkCenter(selectedWorkCenterId || ''),
+        enabled: !!selectedWorkCenterId,
+    })
 
     return (
         <ProductsProvider>
@@ -38,7 +47,12 @@ export function Products() {
                     </div>
                     <ProductsPrimaryButtons />
                 </div>
-                <ProductsTable data={products} search={search} navigate={navigate as any} />
+                <ProductsTable
+                    data={products}
+                    search={search}
+                    navigate={navigate as any}
+                    isLoading={isLoading}
+                />
             </Main>
 
             <ProductsDialogs />

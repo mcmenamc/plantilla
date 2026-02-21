@@ -29,9 +29,10 @@ type DataTableProps = {
     data: Product[]
     search: Record<string, unknown>
     navigate: NavigateFn
+    isLoading?: boolean
 }
 
-export function ProductsTable({ data, search, navigate }: DataTableProps) {
+export function ProductsTable({ data, search, navigate, isLoading }: DataTableProps) {
     const [rowSelection, setRowSelection] = useState({})
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
     const [sorting, setSorting] = useState<SortingState>([])
@@ -48,8 +49,7 @@ export function ProductsTable({ data, search, navigate }: DataTableProps) {
         pagination: { defaultPage: 1, defaultPageSize: 10 },
         globalFilter: { enabled: false },
         columnFilters: [
-            { columnId: 'name', searchKey: 'name', type: 'string' },
-            { columnId: 'status', searchKey: 'status', type: 'array' },
+            { columnId: 'description', searchKey: 'q', type: 'string' },
         ],
     })
 
@@ -86,17 +86,8 @@ export function ProductsTable({ data, search, navigate }: DataTableProps) {
             <DataTableToolbar
                 table={table}
                 searchPlaceholder='Buscar productos...'
-                searchKey='name'
-                filters={[
-                    {
-                        columnId: 'status',
-                        title: 'Estado',
-                        options: [
-                            { label: 'Activo', value: 'active' },
-                            { label: 'Inactivo', value: 'inactive' },
-                        ],
-                    },
-                ]}
+                searchKey='description'
+                filters={[]}
             />
             <div className='overflow-hidden rounded-md border'>
                 <Table>
@@ -126,7 +117,13 @@ export function ProductsTable({ data, search, navigate }: DataTableProps) {
                         ))}
                     </TableHeader>
                     <TableBody>
-                        {table.getRowModel().rows?.length ? (
+                        {isLoading ? (
+                            <TableRow>
+                                <TableCell colSpan={columns.length} className='h-24 text-center'>
+                                    Cargando productos...
+                                </TableCell>
+                            </TableRow>
+                        ) : table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => (
                                 <TableRow
                                     key={row.id}

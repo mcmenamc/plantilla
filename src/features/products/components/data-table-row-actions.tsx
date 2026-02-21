@@ -1,3 +1,4 @@
+import { useNavigate } from '@tanstack/react-router'
 import { Row } from '@tanstack/react-table'
 import { MoreHorizontal, Pen, Trash } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -19,6 +20,7 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
     row,
 }: DataTableRowActionsProps<TData>) {
+    const navigate = useNavigate()
     const { setOpen, setCurrentRow } = useProducts()
     const product = row.original as Product
 
@@ -36,8 +38,10 @@ export function DataTableRowActions<TData>({
             <DropdownMenuContent align='end' className='w-[160px]'>
                 <DropdownMenuItem
                     onClick={() => {
-                        setCurrentRow(product)
-                        setOpen('edit')
+                        navigate({
+                            to: '/products/$productId/edit',
+                            params: { productId: product._id }
+                        })
                     }}
                 >
                     <Pen className='mr-2 h-3.5 w-3.5 text-muted-foreground/70' />

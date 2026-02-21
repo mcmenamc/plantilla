@@ -2,12 +2,15 @@
 
 import { useState } from 'react'
 import { AlertTriangle } from 'lucide-react'
-import { showSubmittedData } from '@/lib/show-submitted-data'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { type Product } from '../data/schema'
+import { eliminarProducto } from '../data/products-api'
+import { useWorkCenterStore } from '@/stores/work-center-store'
 
 type ProductsDeleteDialogProps = {
     open: boolean
@@ -21,12 +24,25 @@ export function ProductsDeleteDialog({
     currentRow,
 }: ProductsDeleteDialogProps) {
     const [value, setValue] = useState('')
+    const queryClient = useQueryClient()
+    const { selectedWorkCenterId } = useWorkCenterStore()
+
+    const { mutate: deleteMutate, isPending } = useMutation({
+        mutationFn: () => eliminarProducto(currentRow._id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['products', selectedWorkCenterId] })
+            toast.success('Producto eliminado con éxito')
+            onOpenChange(false)
+            setValue('')
+        },
+        onError: (error: any) => {
+            toast.error(error.response?.data?.message || 'Error al eliminar el producto')
+        },
+    })
 
     const handleDelete = () => {
-        if (value.trim() !== currentRow.name) return
-
-        onOpenChange(false)
-        showSubmittedData(currentRow, 'El producto ha sido eliminado:')
+        if (value.trim() !== currentRow.description) return
+        deleteMutate()
     }
 
     return (
@@ -34,7 +50,8 @@ export function ProductsDeleteDialog({
             open={open}
             onOpenChange={onOpenChange}
             handleConfirm={handleDelete}
-            disabled={value.trim() !== currentRow.name}
+            disabled={value.trim() !== currentRow.description || isPending}
+            isLoading={isPending}
             title={
                 <span className='text-destructive'>
                     <AlertTriangle
@@ -48,17 +65,17 @@ export function ProductsDeleteDialog({
                 <div className='space-y-4'>
                     <p className='mb-2'>
                         ¿Estás seguro de que quieres eliminar{' '}
-                        <span className='font-bold'>{currentRow.name}</span>?
+                        <span className='font-bold'>{currentRow.description}</span>?
                         <br />
                         Esta acción eliminará permanentemente el producto del sistema.
                     </p>
 
                     <Label className='my-2'>
-                        Nombre del producto:
+                        Descripción del producto:
                         <Input
                             value={value}
                             onChange={(e) => setValue(e.target.value)}
-                            placeholder='Escribe el nombre para confirmar.'
+                            placeholder='Escribe la descripción para confirmar.'
                         />
                     </Label>
 

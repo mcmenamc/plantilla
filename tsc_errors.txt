@@ -1,0 +1,12 @@
+src/features/products/components/products-form.tsx(8,24): error TS2307: Cannot find module '@/components/ui/button' or its corresponding type declarations.
+src/features/products/components/products-form.tsx(16,8): error TS2307: Cannot find module '@/components/ui/form' or its corresponding type declarations.
+src/features/products/components/products-form.tsx(17,23): error TS2307: Cannot find module '@/components/ui/input' or its corresponding type declarations.
+src/features/products/components/products-form.tsx(18,58): error TS2307: Cannot find module '@/components/ui/card' or its corresponding type declarations.
+src/features/products/components/products-form.tsx(19,36): error TS2307: Cannot find module '@/stores/work-center-store' or its corresponding type declarations.
+src/features/products/components/products-form.tsx(23,32): error TS2307: Cannot find module '@/components/remote-combobox' or its corresponding type declarations.
+src/features/products/components/products-form.tsx(25,26): error TS2307: Cannot find module '@/components/ui/checkbox' or its corresponding type declarations.
+src/features/products/components/products-form.tsx(26,27): error TS2307: Cannot find module '@/components/ui/separator' or its corresponding type declarations.
+src/features/products/components/products-form.tsx(112,51): error TS2353: Object literal may only specify known properties, and 'page' does not exist in type 'ParamsReducerFn<AnyRouter, "SEARCH", string, "/products">'.
+src/features/products/components/products-form.tsx(125,51): error TS2353: Object literal may only specify known properties, and 'page' does not exist in type 'ParamsReducerFn<AnyRouter, "SEARCH", string, "/products">'.
+src/features/products/components/products-form.tsx(461,78): error TS2353: Object literal may only specify known properties, and 'page' does not exist in type 'ParamsReducerFn<AnyRouter, "SEARCH", string, "/products">'.
+src/features/products/data/products-api.ts(1,21): error TS2307: Cannot find module '@/lib/api' or its corresponding type declarations.
