@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { ArrowRight, ChevronRight, Laptop, Moon, Sun } from 'lucide-react'
+import { ArrowRight, ChevronRight, Laptop, Moon, Sun, UserPlus, PackagePlus, FileText } from 'lucide-react'
 import { useSearch } from '@/context/search-provider'
 import { useTheme } from '@/context/theme-provider'
 import {
@@ -34,6 +34,33 @@ export function CommandMenu() {
       <CommandList>
         <ScrollArea type='hover' className='h-72 pe-1'>
           <CommandEmpty>No results found.</CommandEmpty>
+          <CommandGroup heading='Acciones Rápidas'>
+            <CommandItem
+              onSelect={() => {
+                runCommand(() => navigate({ to: '/clients/add' }))
+              }}
+            >
+              <UserPlus className='mr-2 h-4 w-4' />
+              <span>Agregar Cliente</span>
+            </CommandItem>
+            <CommandItem
+              onSelect={() => {
+                runCommand(() => navigate({ to: '/products/add' }))
+              }}
+            >
+              <PackagePlus className='mr-2 h-4 w-4' />
+              <span>Agregar Producto</span>
+            </CommandItem>
+            <CommandItem
+              onSelect={() => {
+                runCommand(() => navigate({ to: '/invoicing/new' as any }))
+              }}
+            >
+              <FileText className='mr-2 h-4 w-4' />
+              <span>Crear Factura</span>
+            </CommandItem>
+          </CommandGroup>
+          <CommandSeparator />
           {sidebarData.navGroups.map((group) => (
             <CommandGroup key={group.title} heading={group.title}>
               {group.items.map((navItem, i) => {

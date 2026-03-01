@@ -23,7 +23,7 @@ export function InvoicesDeleteDialog({
     const [value, setValue] = useState('')
 
     const handleDelete = () => {
-        if (value.trim() !== currentRow.folio) return
+        if (value.trim() !== String(currentRow.folio_number ?? '')) return
 
         onOpenChange(false)
         showSubmittedData(currentRow, 'La factura ha sido cancelada:')
@@ -34,7 +34,7 @@ export function InvoicesDeleteDialog({
             open={open}
             onOpenChange={onOpenChange}
             handleConfirm={handleDelete}
-            disabled={value.trim() !== currentRow.folio}
+            disabled={value.trim() !== String(currentRow.folio_number ?? '')}
             title={
                 <span className='text-destructive'>
                     <AlertTriangle
@@ -48,7 +48,7 @@ export function InvoicesDeleteDialog({
                 <div className='space-y-4'>
                     <p className='mb-2'>
                         ¿Estás seguro de que quieres cancelar la factura{' '}
-                        <span className='font-bold'>{currentRow.folio}</span>?
+                        <span className='font-bold'>{currentRow.folio_number}</span>?
                         <br />
                         Esta acción cancelará la factura en el sistema.
                     </p>

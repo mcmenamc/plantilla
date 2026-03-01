@@ -92,7 +92,8 @@ export function InvoicesTable({ data, search, navigate }: DataTableProps) {
                         columnId: 'status',
                         title: 'Estado',
                         options: [
-                            { label: 'Pagada', value: 'paid' },
+                            { label: 'Válida', value: 'valid' },
+                            { label: 'Borrador', value: 'draft' },
                             { label: 'Pendiente', value: 'pending' },
                             { label: 'Cancelada', value: 'cancelled' },
                         ],

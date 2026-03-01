@@ -8,7 +8,6 @@ import {
   Map,
   Files,
   FileText,
-  CreditCard,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -79,11 +78,7 @@ export const sidebarData: SidebarData = {
           url: '/invoicing',
           icon: FileText,
         },
-        {
-          title: 'Complementos de Pago',
-          url: '/invoicing/payment-complements',
-          icon: CreditCard,
-        },
+
         // {
         //   title: 'Notas de Crédito',
         //   url: '/invoicing/credit-notes',
@@ -109,11 +104,7 @@ export const sidebarData: SidebarData = {
     {
       title: 'Configuración',
       items: [
-        {
-          title: 'Catálogos SAT',
-          url: '/catalogs',
-          icon: Database,
-        },
+
         {
           title: 'Configuración',
           url: '/settings',

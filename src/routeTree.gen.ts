@@ -28,6 +28,7 @@ import { Route as ClerkAuthenticatedRouteRouteImport } from './routes/clerk/_aut
 import { Route as ClerkauthRouteRouteImport } from './routes/clerk/(auth)/route'
 import { Route as AuthenticatedSettingsRouteRouteImport } from './routes/_authenticated/settings/route'
 import { Route as AuthenticatedWorkCentersIndexRouteImport } from './routes/_authenticated/work-centers/index'
+import { Route as AuthenticatedViewerIndexRouteImport } from './routes/_authenticated/viewer/index'
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
@@ -48,6 +49,7 @@ import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_auth
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
 import { Route as AuthenticatedProductsAddRouteImport } from './routes/_authenticated/products/add'
+import { Route as AuthenticatedInvoicingNewRouteImport } from './routes/_authenticated/invoicing/new'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
 import { Route as AuthenticatedClientsAddRouteImport } from './routes/_authenticated/clients/add'
 import { Route as AuthenticatedReportsSalesIndexRouteImport } from './routes/_authenticated/reports/sales/index'
@@ -150,6 +152,12 @@ const AuthenticatedWorkCentersIndexRoute =
   AuthenticatedWorkCentersIndexRouteImport.update({
     id: '/work-centers/',
     path: '/work-centers/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedViewerIndexRoute =
+  AuthenticatedViewerIndexRouteImport.update({
+    id: '/viewer/',
+    path: '/viewer/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedUsersIndexRoute = AuthenticatedUsersIndexRouteImport.update({
@@ -266,6 +274,12 @@ const AuthenticatedProductsAddRoute =
     path: '/products/add',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedInvoicingNewRoute =
+  AuthenticatedInvoicingNewRouteImport.update({
+    id: '/invoicing/new',
+    path: '/invoicing/new',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedErrorsErrorRoute =
   AuthenticatedErrorsErrorRouteImport.update({
     id: '/errors/$error',
@@ -339,6 +353,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/clients/add': typeof AuthenticatedClientsAddRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/invoicing/new': typeof AuthenticatedInvoicingNewRoute
   '/products/add': typeof AuthenticatedProductsAddRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
@@ -359,6 +374,7 @@ export interface FileRoutesByFullPath {
   '/settings/': typeof AuthenticatedSettingsIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
+  '/viewer': typeof AuthenticatedViewerIndexRoute
   '/work-centers': typeof AuthenticatedWorkCentersIndexRoute
   '/clients/$clientId/edit': typeof AuthenticatedClientsClientIdEditRoute
   '/products/$productId/edit': typeof AuthenticatedProductsProductIdEditRoute
@@ -385,6 +401,7 @@ export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/clients/add': typeof AuthenticatedClientsAddRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/invoicing/new': typeof AuthenticatedInvoicingNewRoute
   '/products/add': typeof AuthenticatedProductsAddRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
@@ -405,6 +422,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
+  '/viewer': typeof AuthenticatedViewerIndexRoute
   '/work-centers': typeof AuthenticatedWorkCentersIndexRoute
   '/clients/$clientId/edit': typeof AuthenticatedClientsClientIdEditRoute
   '/products/$productId/edit': typeof AuthenticatedProductsProductIdEditRoute
@@ -436,6 +454,7 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/clients/add': typeof AuthenticatedClientsAddRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/_authenticated/invoicing/new': typeof AuthenticatedInvoicingNewRoute
   '/_authenticated/products/add': typeof AuthenticatedProductsAddRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
@@ -456,6 +475,7 @@ export interface FileRoutesById {
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
+  '/_authenticated/viewer/': typeof AuthenticatedViewerIndexRoute
   '/_authenticated/work-centers/': typeof AuthenticatedWorkCentersIndexRoute
   '/_authenticated/clients/$clientId/edit': typeof AuthenticatedClientsClientIdEditRoute
   '/_authenticated/products/$productId/edit': typeof AuthenticatedProductsProductIdEditRoute
@@ -486,6 +506,7 @@ export interface FileRouteTypes {
     | '/'
     | '/clients/add'
     | '/errors/$error'
+    | '/invoicing/new'
     | '/products/add'
     | '/settings/account'
     | '/settings/appearance'
@@ -506,6 +527,7 @@ export interface FileRouteTypes {
     | '/settings/'
     | '/tasks'
     | '/users'
+    | '/viewer'
     | '/work-centers'
     | '/clients/$clientId/edit'
     | '/products/$productId/edit'
@@ -532,6 +554,7 @@ export interface FileRouteTypes {
     | '/'
     | '/clients/add'
     | '/errors/$error'
+    | '/invoicing/new'
     | '/products/add'
     | '/settings/account'
     | '/settings/appearance'
@@ -552,6 +575,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/tasks'
     | '/users'
+    | '/viewer'
     | '/work-centers'
     | '/clients/$clientId/edit'
     | '/products/$productId/edit'
@@ -582,6 +606,7 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/_authenticated/clients/add'
     | '/_authenticated/errors/$error'
+    | '/_authenticated/invoicing/new'
     | '/_authenticated/products/add'
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/appearance'
@@ -602,6 +627,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/'
     | '/_authenticated/tasks/'
     | '/_authenticated/users/'
+    | '/_authenticated/viewer/'
     | '/_authenticated/work-centers/'
     | '/_authenticated/clients/$clientId/edit'
     | '/_authenticated/products/$productId/edit'
@@ -764,6 +790,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWorkCentersIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/viewer/': {
+      id: '/_authenticated/viewer/'
+      path: '/viewer'
+      fullPath: '/viewer'
+      preLoaderRoute: typeof AuthenticatedViewerIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/users/': {
       id: '/_authenticated/users/'
       path: '/users'
@@ -904,6 +937,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProductsAddRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/invoicing/new': {
+      id: '/_authenticated/invoicing/new'
+      path: '/invoicing/new'
+      fullPath: '/invoicing/new'
+      preLoaderRoute: typeof AuthenticatedInvoicingNewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/errors/$error': {
       id: '/_authenticated/errors/$error'
       path: '/errors/$error'
@@ -998,6 +1038,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedClientsAddRoute: typeof AuthenticatedClientsAddRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
+  AuthenticatedInvoicingNewRoute: typeof AuthenticatedInvoicingNewRoute
   AuthenticatedProductsAddRoute: typeof AuthenticatedProductsAddRoute
   AuthenticatedWorkCentersAddRoute: typeof AuthenticatedWorkCentersAddRoute
   AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
@@ -1010,6 +1051,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedQuotesIndexRoute: typeof AuthenticatedQuotesIndexRoute
   AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
+  AuthenticatedViewerIndexRoute: typeof AuthenticatedViewerIndexRoute
   AuthenticatedWorkCentersIndexRoute: typeof AuthenticatedWorkCentersIndexRoute
   AuthenticatedClientsClientIdEditRoute: typeof AuthenticatedClientsClientIdEditRoute
   AuthenticatedProductsProductIdEditRoute: typeof AuthenticatedProductsProductIdEditRoute
@@ -1025,6 +1067,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedClientsAddRoute: AuthenticatedClientsAddRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
+  AuthenticatedInvoicingNewRoute: AuthenticatedInvoicingNewRoute,
   AuthenticatedProductsAddRoute: AuthenticatedProductsAddRoute,
   AuthenticatedWorkCentersAddRoute: AuthenticatedWorkCentersAddRoute,
   AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
@@ -1037,6 +1080,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedQuotesIndexRoute: AuthenticatedQuotesIndexRoute,
   AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
+  AuthenticatedViewerIndexRoute: AuthenticatedViewerIndexRoute,
   AuthenticatedWorkCentersIndexRoute: AuthenticatedWorkCentersIndexRoute,
   AuthenticatedClientsClientIdEditRoute: AuthenticatedClientsClientIdEditRoute,
   AuthenticatedProductsProductIdEditRoute:

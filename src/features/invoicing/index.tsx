@@ -5,11 +5,14 @@ import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
+import { useQuery } from '@tanstack/react-query'
+import { useWorkCenterStore } from '@/stores/work-center-store'
 import { InvoicesDialogs } from './components/invoices-dialogs'
 import { InvoicesPrimaryButtons } from './components/invoices-primary-buttons'
 import { InvoicesProvider } from './components/invoices-provider'
 import { InvoicesTable } from './components/invoices-table'
-import { invoices } from './data/data'
+import { getInvoicesByWorkCenter } from './data/invoicing-api'
+// import { invoices as mockInvoices } from './data/data'
 
 const route = getRouteApi('/_authenticated/invoicing/')
 
@@ -24,6 +27,13 @@ export function Invoicing({
 }: InvoicingProps) {
     const search = route.useSearch()
     const navigate = route.useNavigate()
+    const { selectedWorkCenterId } = useWorkCenterStore()
+
+    const { data: invoices = [], isLoading } = useQuery({
+        queryKey: ['invoices', selectedWorkCenterId],
+        queryFn: () => getInvoicesByWorkCenter(selectedWorkCenterId || ''),
+        enabled: !!selectedWorkCenterId,
+    })
 
     return (
         <InvoicesProvider>
@@ -44,7 +54,13 @@ export function Invoicing({
                     </div>
                     <InvoicesPrimaryButtons />
                 </div>
-                <InvoicesTable data={invoices} search={search} navigate={navigate as any} />
+                {isLoading ? (
+                    <div className='flex flex-1 items-center justify-center h-64'>
+                        <div className='animate-pulse text-muted-foreground font-medium'>Cargando facturas...</div>
+                    </div>
+                ) : (
+                    <InvoicesTable data={invoices} search={search} navigate={navigate as any} />
+                )}
             </Main>
 
             <InvoicesDialogs />
