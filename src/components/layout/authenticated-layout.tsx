@@ -53,6 +53,18 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
     }
   }, [isSuccess, userData])
 
+  // Refresh token only on initial mount (page reload)
+  useEffect(() => {
+    const performInitialRefresh = async () => {
+      try {
+        await auth.refreshToken()
+      } catch (error) {
+        console.error('Initial session refresh failed:', error)
+      }
+    }
+    performInitialRefresh()
+  }, []) // Empty dependency array means it only runs once on mount
+
   return (
     <SearchProvider>
       <LayoutProvider>

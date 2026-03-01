@@ -4,6 +4,7 @@ import { getCookie, setCookie, removeCookie } from '@/lib/cookies'
 
 const AUTH_TOKEN_KEY = 'haz_factura_token'
 const AUTH_USER_KEY = 'haz_factura_user'
+const API_URL = import.meta.env.VITE_API_URL || 'https://api.hazfactura.com/api'
 
 export interface Business {
   _id: string
@@ -47,6 +48,8 @@ interface AuthState {
     reset: () => void
   }
 }
+
+let refreshPromise: Promise<void> | null = null
 
 export const useAuthStore = create<AuthState>()((set, get) => {
   const cookieToken = getCookie(AUTH_TOKEN_KEY)
@@ -101,63 +104,51 @@ export const useAuthStore = create<AuthState>()((set, get) => {
           return { ...state, auth: { ...state.auth, accessToken } }
         }),
       refreshToken: async () => {
+        if (refreshPromise) return refreshPromise
+
         const { auth } = get()
-        try {
-          // We need to import api here to avoid circular dependency issues if api imports auth-store
-          // However, api.ts imports useAuthStore. To avoid circular deps, we can use fetch or a separate axios instance
-          // Or we can rely on the fact that we are inside a function. 
-          // But api.ts imports useAuthStore outside of functions (for interceptors).
-          // To be safe, let's use the native fetch or a clean axios call, OR assume api.ts is already defined.
-          // Since api.ts uses useAuthStore.getState(), it might be fine if we use api inside the function.
-          // Let's use a dynamic import for api to be super safe or just standard fetch.
 
-          // Actually, let's use a standard fetch to avoid any interceptor loops or circular deps
-          const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/refresh-token`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${auth.accessToken}`
+        refreshPromise = (async () => {
+          try {
+            const response = await fetch(`${API_URL}/auth/refresh-token`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${auth.accessToken}`
+              }
+            })
+
+            if (!response.ok) throw new Error('Refresh failed')
+
+            const data = await response.json()
+
+            if (data.token) {
+              auth.setAccessToken(data.token)
+
+              // Proactive business validation right after refresh
+              try {
+                const decoded: any = jwtDecode(data.token)
+                if (!decoded.businessId && decoded.role === 'Admin') {
+                  console.warn('No business found in token for Admin, redirecting...')
+                  window.location.href = '/configurar-cuenta'
+                }
+              } catch (e) {
+                console.error('Error decoding token after refresh', e)
+              }
             }
-          })
-
-          if (!response.ok) throw new Error('Refresh failed')
-
-          const data = await response.json()
-
-          // Assuming the response contains { token: string, user: AuthUser }
-          // Adjust based on actual API response. 
-          // If the user didn't specify the response structure, I'll assume standard token/user.
-          // But wait, the user's request showed: 
-          // const refreshToken = ... 
-          // He didn't show the response. I'll assume standard.
-
-          if (data.token) {
-            auth.setAccessToken(data.token)
+            if (data.user) {
+              auth.setUser(data.user)
+            }
+          } catch (error) {
+            console.error('Failed to refresh token', error)
+            auth.reset()
+            throw error
+          } finally {
+            refreshPromise = null
           }
-          /* 
-             NOTE: If the refresh token endpoint returns the updated user, we should update it too.
-             Usually refreshing gets a new token. If it returns user, update it.
-          */
-          if (data.user) {
-            // Map user data to store structure if needed, or if data.user matches AuthUser
-            // The user provided structure is: 
-            /* 
-               {
-                   "_id": ...,
-                   "nombre": ...,
-                   ...
-                   "business": ...,
-                   "workcenters": ...
-               }
-            */
-            // Access token update implies we might decoding it or getting it from response.
-          }
+        })()
 
-        } catch (error) {
-          console.error('Failed to refresh token', error)
-          auth.reset()
-          throw error
-        }
+        return refreshPromise
       },
       resetAccessToken: () =>
         set((state) => {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
     type SortingState,
     type VisibilityState,
@@ -7,7 +7,6 @@ import {
     getFacetedRowModel,
     getFacetedUniqueValues,
     getFilteredRowModel,
-    getPaginationRowModel,
     getSortedRowModel,
     useReactTable,
 } from '@tanstack/react-table'
@@ -21,7 +20,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
-import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
+import { DataTableToolbar } from '@/components/data-table'
 import { type Invoice } from '../data/schema'
 import { invoicesColumns as columns } from './invoices-columns'
 
@@ -39,13 +38,9 @@ export function InvoicesTable({ data, search, navigate }: DataTableProps) {
     const {
         columnFilters,
         onColumnFiltersChange,
-        pagination,
-        onPaginationChange,
-        ensurePageInRange,
     } = useTableUrlState({
         search,
         navigate,
-        pagination: { defaultPage: 1, defaultPageSize: 10 },
         globalFilter: { enabled: false },
         columnFilters: [
             { columnId: 'client', searchKey: 'client', type: 'string' },
@@ -58,18 +53,15 @@ export function InvoicesTable({ data, search, navigate }: DataTableProps) {
         columns,
         state: {
             sorting,
-            pagination,
             rowSelection,
             columnFilters,
             columnVisibility,
         },
         enableRowSelection: true,
-        onPaginationChange,
         onColumnFiltersChange,
         onRowSelectionChange: setRowSelection,
         onSortingChange: setSorting,
         onColumnVisibilityChange: setColumnVisibility,
-        getPaginationRowModel: getPaginationRowModel(),
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),
@@ -77,9 +69,7 @@ export function InvoicesTable({ data, search, navigate }: DataTableProps) {
         getFacetedUniqueValues: getFacetedUniqueValues(),
     })
 
-    useEffect(() => {
-        ensurePageInRange(table.getPageCount())
-    }, [table, ensurePageInRange])
+
 
     return (
         <div className='flex flex-1 flex-col gap-4'>
@@ -164,7 +154,6 @@ export function InvoicesTable({ data, search, navigate }: DataTableProps) {
                     </TableBody>
                 </Table>
             </div>
-            <DataTablePagination table={table} className='mt-auto' />
         </div>
     )
 }

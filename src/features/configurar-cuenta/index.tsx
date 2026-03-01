@@ -76,14 +76,23 @@ export function ConfigurarCuenta() {
             const response = await api.post("/business/registro-business", payload)
             return response.data
         },
-        onSuccess: async () => {
+        onSuccess: async (data: any) => {
             try {
-                // Refresh token to get updated claims/permissions with the new business
-                await auth.refreshToken()
+                // Get business ID from registration response
+                const businessId = data.business?._id || data._id
+
+                if (businessId) {
+                    console.log("Obteniendo datos del negocio:", businessId)
+                    const res = await api.get(`/business/data-business`)
+                    if (auth.user) {
+                        auth.setUser({ ...auth.user, business: res.data })
+                    }
+                }
+
                 toast.success("¡Configuración completada con éxito!")
                 navigate({ to: "/" })
             } catch (error) {
-                console.error("Error al refrescar token:", error)
+                console.error("Error en el flujo post-registro:", error)
                 // Even if refresh fails, we might want to redirect, but maybe warn user
                 toast.error("Negocio creado, pero hubo un error al actualizar la sesión.")
                 navigate({ to: "/" })
