@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { InvoiceTypeSelector, type InvoiceType } from './invoice-type-selector'
 import { InvoiceFormIngreso } from './invoice-form-ingreso'
+import { InvoiceFormEgreso } from './invoice-form-egreso'
 
 export function InvoiceCreateView() {
     const navigate = useNavigate()
@@ -31,6 +32,11 @@ export function InvoiceCreateView() {
             <div className='overflow-hidden'>
                 {selectedType === 'I' ? (
                     <InvoiceFormIngreso
+                        onSubmitSuccess={handleSuccess}
+                        onCancel={() => navigate({ to: '/invoicing', search: { page: 1, perPage: 10 } } as any)}
+                    />
+                ) : selectedType === 'E' ? (
+                    <InvoiceFormEgreso
                         onSubmitSuccess={handleSuccess}
                         onCancel={() => navigate({ to: '/invoicing', search: { page: 1, perPage: 10 } } as any)}
                     />
