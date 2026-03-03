@@ -3,7 +3,7 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useForm, useFieldArray, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus, Trash2, Save, Zap, FileText, Globe, CreditCard, Eye, AlertCircle, Loader2 } from 'lucide-react'
+import { Plus, Trash2, Save, Zap, CreditCard, Eye, AlertCircle, Loader2 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import {
@@ -65,7 +65,7 @@ export function InvoiceFormEgreso({ onSubmitSuccess }: InvoiceFormEgresoProps) {
     const [showGlobalInfo, setShowGlobalInfo] = useState(false)
     const [showRelatedCfdi, setShowRelatedCfdi] = useState(true)
     const [taxModalOpen, setTaxModalOpen] = useState(false)
-    const [activeItemIndex, setActiveItemIndex] = useState<number | null>(null)
+    const [, setActiveItemIndex] = useState<number | null>(null)
     const [editingIndex, setEditingIndex] = useState<number | null>(null)
     const [clientModalOpen, setClientModalOpen] = useState(false)
     const [productModalOpen, setProductModalOpen] = useState(false)

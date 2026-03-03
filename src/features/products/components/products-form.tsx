@@ -14,26 +14,17 @@ import {
     FormLabel,
     FormMessage,
 } from '@/components/ui/form'
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useWorkCenterStore } from '@/stores/work-center-store'
 import { createProducto, getProductoById, updateProducto, searchSatProducts, searchSatUnits } from '../data/products-api'
 import { TAXABILITY_CATALOG } from '@/features/invoicing/data/invoicing-api'
 import { createProductSchema, type CreateProductPayload, type Product } from '../data/schema'
-import { Loader2, Plus, Trash2, Eye } from 'lucide-react'
+import { Loader2, Trash2, Eye } from 'lucide-react'
 import { RemoteCombobox } from '@/components/remote-combobox'
 import { useFieldArray } from 'react-hook-form'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { ComboboxDropdown } from '@/components/combobox-dropdown'
 import { useState } from 'react'
 import {
