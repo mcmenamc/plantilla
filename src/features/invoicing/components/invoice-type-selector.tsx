@@ -1,5 +1,4 @@
 import { LucideIcon, Banknote, Receipt, Truck, CircleDollarSign, Check } from 'lucide-react'
-import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 
 export type InvoiceType = 'I' | 'E' | 'P' | 'N' | 'T'
@@ -24,48 +23,44 @@ interface InvoiceTypeSelectorProps {
 
 export function InvoiceTypeSelector({ selectedType, onSelect }: InvoiceTypeSelectorProps) {
     return (
-        <Card className='border-none shadow-none bg-transparent'>
-            <CardContent className='p-0'>
-                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4'>
-                    {invoiceTypes.map((type) => {
-                        const isSelected = selectedType === type.id
-                        return (
-                            <button
-                                key={type.id}
-                                type='button'
-                                onClick={() => onSelect(type.id)}
-                                className={cn(
-                                    'group relative flex items-center gap-3 rounded-xl border-2 p-3 md:p-4 text-left transition-all duration-200 w-full',
-                                    isSelected
-                                        ? 'border-orange-500 bg-orange-50/50 shadow-sm ring-1 ring-orange-100 dark:bg-orange-950/20 dark:ring-orange-900/30'
-                                        : 'border-slate-200 bg-white hover:border-orange-200 hover:bg-orange-50/30 dark:border-zinc-800 dark:bg-black hover:dark:border-orange-900/50'
-                                )}
-                            >
-                                <div className={cn(
-                                    'flex h-10 w-10 items-center justify-center rounded-lg transition-colors',
-                                    isSelected
-                                        ? 'bg-orange-500 text-white shadow-md'
-                                        : 'bg-slate-100 text-slate-500 group-hover:bg-orange-100 group-hover:text-orange-500 dark:bg-zinc-900 dark:text-zinc-400'
-                                )}>
-                                    <type.icon size={20} />
-                                </div>
-                                <span className={cn(
-                                    'font-semibold tracking-tight',
-                                    isSelected ? 'text-orange-950 dark:text-orange-100' : 'text-slate-700 dark:text-zinc-300'
-                                )}>
-                                    {type.title}
-                                </span>
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3'>
+            {invoiceTypes.map((type) => {
+                const isSelected = selectedType === type.id
+                return (
+                    <button
+                        key={type.id}
+                        type='button'
+                        onClick={() => onSelect(type.id)}
+                        className={cn(
+                            'group relative flex items-center gap-3 rounded-2xl border-2 p-3 text-left transition-all duration-300 w-full bg-white dark:bg-zinc-950',
+                            isSelected
+                                ? 'border-orange-500 shadow-md ring-1 ring-orange-100 dark:ring-orange-900/30'
+                                : 'border-slate-100 hover:border-orange-200 hover:bg-orange-50/10 dark:border-zinc-800'
+                        )}
+                    >
+                        <div className={cn(
+                            'flex h-10 w-10 items-center justify-center rounded-2xl transition-all duration-300',
+                            isSelected
+                                ? 'bg-orange-500 text-white shadow-lg shadow-orange-200 dark:shadow-none'
+                                : 'bg-slate-50 text-slate-400 group-hover:bg-orange-50 group-hover:text-orange-500 dark:bg-zinc-900 dark:text-zinc-600'
+                        )}>
+                            <type.icon size={18} strokeWidth={2.5} />
+                        </div>
+                        <span className={cn(
+                            'text-xs font-bold tracking-tight transition-colors',
+                            isSelected ? 'text-slate-900 dark:text-orange-50' : 'text-slate-600 dark:text-zinc-400'
+                        )}>
+                            {type.title}
+                        </span>
 
-                                {isSelected && (
-                                    <div className='absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-orange-500 text-white shadow-md ring-2 ring-white dark:ring-black'>
-                                        <Check size={14} strokeWidth={3} />
-                                    </div>
-                                )}
-                            </button>
-                        )
-                    })}
-                </div>
-            </CardContent>
-        </Card>
+                        {isSelected && (
+                            <div className='absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-white shadow-md ring-2 ring-white dark:ring-zinc-950'>
+                                <Check size={12} strokeWidth={3} />
+                            </div>
+                        )}
+                    </button>
+                )
+            })}
+        </div>
     )
 }

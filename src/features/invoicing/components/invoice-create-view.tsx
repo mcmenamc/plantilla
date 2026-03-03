@@ -19,7 +19,7 @@ export function InvoiceCreateView() {
         <div className='space-y-8'>
             {/* Type Selection Section */}
             <div className='rounded-xl border border-slate-200 bg-white p-4 md:p-6 shadow-sm dark:border-zinc-800 dark:bg-black'>
-                <h3 className='mb-4 text-[10px] md:text-xs font-bold uppercase tracking-wider text-slate-500'>
+                <h3 className='mb-4 text-[10px] font-black uppercase tracking-[0.15em] text-slate-400/80'>
                     Tipo de Comprobante
                 </h3>
                 <InvoiceTypeSelector

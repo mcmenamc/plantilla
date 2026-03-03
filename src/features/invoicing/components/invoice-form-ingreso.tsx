@@ -111,8 +111,8 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
             tax_included: p.tax_included ?? p.taxIncluded ?? (p.data && (p.data.tax_included ?? p.data.taxIncluded)) ?? false,
             sku: p.sku || (p.data && p.data.sku) || '',
             objeto_imp: p.taxability || p.objeto_imp || (p.data && (p.data.taxability || p.data.objeto_imp)) || '02',
-            taxes: (p.taxes || (p.data && p.data.taxes) || []).map((t: any) => ({ ...t, base: 100 })),
-            local_taxes: (p.local_taxes || (p.data && p.data.local_taxes) || []).map((t: any) => ({ ...t, base: 100 }))
+            taxes: (p.taxes || (p.data && p.data.taxes) || []).map((t: any) => ({ ...t, base: p.price || 0 })),
+            local_taxes: (p.local_taxes || (p.data && p.data.local_taxes) || []).map((t: any) => ({ ...t, base: p.price || 0 }))
         }
     }
 
@@ -506,6 +506,48 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
         }
     }
 
+    // Dynamic base for current item
+    const currentItemSubtotal = useMemo(() => {
+        const gross = (currentItem.quantity || 0) * (currentItem.price || 0)
+        const disc = currentItem.discount_type === 'percentage'
+            ? gross * ((currentItem.discount || 0) / 100)
+            : (currentItem.discount || 0)
+        const grossAfterDisc = gross - disc
+
+        let sub = grossAfterDisc
+        if (currentItem.tax_included) {
+            const federalFactor = (currentItem.taxes || []).reduce((a: number, t: any) => {
+                const r = t.rate > 1 ? t.rate / 100 : t.rate
+                return a + (t.withholding ? -r : r)
+            }, 0)
+            const localFactor = currentItem.use_local_taxes
+                ? (currentItem.local_taxes || []).reduce((a: number, t: any) => {
+                    const r = t.rate > 1 ? t.rate / 100 : t.rate
+                    return a + (t.withholding ? -r : r)
+                }, 0) : 0
+            const divisor = 1 + federalFactor + localFactor
+            sub = divisor !== 0 ? grossAfterDisc / divisor : grossAfterDisc
+        }
+        return sub
+    }, [currentItem.quantity, currentItem.price, currentItem.discount, currentItem.discount_type, currentItem.tax_included, currentItem.taxes, currentItem.local_taxes, currentItem.use_local_taxes])
+
+    useEffect(() => {
+        const updatedTaxes = (currentItem.taxes || []).map((t: any) => ({ ...t, base: currentItemSubtotal }))
+        const updatedLocalTaxes = (currentItem.local_taxes || []).map((t: any) => ({ ...t, base: currentItemSubtotal }))
+
+        let changed = false
+        if (JSON.stringify(currentItem.taxes) !== JSON.stringify(updatedTaxes)) changed = true
+        if (JSON.stringify(currentItem.local_taxes) !== JSON.stringify(updatedLocalTaxes)) changed = true
+
+        if (changed) {
+            setCurrentItem((prev: any) => ({
+                ...prev,
+                taxes: updatedTaxes,
+                local_taxes: updatedLocalTaxes
+            }))
+        }
+    }, [currentItemSubtotal])
+
     const addItemToList = () => {
         const errors: Record<string, string> = {}
         if (!currentItem.description) errors.description = 'La descripción es requerida'
@@ -564,37 +606,87 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
         setEditingIndex(index)
     }
 
-    const [taxData, setTaxData] = useState<{ type: 'IVA' | 'ISR' | 'IEPS', rate: number, base: number }>({ type: 'IVA', rate: 16, base: 100 })
+    const [taxData, setTaxData] = useState<{
+        type: string,
+        rate: number,
+        base: number,
+        isLocal: boolean,
+        withholding: boolean,
+        factor: 'Tasa' | 'Cuota' | 'Exento',
+        editingIndex: number | null
+    }>({
+        type: 'IVA',
+        rate: 16,
+        base: 0,
+        isLocal: false,
+        withholding: false,
+        factor: 'Tasa',
+        editingIndex: null
+    })
 
-    const openTaxModal = (isNewItem: boolean, index?: number) => {
-        if (isNewItem) {
+    const openTaxModal = (_isNewItem: boolean, options?: { index?: number, isLocal?: boolean }) => {
+        const { index, isLocal = false } = options || {}
+
+        if (index !== undefined) {
+            // Editing existing tax
+            const tax = isLocal
+                ? currentItem.local_taxes[index]
+                : currentItem.taxes[index]
+
+            setTaxData({
+                type: tax.type,
+                rate: tax.rate > 1 ? tax.rate : tax.rate * 100,
+                base: tax.base,
+                isLocal: isLocal,
+                withholding: !!tax.withholding,
+                factor: tax.factor || 'Tasa' as any,
+                editingIndex: index
+            })
+        } else {
+            // New tax
             setActiveItemIndex(null)
-            setTaxData({ type: 'IVA', rate: 16, base: 100 })
-        } else if (index !== undefined) {
-            setActiveItemIndex(index)
-            // Even when editing, the base should be 100 according to new requirements
-            setTaxData({ type: 'IVA', rate: 16, base: 100 })
+            setTaxData({
+                type: 'IVA',
+                rate: 16,
+                base: currentItemSubtotal,
+                isLocal: false,
+                withholding: false,
+                factor: 'Tasa',
+                editingIndex: null
+            })
         }
         setTaxModalOpen(true)
     }
 
     const handleAddTax = () => {
-        // base is always 100 per requirements
         const newTax = {
-            ...taxData,
-            base: 100,
-            withholding: taxData.type === 'ISR'
+            type: taxData.type,
+            rate: taxData.rate,
+            base: taxData.base,
+            withholding: taxData.withholding,
+            factor: taxData.factor,
         }
 
-        if (activeItemIndex !== null) {
-            const currentTaxes = form.getValues(`items.${activeItemIndex}.taxes`) || []
-            form.setValue(`items.${activeItemIndex}.taxes`, [...currentTaxes, newTax])
+        if (taxData.editingIndex !== null) {
+            if (taxData.isLocal) {
+                const newLocals = [...currentItem.local_taxes]
+                newLocals[taxData.editingIndex] = newTax as any
+                setCurrentItem({ ...currentItem, local_taxes: newLocals })
+            } else {
+                const newFederal = [...currentItem.taxes]
+                newFederal[taxData.editingIndex] = newTax
+                setCurrentItem({ ...currentItem, taxes: newFederal })
+            }
         } else {
-            // New item being edited in the form
-            setCurrentItem({ ...currentItem, taxes: [...(currentItem.taxes || []), newTax] })
+            if (taxData.isLocal) {
+                setCurrentItem({ ...currentItem, local_taxes: [...(currentItem.local_taxes || []), newTax] })
+            } else {
+                setCurrentItem({ ...currentItem, taxes: [...(currentItem.taxes || []), newTax] })
+            }
         }
         setTaxModalOpen(false)
     }
+
 
     const removeTaxFromCurrent = (index: number) => {
         const newTaxes = [...currentItem.taxes]
@@ -609,9 +701,8 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
                 {/* Section 1: Billing Details */}
                 <div className='bg-white dark:bg-black rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm overflow-hidden'>
                     <div className='pb-4 px-4 md:px-6 pt-6 border-b border-slate-100 dark:border-zinc-900'>
-                        <div className='flex items-center gap-2 text-orange-600'>
-                            <FileText size={20} className='stroke-[2.5]' />
-                            <h3 className='text-base font-bold uppercase tracking-tight'>Detalles de Facturación (CFDI 4.0)</h3>
+                        <div className='flex items-center gap-2 text-slate-700 dark:text-zinc-300'>
+                            <h3 className='text-sm font-bold uppercase tracking-wide'>Detalles de Facturación (CFDI 4.0)</h3>
                         </div>
                     </div>
                     <div className='space-y-6 px-4 md:px-6 py-6'>
@@ -766,8 +857,7 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
                 <div className='bg-white dark:bg-black rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm overflow-hidden'>
                     <div className='bg-slate-50/50 dark:bg-zinc-900/30 px-6 py-4 flex items-center justify-between border-b border-slate-100 dark:border-zinc-900'>
                         <div className='flex items-center gap-2 text-slate-700 dark:text-zinc-300'>
-                            <Globe size={18} className='text-orange-500' />
-                            <h3 className='text-sm font-bold uppercase tracking-wide'>Configuración Fiscal</h3>
+                            <h3 className='text-xs font-bold uppercase tracking-wide'>Configuración Fiscal</h3>
                         </div>
                         <div className='flex items-center space-x-4'>
                             <div className='flex items-center space-x-2'>
@@ -995,9 +1085,10 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
                     </div>
 
                     <div className='bg-white dark:bg-black rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm overflow-hidden'>
-                        <div className='bg-orange-50/30 dark:bg-orange-900/10 px-6 py-3 border-b border-orange-100/50 dark:border-orange-800/30 flex items-center justify-between'>
-                            <span className='text-xs font-black text-orange-700 dark:text-orange-400 uppercase tracking-widest'>Añadir Nuevo Concepto</span>
+                        <div className='px-6 py-3 border-b flex items-center justify-between text-slate-700 dark:text-zinc-300'>
+                            <span className='text-xs font-bold uppercase tracking-wide'>Añadir Nuevo Concepto</span>
                         </div>
+                        
                         <div className='p-4 md:p-8 space-y-6'>
                             {/* Product selection/Search */}
                             <div className='grid grid-cols-1 md:grid-cols-12 gap-6'>
@@ -1208,23 +1299,33 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
                                                             {tax.factor === 'Exento' && <span className='ml-1 text-slate-400 font-bold'>(Exento)</span>}
                                                         </TableCell>
                                                         <TableCell className='py-2 px-4 text-right'>
-                                                            <button
-                                                                type='button'
-                                                                disabled={isDisabled}
-                                                                className='text-red-400 hover:text-red-600 transition-all hover:scale-110 disabled:cursor-not-allowed disabled:opacity-20'
-                                                                onClick={() => {
-                                                                    if (!isLoc) {
-                                                                        removeTaxFromCurrent(i)
-                                                                    } else {
-                                                                        const localIndex = i - (currentItem.taxes?.length || 0)
-                                                                        const newLocals = [...(currentItem.local_taxes || [])]
-                                                                        newLocals.splice(localIndex, 1)
-                                                                        setCurrentItem({ ...currentItem, local_taxes: newLocals })
-                                                                    }
-                                                                }}
-                                                            >
-                                                                <Trash2 size={13} className='text-rose-500' />
-                                                            </button>
+                                                            <div className='flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity'>
+                                                                <button
+                                                                    type='button'
+                                                                    disabled={isDisabled}
+                                                                    className='text-blue-400 hover:text-blue-600 transition-all hover:scale-110 disabled:cursor-not-allowed disabled:opacity-20'
+                                                                    onClick={() => openTaxModal(false, { index: i < (currentItem.taxes?.length || 0) ? i : i - currentItem.taxes.length, isLocal: isLoc })}
+                                                                >
+                                                                    <Eye size={13} className='text-blue-500' />
+                                                                </button>
+                                                                <button
+                                                                    type='button'
+                                                                    disabled={isDisabled}
+                                                                    className='text-red-400 hover:text-red-600 transition-all hover:scale-110 disabled:cursor-not-allowed disabled:opacity-20'
+                                                                    onClick={() => {
+                                                                        if (!isLoc) {
+                                                                            removeTaxFromCurrent(i)
+                                                                        } else {
+                                                                            const localIndex = i - (currentItem.taxes?.length || 0)
+                                                                            const newLocals = [...(currentItem.local_taxes || [])]
+                                                                            newLocals.splice(localIndex, 1)
+                                                                            setCurrentItem({ ...currentItem, local_taxes: newLocals })
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    <Trash2 size={13} className='text-rose-500' />
+                                                                </button>
+                                                            </div>
                                                         </TableCell>
                                                     </TableRow>
                                                 );
@@ -1590,37 +1691,139 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
             )}
 
             <Dialog open={taxModalOpen} onOpenChange={setTaxModalOpen}>
-                <DialogContent className='sm:max-w-[425px]'>
+                <DialogContent className='sm:max-w-[450px]'>
                     <DialogHeader>
-                        <DialogTitle>Agregar Impuesto</DialogTitle>
+                        <DialogTitle>{taxData.editingIndex !== null ? 'Editar Impuesto' : 'Agregar Impuesto'}</DialogTitle>
                         <DialogDescription>
-                            Define los detalles del impuesto para este concepto.
+                            Configura los detalles del impuesto {taxData.isLocal ? 'local' : 'federal'}.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className='grid gap-4 py-4'>
-                        <div className='grid grid-cols-4 items-center gap-4'>
-                            <Label htmlFor='tax-type' className='text-right text-xs font-bold uppercase'>Tipo</Label>
-                            <div className='col-span-3'>
-                                <ComboboxDropdown
-                                    defaultValue={taxData.type}
-                                    onValueChange={(val) => setTaxData({ ...taxData, type: val as 'IVA' | 'ISR' | 'IEPS' })}
-                                    items={[
-                                        { label: 'IVA - Traslado', value: 'IVA' },
-                                        { label: 'ISR - Retención', value: 'ISR' },
-                                        { label: 'IEPS - Traslado', value: 'IEPS' },
-                                    ]}
-                                />
+
+                    <div className='flex p-1 bg-slate-100 dark:bg-zinc-900 rounded-lg mb-2'>
+                        <button
+                            type='button'
+                            className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${!taxData.isLocal ? 'bg-white dark:bg-zinc-800 shadow-sm text-orange-600' : 'text-slate-500 hover:text-slate-700'}`}
+                            onClick={() => setTaxData({ ...taxData, isLocal: false, type: 'IVA', rate: 16 })}
+                        >
+                            Federal
+                        </button>
+                        <button
+                            type='button'
+                            className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${taxData.isLocal ? 'bg-white dark:bg-zinc-800 shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
+                            onClick={() => setTaxData({ ...taxData, isLocal: true, type: '', rate: 0 })}
+                        >
+                            Local
+                        </button>
+                    </div>
+
+                    {!taxData.isLocal && (
+                        <div className='space-y-3 mb-4'>
+                            <p className='text-[10px] font-black text-slate-400 uppercase tracking-widest px-1'>Selección Rápida</p>
+                            <div className='grid grid-cols-2 gap-2'>
+                                {[
+                                    { label: 'IVA 16%', type: 'IVA', rate: 16, factor: 'Tasa', wh: false },
+                                    { label: 'IVA 8%', type: 'IVA', rate: 8, factor: 'Tasa', wh: false },
+                                    { label: 'IVA Exento', type: 'IVA', rate: 0, factor: 'Exento', wh: false },
+                                    { label: 'ISR 1.25%', type: 'ISR', rate: 1.25, factor: 'Tasa', wh: true },
+                                    { label: 'Ret. IVA 10.67%', type: 'IVA', rate: 10.6667, factor: 'Tasa', wh: true },
+                                    { label: 'IEPS 8%', type: 'IEPS', rate: 8, factor: 'Tasa', wh: false },
+                                ].map((preset) => (
+                                    <Button
+                                        key={preset.label}
+                                        type='button'
+                                        variant='outline'
+                                        size='sm'
+                                        className='h-8 text-[10px] font-bold border-slate-200 hover:border-orange-500 hover:text-orange-600'
+                                        onClick={() => setTaxData({
+                                            ...taxData,
+                                            type: preset.type,
+                                            rate: preset.rate,
+                                            factor: preset.factor as any,
+                                            withholding: preset.wh
+                                        })}
+                                    >
+                                        {preset.label}
+                                    </Button>
+                                ))}
                             </div>
                         </div>
+                    )}
+
+                    <div className='grid gap-4 py-2'>
+                        {taxData.isLocal ? (
+                            <div className='grid grid-cols-4 items-center gap-4'>
+                                <Label className='text-right text-xs font-bold uppercase'>Nombre</Label>
+                                <Input
+                                    className='col-span-3'
+                                    placeholder='Ej. ISH'
+                                    value={taxData.type}
+                                    onChange={(e) => setTaxData({ ...taxData, type: e.target.value })}
+                                />
+                            </div>
+                        ) : (
+                            <div className='grid grid-cols-4 items-center gap-4'>
+                                <Label className='text-right text-xs font-bold uppercase'>Impuesto</Label>
+                                <div className='col-span-3'>
+                                    <ComboboxDropdown
+                                        defaultValue={taxData.type}
+                                        onValueChange={(val) => setTaxData({ ...taxData, type: val as any })}
+                                        items={[
+                                            { label: 'IVA', value: 'IVA' },
+                                            { label: 'ISR', value: 'ISR' },
+                                            { label: 'IEPS', value: 'IEPS' },
+                                        ]}
+                                    />
+                                </div>
+                            </div>
+                        )}
+
                         <div className='grid grid-cols-4 items-center gap-4'>
-                            <Label htmlFor='tax-rate' className='text-right text-xs font-bold uppercase'>Tasa (%)</Label>
+                            <Label className='text-right text-xs font-bold uppercase'>Tasa (%)</Label>
                             <Input
-                                id='tax-rate'
                                 type='number'
+                                step='any'
                                 className='col-span-3'
                                 value={taxData.rate}
                                 onChange={(e) => setTaxData({ ...taxData, rate: Number(e.target.value) })}
                             />
+                        </div>
+
+                        {!taxData.isLocal && (
+                            <>
+                                <div className='grid grid-cols-4 items-center gap-4'>
+                                    <Label className='text-right text-xs font-bold uppercase'>Factor</Label>
+                                    <div className='col-span-3'>
+                                        <ComboboxDropdown
+                                            defaultValue={taxData.factor}
+                                            onValueChange={(val) => setTaxData({ ...taxData, factor: val as any })}
+                                            items={[
+                                                { label: 'Tasa', value: 'Tasa' },
+                                                { label: 'Cuota', value: 'Cuota' },
+                                                { label: 'Exento', value: 'Exento' },
+                                            ]}
+                                        />
+                                    </div>
+                                </div>
+                                <div className='grid grid-cols-4 items-center gap-4'>
+                                    <Label className='text-right text-xs font-bold uppercase'>Tipo</Label>
+                                    <div className='col-span-3 flex items-center space-x-2'>
+                                        <Switch
+                                            checked={taxData.withholding}
+                                            onCheckedChange={(val) => setTaxData({ ...taxData, withholding: val })}
+                                        />
+                                        <span className='text-xs font-bold uppercase text-slate-500'>
+                                            {taxData.withholding ? 'Retención' : 'Traslado'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+
+                        <div className='bg-slate-50 dark:bg-zinc-900/50 p-3 rounded-lg border border-slate-100 dark:border-zinc-800'>
+                            <div className='flex justify-between items-center'>
+                                <span className='text-[10px] font-black text-slate-400 uppercase tracking-widest'>Base del Impuesto</span>
+                                <span className='text-xs font-black text-slate-700 dark:text-zinc-200'>{taxData.base.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</span>
+                            </div>
                         </div>
                     </div>
                     <DialogFooter>
