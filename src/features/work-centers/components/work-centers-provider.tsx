@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import useDialogState from '@/hooks/use-dialog-state'
 import { type WorkCenter } from '../data/schema'
 
-type WorkCentersDialogType = 'add' | 'edit' | 'delete' | 'upload-cert' | 'confirm-upload' | 'upload-logo' | 'preview-logo'
+type WorkCentersDialogType = 'add' | 'edit' | 'delete' | 'upload-cert' | 'confirm-upload' | 'upload-logo' | 'preview-logo' | 'upload-opinion'
 
 type WorkCentersContextType = {
     open: WorkCentersDialogType | null

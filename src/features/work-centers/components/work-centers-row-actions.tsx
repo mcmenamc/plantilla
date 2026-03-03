@@ -1,7 +1,7 @@
 import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 import { type Row } from '@tanstack/react-table'
 import { useNavigate } from '@tanstack/react-router'
-import { Trash2, Edit, FileUp, ImagePlus } from 'lucide-react'
+import { Trash2, Edit, FileUp, ImagePlus, FileCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
     DropdownMenu,
@@ -65,6 +65,17 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
                         Logo
                         <DropdownMenuShortcut>
                             <ImagePlus size={16} />
+                        </DropdownMenuShortcut>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                        onClick={() => {
+                            setCurrentRow(row.original)
+                            setOpen('upload-opinion')
+                        }}
+                    >
+                        Opinión del SAT
+                        <DropdownMenuShortcut>
+                            <FileCheck size={16} />
                         </DropdownMenuShortcut>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />

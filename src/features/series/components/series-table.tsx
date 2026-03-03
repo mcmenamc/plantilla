@@ -21,33 +21,28 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { DataTableToolbar } from '@/components/data-table'
-import { type Invoice } from '../data/schema'
-import { invoicesColumns as columns } from './invoices-columns'
+import { type SeriesRow, seriesColumns as columns } from './series-columns'
 
 type DataTableProps = {
-    data: Invoice[]
+    data: SeriesRow[]
     search: Record<string, unknown>
     navigate: NavigateFn
+    isLoading?: boolean
 }
 
-export function InvoicesTable({ data, search, navigate }: DataTableProps) {
-    const [rowSelection, setRowSelection] = useState({})
+export function SeriesTable({ data, search, navigate, isLoading }: DataTableProps) {
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
     const [sorting, setSorting] = useState<SortingState>([])
 
     const {
         columnFilters,
         onColumnFiltersChange,
-        globalFilter,
-        onGlobalFilterChange,
     } = useTableUrlState({
         search,
         navigate,
-        globalFilter: { enabled: true, key: 'q' },
+        globalFilter: { enabled: false },
         columnFilters: [
-            { columnId: 'status', searchKey: 'status', type: 'array' },
-            { columnId: 'tipo_cfdi', searchKey: 'tipo', type: 'array' },
-            { columnId: 'metodo_pago', searchKey: 'metodo', type: 'array' },
+            { columnId: 'typeName', searchKey: 'name', type: 'string' },
         ],
     })
 
@@ -56,15 +51,10 @@ export function InvoicesTable({ data, search, navigate }: DataTableProps) {
         columns,
         state: {
             sorting,
-            rowSelection,
             columnFilters,
             columnVisibility,
-            globalFilter,
         },
-        enableRowSelection: false,
         onColumnFiltersChange,
-        onGlobalFilterChange,
-        onRowSelectionChange: setRowSelection,
         onSortingChange: setSorting,
         onColumnVisibilityChange: setColumnVisibility,
         getCoreRowModel: getCoreRowModel(),
@@ -74,44 +64,12 @@ export function InvoicesTable({ data, search, navigate }: DataTableProps) {
         getFacetedUniqueValues: getFacetedUniqueValues(),
     })
 
-
-
     return (
         <div className='flex flex-1 flex-col gap-4'>
             <DataTableToolbar
                 table={table}
-                searchPlaceholder='Buscar por nombre, RFC, UUID...'
-                filters={[
-                    {
-                        columnId: 'status',
-                        title: 'Estado',
-                        options: [
-                            { label: 'Válida', value: 'valid' },
-                            { label: 'Borrador', value: 'draft' },
-                            { label: 'Pendiente', value: 'pending' },
-                            { label: 'Cancelada', value: 'cancelled' },
-                        ],
-                    },
-                    {
-                        columnId: 'tipo_cfdi',
-                        title: 'Tipo',
-                        options: [
-                            { label: 'Ingreso', value: 'I' },
-                            { label: 'Egreso', value: 'E' },
-                            { label: 'Pago', value: 'P' },
-                            { label: 'Nómina', value: 'N' },
-                            { label: 'Traslado', value: 'T' },
-                        ],
-                    },
-                    {
-                        columnId: 'metodo_pago',
-                        title: 'Método',
-                        options: [
-                            { label: 'PUE - Una exhibición', value: 'PUE' },
-                            { label: 'PPD - Diferido', value: 'PPD' },
-                        ],
-                    },
-                ]}
+                searchPlaceholder='Buscar series...'
+                searchKey='typeName'
             />
             <div className='overflow-hidden rounded-md border'>
                 <Table>
@@ -141,18 +99,23 @@ export function InvoicesTable({ data, search, navigate }: DataTableProps) {
                         ))}
                     </TableHeader>
                     <TableBody>
-                        {table.getRowModel().rows?.length ? (
+                        {isLoading ? (
+                            <TableRow>
+                                <TableCell colSpan={columns.length} className='h-24 text-center'>
+                                    Cargando series...
+                                </TableCell>
+                            </TableRow>
+                        ) : table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => (
                                 <TableRow
                                     key={row.id}
-                                    data-state={row.getIsSelected() && 'selected'}
                                     className='group/row'
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell
                                             key={cell.id}
                                             className={cn(
-                                                'bg-background group-hover/row:bg-muted group-data-[state=selected]/row:bg-muted',
+                                                'bg-background group-hover/row:bg-muted',
                                                 cell.column.columnDef.meta?.className
                                             )}
                                         >

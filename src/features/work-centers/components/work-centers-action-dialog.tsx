@@ -2,6 +2,7 @@ import { WorkCentersDeleteDialog } from './work-centers-delete-dialog'
 import { WorkCentersLogoDialog } from './work-centers-logo-dialog'
 import { WorkCentersUploadCertDialog } from './work-centers-upload-cert-dialog'
 import { WorkCentersConfirmUploadDialog } from './work-centers-confirm-upload-dialog'
+import { WorkCentersUploadOpinionDialog } from './work-centers-upload-opinion-dialog'
 import { useWorkCenters } from './work-centers-provider'
 
 export function WorkCentersActionDialog() {
@@ -25,6 +26,7 @@ export function WorkCentersActionDialog() {
                     <WorkCentersLogoDialog />
                     <WorkCentersUploadCertDialog />
                     <WorkCentersConfirmUploadDialog />
+                    <WorkCentersUploadOpinionDialog />
                 </>
             )}
         </>

@@ -78,6 +78,11 @@ export const sidebarData: SidebarData = {
           url: '/invoicing',
           icon: FileText,
         },
+        {
+          title: 'Series',
+          url: '/series',
+          icon: FileText,
+        },
 
         // {
         //   title: 'Notas de Crédito',

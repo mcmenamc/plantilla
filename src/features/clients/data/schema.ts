@@ -10,6 +10,7 @@ export const clientSchema = z.object({
     estatus: z.string(),
     workcenterId: z.string(),
     customerIdFacturaApi: z.string().optional().nullable(),
+    default_invoice_use: z.string().optional().nullable(),
     cp: z.string(),
     createdAt: z.string(),
     updatedAt: z.string(),
@@ -25,6 +26,7 @@ export const createClientSchema = z.object({
     regimenFiscal: z.string().min(1, 'El régimen fiscal es obligatorio'),
     cp: z.string().regex(/^[0-9]{5}$/, 'El código postal debe tener 5 dígitos'),
     workcenterId: z.string().min(1, 'El centro de trabajo es obligatorio'),
+    default_invoice_use: z.string().optional().nullable(),
 })
 
 export type Client = z.infer<typeof clientSchema>

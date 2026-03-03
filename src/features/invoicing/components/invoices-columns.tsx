@@ -1,52 +1,70 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { cn } from '@/lib/utils'
-import { Checkbox } from '@/components/ui/checkbox'
-import { LongText } from '@/components/long-text'
 import { Invoice } from '../data/schema'
 import { DataTableRowActions } from './data-table-row-actions'
-import { format } from 'date-fns'
+import { formatDateUnshifted } from '@/lib/utils'
+import { Copy } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
 
 export const invoicesColumns: ColumnDef<Invoice>[] = [
     {
-        id: 'select',
-        header: ({ table }) => (
-            <Checkbox
-                checked={
-                    table.getIsAllPageRowsSelected() ||
-                    (table.getIsSomePageRowsSelected() && 'indeterminate')
-                }
-                onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                aria-label='Select all'
-                className='translate-y-[2px]'
-            />
-        ),
-        cell: ({ row }) => (
-            <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={(value) => row.toggleSelected(!!value)}
-                aria-label='Select row'
-                className='translate-y-[2px]'
-            />
-        ),
-        enableSorting: false,
-        enableHiding: false,
-    },
-    {
         accessorKey: 'folio',
         header: 'Folio',
+        enableSorting: true,
         cell: ({ row }) => {
             const serie = row.original.serie || ''
             const folio = row.original.folio_number || ''
-            return <div className='w-fit text-nowrap font-medium'>{serie}{folio ? `-${folio}` : ''}</div>
+            return <div className='w-fit text-nowrap font-bold text-slate-900'>{serie}{folio ? `-${folio}` : ''}</div>
         },
     },
     {
-        id: 'client',
-        accessorKey: 'customer.razonSocial',
+        id: 'receptor',
         header: 'Receptor',
-        cell: ({ row }) => <LongText className='max-w-48'>{row.original.customer?.razonSocial || 'N/A'}</LongText>,
+        cell: ({ row }) => {
+            const receptor = row.original.receptor
+            const customer = row.original.customer
+            const name = receptor?.razon_social || customer?.razonSocial || 'N/A'
+            const rfc = receptor?.rfc || customer?.rfc || ''
+
+            return (
+                <div className='flex flex-col'>
+                    <div className='max-w-48 font-bold text-slate-800 dark:text-zinc-200 truncate'>{name}</div>
+                    <span className='text-[10px] text-slate-500 font-mono'>{rfc}</span>
+                </div>
+            )
+        },
         meta: {
-            className: 'w-48',
+            className: 'w-64',
+        },
+    },
+    {
+        accessorKey: 'uuid',
+        header: 'UUID (Folio Fiscal)',
+        cell: ({ row }) => {
+            const uuid = row.getValue('uuid') as string
+            if (!uuid) return <span className='text-slate-400'>-</span>
+
+            const copyToClipboard = () => {
+                navigator.clipboard.writeText(uuid)
+                toast.success('UUID copiado al portapapeles')
+            }
+
+            return (
+                <div className='flex items-center gap-2 group'>
+                    <div className='w-32 truncate text-[10px] font-mono text-slate-500 uppercase' title={uuid}>
+                        {uuid}
+                    </div>
+                    <Button
+                        variant='ghost'
+                        size='icon'
+                        className='h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-orange-50 hover:text-orange-600'
+                        onClick={copyToClipboard}
+                    >
+                        <Copy className='h-3 w-3' />
+                    </Button>
+                </div>
+            )
         },
     },
     {
@@ -67,15 +85,16 @@ export const invoicesColumns: ColumnDef<Invoice>[] = [
     {
         accessorKey: 'fecha_emision',
         header: 'Fecha',
+        enableSorting: true,
         cell: ({ row }) => {
             const dateStr = row.getValue('fecha_emision') as string
-            if (!dateStr) return <div>-</div>
-            return <div className='w-fit text-nowrap'>{format(new Date(dateStr), 'dd/MM/yyyy')}</div>
+            return <div className='w-fit text-nowrap'>{formatDateUnshifted(dateStr)}</div>
         },
     },
     {
         accessorKey: 'total',
         header: 'Importe Facturado',
+        enableSorting: true,
         cell: ({ row }) => {
             const total = parseFloat(row.getValue('total'))
             const formatted = new Intl.NumberFormat('es-MX', {
@@ -86,15 +105,19 @@ export const invoicesColumns: ColumnDef<Invoice>[] = [
         },
     },
     {
-        id: 'balance',
-        header: 'Balance',
+        accessorKey: 'moneda',
+        header: 'Moneda',
         cell: ({ row }) => {
-            const total = parseFloat(row.original.total as any)
-            const formatted = new Intl.NumberFormat('es-MX', {
-                style: 'currency',
-                currency: 'MXN',
-            }).format(total)
-            return <div className='font-medium text-slate-500'>{formatted}</div>
+            const currency = row.original.moneda || 'MXN'
+            const exchange = row.original.tipo_cambio
+            return (
+                <div className='flex flex-col items-start'>
+                    <span className='font-medium'>{currency}</span>
+                    {exchange && exchange !== 1 && (
+                        <span className='text-[10px] text-slate-400'>TC: {exchange}</span>
+                    )}
+                </div>
+            )
         },
     },
     {

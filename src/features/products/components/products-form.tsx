@@ -26,6 +26,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useWorkCenterStore } from '@/stores/work-center-store'
 import { createProducto, getProductoById, updateProducto, searchSatProducts, searchSatUnits } from '../data/products-api'
+import { TAXABILITY_CATALOG } from '@/features/invoicing/data/invoicing-api'
 import { createProductSchema, type CreateProductPayload, type Product } from '../data/schema'
 import { Loader2, Plus, Trash2 } from 'lucide-react'
 import { RemoteCombobox } from '@/components/remote-combobox'
@@ -36,9 +37,11 @@ import { Separator } from '@/components/ui/separator'
 interface ProductsFormProps {
     productId?: string
     initialData?: Product
+    onSuccess?: (data: Product) => void
+    onCancel?: () => void
 }
 
-export function ProductsForm({ productId, initialData }: ProductsFormProps) {
+export function ProductsForm({ productId, initialData, onSuccess, onCancel }: ProductsFormProps) {
     const isEdit = !!productId
 
     const { data: fetchedProduct, isLoading: isLoadingProduct } = useQuery({
@@ -61,14 +64,16 @@ export function ProductsForm({ productId, initialData }: ProductsFormProps) {
         return null
     }
 
-    return <ProductsFormInner product={product} />
+    return <ProductsFormInner product={product} onSuccess={onSuccess} onCancel={onCancel} />
 }
 
 interface ProductsFormInnerProps {
     product?: Product
+    onSuccess?: (data: Product) => void
+    onCancel?: () => void
 }
 
-function ProductsFormInner({ product }: ProductsFormInnerProps) {
+function ProductsFormInner({ product, onSuccess, onCancel }: ProductsFormInnerProps) {
     const navigate = useNavigate()
     const queryClient = useQueryClient()
     const { selectedWorkCenterId } = useWorkCenterStore()
@@ -86,15 +91,15 @@ function ProductsFormInner({ product }: ProductsFormInnerProps) {
                 type: (t.type as 'IVA' | 'ISR' | 'IEPS') || 'IVA',
                 rate: t.rate || 0,
                 withholding: !!(t.withholding ?? (t as any).is_retention ?? false),
-                base: Number(t.base ?? 1),
+                base: 100,
                 factor: (t.factor as 'Tasa' | 'Cuota' | 'Exento') || 'Tasa'
             })) || [])
-            : [{ type: 'IVA', rate: 0.16, withholding: false, base: 1, factor: 'Tasa' }],
+            : [{ type: 'IVA', rate: 0.16, withholding: false, base: 100, factor: 'Tasa' }],
         local_taxes: product?.local_taxes?.map(t => ({
             type: String(t.type || (t as any).name || ''),
             rate: t.rate || 0,
             withholding: !!(t.withholding ?? (t as any).is_retention ?? false),
-            base: Number(t.base ?? 1)
+            base: 100
         })) || [],
         unit_key: product?.unit_key || '',
         unit_name: product?.unit_name || '',
@@ -130,10 +135,17 @@ function ProductsFormInner({ product }: ProductsFormInnerProps) {
 
     const { mutate: createMutate, isPending: isCreating } = useMutation({
         mutationFn: createProducto,
-        onSuccess: () => {
+        onSuccess: (data) => {
+            queryClient.setQueryData(['products', selectedWorkCenterId], (old: Product[] | undefined) => {
+                return old ? [data, ...old] : [data]
+            })
             queryClient.invalidateQueries({ queryKey: ['products', selectedWorkCenterId] })
             toast.success('Producto registrado correctamente')
-            navigate({ to: '/products', search: { page: 1, perPage: 10 } as any })
+            if (onSuccess) {
+                onSuccess(data)
+            } else {
+                navigate({ to: '/products', search: { page: 1, perPage: 10 } as any })
+            }
         },
         onError: (error: any) => {
             toast.error(error.response?.data?.message || 'Error al registrar el producto')
@@ -322,19 +334,6 @@ function ProductsFormInner({ product }: ProductsFormInnerProps) {
                                         />
                                         <FormField
                                             control={form.control as any}
-                                            name={`taxes.${index}.base`}
-                                            render={({ field }) => (
-                                                <FormItem className='w-24'>
-                                                    <FormLabel>Base</FormLabel>
-                                                    <FormControl>
-                                                        <Input type='number' {...field} onChange={(e) => field.onChange(parseFloat(e.target.value))} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control as any}
                                             name={`taxes.${index}.factor`}
                                             render={({ field }) => (
                                                 <FormItem className='w-28'>
@@ -395,7 +394,7 @@ function ProductsFormInner({ product }: ProductsFormInnerProps) {
                                     variant='outline'
                                     size='sm'
                                     className='mt-2'
-                                    onClick={() => appendTax({ type: 'IVA', rate: 0.16, withholding: false, base: 1, factor: 'Tasa' })}
+                                    onClick={() => appendTax({ type: 'IVA', rate: 0.16, withholding: false, base: 100, factor: 'Tasa' })}
                                 >
                                     <Plus className='mr-2 h-4 w-4' />
                                     Agregar Impuesto
@@ -431,19 +430,6 @@ function ProductsFormInner({ product }: ProductsFormInnerProps) {
                                                     <FormLabel>Tasa</FormLabel>
                                                     <FormControl>
                                                         <Input type='number' step='0.01' {...field} onChange={(e) => field.onChange(parseFloat(e.target.value))} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control as any}
-                                            name={`local_taxes.${index}.base`}
-                                            render={({ field }) => (
-                                                <FormItem className='w-24'>
-                                                    <FormLabel>Base</FormLabel>
-                                                    <FormControl>
-                                                        <Input type='number' {...field} onChange={(e) => field.onChange(parseFloat(e.target.value))} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -489,13 +475,47 @@ function ProductsFormInner({ product }: ProductsFormInnerProps) {
                                     variant='outline'
                                     size='sm'
                                     className='mt-2'
-                                    onClick={() => appendLocalTax({ type: '', rate: 0, withholding: false, base: 1 })}
+                                    onClick={() => appendLocalTax({ type: '', rate: 0, withholding: false, base: 100 })}
                                 >
                                     <Plus className='mr-2 h-4 w-4' />
                                     Agregar Impuesto Local
                                 </Button>
                             </div>
                         </div>
+
+                        <Separator className='my-4' />
+
+                        {/* Price Calculation Summary */}
+                        {(() => {
+                            const precio = form.watch('precio') || 0
+                            const taxIncluded = form.watch('tax_included')
+                            const watchedTaxes: any[] = form.watch('taxes') || []
+                            const watchedLocalTaxes: any[] = form.watch('local_taxes') || []
+                            const allRates = [...watchedTaxes, ...watchedLocalTaxes]
+                            const netRateFactor = allRates.reduce((acc: number, t: any) => {
+                                const r = t.rate > 1 ? t.rate / 100 : t.rate
+                                return acc + (t.withholding ? -r : r)
+                            }, 0)
+                            const subtotal = taxIncluded ? precio / (1 + netRateFactor) : precio
+                            const taxTotal = subtotal * netRateFactor
+                            const total = subtotal + taxTotal
+                            return (
+                                <div className='flex flex-wrap gap-4 bg-slate-50 dark:bg-zinc-900/40 border border-slate-100 dark:border-zinc-800 rounded-lg px-4 py-3 mb-4'>
+                                    <div className='flex flex-col'>
+                                        <span className='text-[9px] font-bold text-slate-400 uppercase tracking-wider'>Subtotal</span>
+                                        <span className='text-sm font-black text-slate-700 dark:text-zinc-100'>{subtotal.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</span>
+                                    </div>
+                                    <div className='flex flex-col'>
+                                        <span className='text-[9px] font-bold text-slate-400 uppercase tracking-wider'>Impuestos</span>
+                                        <span className='text-sm font-black text-emerald-600'>{taxTotal.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</span>
+                                    </div>
+                                    <div className='flex flex-col ml-auto'>
+                                        <span className='text-[9px] font-bold text-orange-600 uppercase tracking-wider'>Total al Cliente</span>
+                                        <span className='text-lg font-black text-orange-600'>{total.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</span>
+                                    </div>
+                                </div>
+                            )
+                        })()}
 
                         <Separator className='my-4' />
 
@@ -511,16 +531,18 @@ function ProductsFormInner({ product }: ProductsFormInnerProps) {
                                             {...field}
                                             onChange={(e) => field.onChange(e.target.value)}
                                         >
-                                            <option value='01'>01 - No objeto de impuesto</option>
-                                            <option value='02'>02 - Sí objeto de impuesto</option>
-                                            <option value='03'>03 - Sí objeto de impuesto, pero no obligado a desglose</option>
-                                            <option value='04'>04 - Sí objeto de impuesto, y no causa impuesto</option>
+                                            {TAXABILITY_CATALOG.map((option: { value: string, label: string }) => (
+                                                <option key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </option>
+                                            ))}
                                         </select>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
+
                     </CardContent>
                 </Card>
 
@@ -528,7 +550,13 @@ function ProductsFormInner({ product }: ProductsFormInnerProps) {
                     <Button
                         type='button'
                         variant='outline'
-                        onClick={() => navigate({ to: '/products', search: { page: 1, perPage: 10 } as any })}
+                        onClick={() => {
+                            if (onCancel) {
+                                onCancel()
+                            } else {
+                                navigate({ to: '/products', search: { page: 1, perPage: 10 } as any })
+                            }
+                        }}
                     >
                         Cancelar
                     </Button>

@@ -16,6 +16,10 @@ export const workCenterSchema = z.object({
     keyFile: z.string().optional(),
     imagen: z.string().optional(),
     workcenterIdFacturaApi: z.string().optional().nullable(),
+    opinionCumplimiento: z.object({
+        url: z.string(),
+        valida: z.boolean()
+    }).optional().nullable(),
     direccion: z.object({
         calle: z.string(),
         exterior: z.string(),

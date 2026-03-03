@@ -27,11 +27,13 @@ import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-p
 import { Route as ClerkAuthenticatedRouteRouteImport } from './routes/clerk/_authenticated/route'
 import { Route as ClerkauthRouteRouteImport } from './routes/clerk/(auth)/route'
 import { Route as AuthenticatedSettingsRouteRouteImport } from './routes/_authenticated/settings/route'
+import { Route as AuthenticatedSeriesRouteRouteImport } from './routes/_authenticated/series/route'
 import { Route as AuthenticatedWorkCentersIndexRouteImport } from './routes/_authenticated/work-centers/index'
 import { Route as AuthenticatedViewerIndexRouteImport } from './routes/_authenticated/viewer/index'
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
+import { Route as AuthenticatedSeriesIndexRouteImport } from './routes/_authenticated/series/index'
 import { Route as AuthenticatedQuotesIndexRouteImport } from './routes/_authenticated/quotes/index'
 import { Route as AuthenticatedProductsIndexRouteImport } from './routes/_authenticated/products/index'
 import { Route as AuthenticatedInvoicingIndexRouteImport } from './routes/_authenticated/invoicing/index'
@@ -48,6 +50,7 @@ import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes
 import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_authenticated/settings/display'
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
+import { Route as AuthenticatedSeriesCreateRouteImport } from './routes/_authenticated/series/create'
 import { Route as AuthenticatedProductsAddRouteImport } from './routes/_authenticated/products/add'
 import { Route as AuthenticatedInvoicingNewRouteImport } from './routes/_authenticated/invoicing/new'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
@@ -57,6 +60,8 @@ import { Route as AuthenticatedInvoicingPaymentComplementsIndexRouteImport } fro
 import { Route as AuthenticatedInvoicingCreditNotesIndexRouteImport } from './routes/_authenticated/invoicing/credit-notes/index'
 import { Route as AuthenticatedInvoicingBillOfLadingIndexRouteImport } from './routes/_authenticated/invoicing/bill-of-lading/index'
 import { Route as AuthenticatedWorkCentersWorkCenterIdEditRouteImport } from './routes/_authenticated/work-centers/$workCenterId/edit'
+import { Route as AuthenticatedSeriesEditSeriesIdRouteImport } from './routes/_authenticated/series/edit.$seriesId'
+import { Route as AuthenticatedSeriesSeriesIdEditRouteImport } from './routes/_authenticated/series/$seriesId/edit'
 import { Route as AuthenticatedProductsProductIdEditRouteImport } from './routes/_authenticated/products/$productId/edit'
 import { Route as AuthenticatedClientsClientIdEditRouteImport } from './routes/_authenticated/clients/$clientId/edit'
 
@@ -148,6 +153,12 @@ const AuthenticatedSettingsRouteRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedSeriesRouteRoute =
+  AuthenticatedSeriesRouteRouteImport.update({
+    id: '/series',
+    path: '/series',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedWorkCentersIndexRoute =
   AuthenticatedWorkCentersIndexRouteImport.update({
     id: '/work-centers/',
@@ -175,6 +186,12 @@ const AuthenticatedSettingsIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedSettingsRouteRoute,
+  } as any)
+const AuthenticatedSeriesIndexRoute =
+  AuthenticatedSeriesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedSeriesRouteRoute,
   } as any)
 const AuthenticatedQuotesIndexRoute =
   AuthenticatedQuotesIndexRouteImport.update({
@@ -268,6 +285,12 @@ const AuthenticatedSettingsAccountRoute =
     path: '/account',
     getParentRoute: () => AuthenticatedSettingsRouteRoute,
   } as any)
+const AuthenticatedSeriesCreateRoute =
+  AuthenticatedSeriesCreateRouteImport.update({
+    id: '/create',
+    path: '/create',
+    getParentRoute: () => AuthenticatedSeriesRouteRoute,
+  } as any)
 const AuthenticatedProductsAddRoute =
   AuthenticatedProductsAddRouteImport.update({
     id: '/products/add',
@@ -321,6 +344,18 @@ const AuthenticatedWorkCentersWorkCenterIdEditRoute =
     path: '/work-centers/$workCenterId/edit',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedSeriesEditSeriesIdRoute =
+  AuthenticatedSeriesEditSeriesIdRouteImport.update({
+    id: '/edit/$seriesId',
+    path: '/edit/$seriesId',
+    getParentRoute: () => AuthenticatedSeriesRouteRoute,
+  } as any)
+const AuthenticatedSeriesSeriesIdEditRoute =
+  AuthenticatedSeriesSeriesIdEditRouteImport.update({
+    id: '/$seriesId/edit',
+    path: '/$seriesId/edit',
+    getParentRoute: () => AuthenticatedSeriesRouteRoute,
+  } as any)
 const AuthenticatedProductsProductIdEditRoute =
   AuthenticatedProductsProductIdEditRouteImport.update({
     id: '/products/$productId/edit',
@@ -339,6 +374,7 @@ export interface FileRoutesByFullPath {
   '/bienvenido': typeof BienvenidoRoute
   '/configurar-cuenta': typeof ConfigurarCuentaRoute
   '/prueba-gratis': typeof PruebaGratisRoute
+  '/series': typeof AuthenticatedSeriesRouteRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
   '/clerk/': typeof ClerkauthRouteRouteWithChildren
   '/forgot-password': typeof authForgotPasswordRoute
@@ -355,6 +391,7 @@ export interface FileRoutesByFullPath {
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/invoicing/new': typeof AuthenticatedInvoicingNewRoute
   '/products/add': typeof AuthenticatedProductsAddRoute
+  '/series/create': typeof AuthenticatedSeriesCreateRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
@@ -371,6 +408,7 @@ export interface FileRoutesByFullPath {
   '/invoicing': typeof AuthenticatedInvoicingIndexRoute
   '/products': typeof AuthenticatedProductsIndexRoute
   '/quotes': typeof AuthenticatedQuotesIndexRoute
+  '/series/': typeof AuthenticatedSeriesIndexRoute
   '/settings/': typeof AuthenticatedSettingsIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
@@ -378,6 +416,8 @@ export interface FileRoutesByFullPath {
   '/work-centers': typeof AuthenticatedWorkCentersIndexRoute
   '/clients/$clientId/edit': typeof AuthenticatedClientsClientIdEditRoute
   '/products/$productId/edit': typeof AuthenticatedProductsProductIdEditRoute
+  '/series/$seriesId/edit': typeof AuthenticatedSeriesSeriesIdEditRoute
+  '/series/edit/$seriesId': typeof AuthenticatedSeriesEditSeriesIdRoute
   '/work-centers/$workCenterId/edit': typeof AuthenticatedWorkCentersWorkCenterIdEditRoute
   '/invoicing/bill-of-lading': typeof AuthenticatedInvoicingBillOfLadingIndexRoute
   '/invoicing/credit-notes': typeof AuthenticatedInvoicingCreditNotesIndexRoute
@@ -403,6 +443,7 @@ export interface FileRoutesByTo {
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/invoicing/new': typeof AuthenticatedInvoicingNewRoute
   '/products/add': typeof AuthenticatedProductsAddRoute
+  '/series/create': typeof AuthenticatedSeriesCreateRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
@@ -419,6 +460,7 @@ export interface FileRoutesByTo {
   '/invoicing': typeof AuthenticatedInvoicingIndexRoute
   '/products': typeof AuthenticatedProductsIndexRoute
   '/quotes': typeof AuthenticatedQuotesIndexRoute
+  '/series': typeof AuthenticatedSeriesIndexRoute
   '/settings': typeof AuthenticatedSettingsIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
@@ -426,6 +468,8 @@ export interface FileRoutesByTo {
   '/work-centers': typeof AuthenticatedWorkCentersIndexRoute
   '/clients/$clientId/edit': typeof AuthenticatedClientsClientIdEditRoute
   '/products/$productId/edit': typeof AuthenticatedProductsProductIdEditRoute
+  '/series/$seriesId/edit': typeof AuthenticatedSeriesSeriesIdEditRoute
+  '/series/edit/$seriesId': typeof AuthenticatedSeriesEditSeriesIdRoute
   '/work-centers/$workCenterId/edit': typeof AuthenticatedWorkCentersWorkCenterIdEditRoute
   '/invoicing/bill-of-lading': typeof AuthenticatedInvoicingBillOfLadingIndexRoute
   '/invoicing/credit-notes': typeof AuthenticatedInvoicingCreditNotesIndexRoute
@@ -439,6 +483,7 @@ export interface FileRoutesById {
   '/bienvenido': typeof BienvenidoRoute
   '/configurar-cuenta': typeof ConfigurarCuentaRoute
   '/prueba-gratis': typeof PruebaGratisRoute
+  '/_authenticated/series': typeof AuthenticatedSeriesRouteRouteWithChildren
   '/_authenticated/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
   '/clerk/(auth)': typeof ClerkauthRouteRouteWithChildren
   '/clerk/_authenticated': typeof ClerkAuthenticatedRouteRouteWithChildren
@@ -456,6 +501,7 @@ export interface FileRoutesById {
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/_authenticated/invoicing/new': typeof AuthenticatedInvoicingNewRoute
   '/_authenticated/products/add': typeof AuthenticatedProductsAddRoute
+  '/_authenticated/series/create': typeof AuthenticatedSeriesCreateRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayRoute
@@ -472,6 +518,7 @@ export interface FileRoutesById {
   '/_authenticated/invoicing/': typeof AuthenticatedInvoicingIndexRoute
   '/_authenticated/products/': typeof AuthenticatedProductsIndexRoute
   '/_authenticated/quotes/': typeof AuthenticatedQuotesIndexRoute
+  '/_authenticated/series/': typeof AuthenticatedSeriesIndexRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
@@ -479,6 +526,8 @@ export interface FileRoutesById {
   '/_authenticated/work-centers/': typeof AuthenticatedWorkCentersIndexRoute
   '/_authenticated/clients/$clientId/edit': typeof AuthenticatedClientsClientIdEditRoute
   '/_authenticated/products/$productId/edit': typeof AuthenticatedProductsProductIdEditRoute
+  '/_authenticated/series/$seriesId/edit': typeof AuthenticatedSeriesSeriesIdEditRoute
+  '/_authenticated/series/edit/$seriesId': typeof AuthenticatedSeriesEditSeriesIdRoute
   '/_authenticated/work-centers/$workCenterId/edit': typeof AuthenticatedWorkCentersWorkCenterIdEditRoute
   '/_authenticated/invoicing/bill-of-lading/': typeof AuthenticatedInvoicingBillOfLadingIndexRoute
   '/_authenticated/invoicing/credit-notes/': typeof AuthenticatedInvoicingCreditNotesIndexRoute
@@ -492,6 +541,7 @@ export interface FileRouteTypes {
     | '/bienvenido'
     | '/configurar-cuenta'
     | '/prueba-gratis'
+    | '/series'
     | '/settings'
     | '/clerk/'
     | '/forgot-password'
@@ -508,6 +558,7 @@ export interface FileRouteTypes {
     | '/errors/$error'
     | '/invoicing/new'
     | '/products/add'
+    | '/series/create'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
@@ -524,6 +575,7 @@ export interface FileRouteTypes {
     | '/invoicing'
     | '/products'
     | '/quotes'
+    | '/series/'
     | '/settings/'
     | '/tasks'
     | '/users'
@@ -531,6 +583,8 @@ export interface FileRouteTypes {
     | '/work-centers'
     | '/clients/$clientId/edit'
     | '/products/$productId/edit'
+    | '/series/$seriesId/edit'
+    | '/series/edit/$seriesId'
     | '/work-centers/$workCenterId/edit'
     | '/invoicing/bill-of-lading'
     | '/invoicing/credit-notes'
@@ -556,6 +610,7 @@ export interface FileRouteTypes {
     | '/errors/$error'
     | '/invoicing/new'
     | '/products/add'
+    | '/series/create'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
@@ -572,6 +627,7 @@ export interface FileRouteTypes {
     | '/invoicing'
     | '/products'
     | '/quotes'
+    | '/series'
     | '/settings'
     | '/tasks'
     | '/users'
@@ -579,6 +635,8 @@ export interface FileRouteTypes {
     | '/work-centers'
     | '/clients/$clientId/edit'
     | '/products/$productId/edit'
+    | '/series/$seriesId/edit'
+    | '/series/edit/$seriesId'
     | '/work-centers/$workCenterId/edit'
     | '/invoicing/bill-of-lading'
     | '/invoicing/credit-notes'
@@ -591,6 +649,7 @@ export interface FileRouteTypes {
     | '/bienvenido'
     | '/configurar-cuenta'
     | '/prueba-gratis'
+    | '/_authenticated/series'
     | '/_authenticated/settings'
     | '/clerk/(auth)'
     | '/clerk/_authenticated'
@@ -608,6 +667,7 @@ export interface FileRouteTypes {
     | '/_authenticated/errors/$error'
     | '/_authenticated/invoicing/new'
     | '/_authenticated/products/add'
+    | '/_authenticated/series/create'
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/display'
@@ -624,6 +684,7 @@ export interface FileRouteTypes {
     | '/_authenticated/invoicing/'
     | '/_authenticated/products/'
     | '/_authenticated/quotes/'
+    | '/_authenticated/series/'
     | '/_authenticated/settings/'
     | '/_authenticated/tasks/'
     | '/_authenticated/users/'
@@ -631,6 +692,8 @@ export interface FileRouteTypes {
     | '/_authenticated/work-centers/'
     | '/_authenticated/clients/$clientId/edit'
     | '/_authenticated/products/$productId/edit'
+    | '/_authenticated/series/$seriesId/edit'
+    | '/_authenticated/series/edit/$seriesId'
     | '/_authenticated/work-centers/$workCenterId/edit'
     | '/_authenticated/invoicing/bill-of-lading/'
     | '/_authenticated/invoicing/credit-notes/'
@@ -783,6 +846,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/series': {
+      id: '/_authenticated/series'
+      path: '/series'
+      fullPath: '/series'
+      preLoaderRoute: typeof AuthenticatedSeriesRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/work-centers/': {
       id: '/_authenticated/work-centers/'
       path: '/work-centers'
@@ -817,6 +887,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/settings/'
       preLoaderRoute: typeof AuthenticatedSettingsIndexRouteImport
       parentRoute: typeof AuthenticatedSettingsRouteRoute
+    }
+    '/_authenticated/series/': {
+      id: '/_authenticated/series/'
+      path: '/'
+      fullPath: '/series/'
+      preLoaderRoute: typeof AuthenticatedSeriesIndexRouteImport
+      parentRoute: typeof AuthenticatedSeriesRouteRoute
     }
     '/_authenticated/quotes/': {
       id: '/_authenticated/quotes/'
@@ -930,6 +1007,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsAccountRouteImport
       parentRoute: typeof AuthenticatedSettingsRouteRoute
     }
+    '/_authenticated/series/create': {
+      id: '/_authenticated/series/create'
+      path: '/create'
+      fullPath: '/series/create'
+      preLoaderRoute: typeof AuthenticatedSeriesCreateRouteImport
+      parentRoute: typeof AuthenticatedSeriesRouteRoute
+    }
     '/_authenticated/products/add': {
       id: '/_authenticated/products/add'
       path: '/products/add'
@@ -993,6 +1077,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWorkCentersWorkCenterIdEditRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/series/edit/$seriesId': {
+      id: '/_authenticated/series/edit/$seriesId'
+      path: '/edit/$seriesId'
+      fullPath: '/series/edit/$seriesId'
+      preLoaderRoute: typeof AuthenticatedSeriesEditSeriesIdRouteImport
+      parentRoute: typeof AuthenticatedSeriesRouteRoute
+    }
+    '/_authenticated/series/$seriesId/edit': {
+      id: '/_authenticated/series/$seriesId/edit'
+      path: '/$seriesId/edit'
+      fullPath: '/series/$seriesId/edit'
+      preLoaderRoute: typeof AuthenticatedSeriesSeriesIdEditRouteImport
+      parentRoute: typeof AuthenticatedSeriesRouteRoute
+    }
     '/_authenticated/products/$productId/edit': {
       id: '/_authenticated/products/$productId/edit'
       path: '/products/$productId/edit'
@@ -1009,6 +1107,26 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedSeriesRouteRouteChildren {
+  AuthenticatedSeriesCreateRoute: typeof AuthenticatedSeriesCreateRoute
+  AuthenticatedSeriesIndexRoute: typeof AuthenticatedSeriesIndexRoute
+  AuthenticatedSeriesSeriesIdEditRoute: typeof AuthenticatedSeriesSeriesIdEditRoute
+  AuthenticatedSeriesEditSeriesIdRoute: typeof AuthenticatedSeriesEditSeriesIdRoute
+}
+
+const AuthenticatedSeriesRouteRouteChildren: AuthenticatedSeriesRouteRouteChildren =
+  {
+    AuthenticatedSeriesCreateRoute: AuthenticatedSeriesCreateRoute,
+    AuthenticatedSeriesIndexRoute: AuthenticatedSeriesIndexRoute,
+    AuthenticatedSeriesSeriesIdEditRoute: AuthenticatedSeriesSeriesIdEditRoute,
+    AuthenticatedSeriesEditSeriesIdRoute: AuthenticatedSeriesEditSeriesIdRoute,
+  }
+
+const AuthenticatedSeriesRouteRouteWithChildren =
+  AuthenticatedSeriesRouteRoute._addFileChildren(
+    AuthenticatedSeriesRouteRouteChildren,
+  )
 
 interface AuthenticatedSettingsRouteRouteChildren {
   AuthenticatedSettingsAccountRoute: typeof AuthenticatedSettingsAccountRoute
@@ -1034,6 +1152,7 @@ const AuthenticatedSettingsRouteRouteWithChildren =
   )
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedSeriesRouteRoute: typeof AuthenticatedSeriesRouteRouteWithChildren
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedClientsAddRoute: typeof AuthenticatedClientsAddRoute
@@ -1063,6 +1182,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedSeriesRouteRoute: AuthenticatedSeriesRouteRouteWithChildren,
   AuthenticatedSettingsRouteRoute: AuthenticatedSettingsRouteRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedClientsAddRoute: AuthenticatedClientsAddRoute,

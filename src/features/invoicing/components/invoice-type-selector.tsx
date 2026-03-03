@@ -1,4 +1,4 @@
-import { LucideIcon, Banknote, Receipt, Truck, Users, CircleDollarSign, Check } from 'lucide-react'
+import { LucideIcon, Banknote, Receipt, Truck, CircleDollarSign, Check } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 
@@ -14,8 +14,7 @@ const invoiceTypes: InvoiceTypeOption[] = [
     { id: 'I', title: 'Ingresos', icon: CircleDollarSign },
     { id: 'E', title: 'Egresos', icon: Receipt },
     { id: 'T', title: 'Traslado', icon: Truck },
-    { id: 'P', title: 'Pago', icon: Banknote },
-    { id: 'N', title: 'Nómina', icon: Users },
+    { id: 'P', title: 'Pago', icon: Banknote }
 ]
 
 interface InvoiceTypeSelectorProps {

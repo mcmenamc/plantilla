@@ -26,6 +26,8 @@ type ComboboxDropdownProps = {
     disabled?: boolean
     className?: string
     emptyMessage?: string
+    hideSearch?: boolean
+    onSearch?: (value: string) => void
 }
 
 export function ComboboxDropdown({
@@ -37,6 +39,8 @@ export function ComboboxDropdown({
     disabled,
     className = '',
     emptyMessage = 'No se encontraron resultados.',
+    hideSearch = false,
+    onSearch,
 }: ComboboxDropdownProps) {
     const [open, setOpen] = React.useState(false)
     const [value, setValue] = React.useState(defaultValue || '')
@@ -77,8 +81,18 @@ export function ComboboxDropdown({
                 </FormControl>
             </PopoverTrigger>
             <PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
-                <Command>
-                    <CommandInput placeholder={`Buscar...`} className='h-9' />
+                <Command shouldFilter={!onSearch}>
+                    {!hideSearch && (
+                        <CommandInput
+                            placeholder={`Buscar...`}
+                            className='h-9'
+                            onValueChange={(search) => {
+                                if (onSearch) {
+                                    onSearch(search)
+                                }
+                            }}
+                        />
+                    )}
                     <CommandList>
                         <CommandEmpty>{emptyMessage}</CommandEmpty>
                         <CommandGroup>

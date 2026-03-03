@@ -16,7 +16,15 @@ export const addressSchema = z.object({
 export const invoiceTaxSchema = z.object({
     type: z.enum(['IVA', 'ISR', 'IEPS']).default('IVA'),
     rate: z.coerce.number().min(0, 'La tasa no puede ser negativa').default(0),
-    base: z.coerce.number().min(0).optional(),
+    base: z.coerce.number().min(0).default(100),
+    withholding: z.boolean().default(false),
+})
+
+// Local tax schema for items
+export const localTaxSchema = z.object({
+    type: z.string().min(1, 'El nombre del impuesto local es obligatorio'),
+    rate: z.coerce.number().min(0, 'La tasa no puede ser negativa').default(0),
+    base: z.coerce.number().min(0).default(100),
     withholding: z.boolean().default(false),
 })
 
@@ -33,8 +41,10 @@ export const invoiceItemSchema = z.object({
     price: z.coerce.number().min(0, 'El precio no puede ser negativo').optional(), // Optional for drafts
     tax_included: z.boolean().default(false),
     discount: z.coerce.number().min(0, 'El descuento no puede ser negativo').optional().default(0),
+    discount_type: z.enum(['amount', 'percentage']).default('amount'),
     objeto_imp: z.enum(['01', '02', '03', '04', '05']).default('02'),
     taxes: z.array(invoiceTaxSchema).optional().default([]),
+    local_taxes: z.array(localTaxSchema).optional().default([]),
 })
 
 export type InvoiceItem = z.infer<typeof invoiceItemSchema>
@@ -92,6 +102,19 @@ export const invoiceSchema = z.object({
     total: z.number(),
     status: z.string(), // e.g., 'valid', 'cancelled', 'draft'
     fecha_emision: z.string().optional(),
+    emisor: z.object({
+        rfc: z.string(),
+        razon_social: z.string(),
+        regimen_fiscal: z.string().optional(),
+        domicilio_fiscal_cp: z.string().optional(),
+    }).optional(),
+    receptor: z.object({
+        rfc: z.string(),
+        razon_social: z.string(),
+        regimen_fiscal: z.string().optional(),
+        domicilio_fiscal_cp: z.string().optional(),
+        uso_cfdi: z.string().optional(),
+    }).optional(),
     customer: z.object({
         _id: z.string().optional(),
         razonSocial: z.string(),
@@ -103,6 +126,8 @@ export const invoiceSchema = z.object({
     xmlPath: z.string().optional().nullable(),
     metodo_pago: z.string().optional().nullable(),
     forma_pago: z.string().optional().nullable(),
+    moneda: z.string().optional().nullable(),
+    tipo_cambio: z.number().optional().nullable(),
 })
 
 export type Invoice = z.infer<typeof invoiceSchema>

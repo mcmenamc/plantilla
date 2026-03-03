@@ -1,4 +1,4 @@
-'use client'
+import { useEffect } from 'react'
 
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -22,14 +22,17 @@ import { useWorkCenterStore } from '@/stores/work-center-store'
 import { createClient, getClientById, updateClient } from '../data/clients-api'
 import { getTaxRegimes } from '@/features/work-centers/data/work-centers-api'
 import { createClientSchema, type CreateClientPayload, type Client } from '../data/schema'
+import { getCfdiUses } from '@/features/invoicing/data/invoicing-api'
 import { Loader2 } from 'lucide-react'
 
 interface ClientsFormProps {
     clientId?: string
     initialData?: Client
+    onSuccess?: (data: Client) => void
+    onCancel?: () => void
 }
 
-export function ClientsForm({ clientId, initialData }: ClientsFormProps) {
+export function ClientsForm({ clientId, initialData, onSuccess, onCancel }: ClientsFormProps) {
     const isEdit = !!clientId
 
     // Fetch data if we have an ID but no initialData (direct access)
@@ -55,14 +58,16 @@ export function ClientsForm({ clientId, initialData }: ClientsFormProps) {
         return null // Or an error state
     }
 
-    return <ClientsFormInner client={client} />
+    return <ClientsFormInner client={client} onSuccess={onSuccess} onCancel={onCancel} />
 }
 
 interface ClientsFormInnerProps {
     client?: Client
+    onSuccess?: (data: Client) => void
+    onCancel?: () => void
 }
 
-function ClientsFormInner({ client }: ClientsFormInnerProps) {
+function ClientsFormInner({ client, onSuccess, onCancel }: ClientsFormInnerProps) {
     const navigate = useNavigate()
     const queryClient = useQueryClient()
     const { selectedWorkCenterId } = useWorkCenterStore()
@@ -84,6 +89,7 @@ function ClientsFormInner({ client }: ClientsFormInnerProps) {
         regimenFiscal: client?.regimenFiscal || '',
         cp: client?.cp || '',
         workcenterId: client?.workcenterId || selectedWorkCenterId || '',
+        default_invoice_use: client?.default_invoice_use || '',
     }
 
     const form = useForm<CreateClientPayload>({
@@ -107,12 +113,44 @@ function ClientsFormInner({ client }: ClientsFormInnerProps) {
         enabled: !!tipoPersona,
     })
 
+    const regimenFiscal = useWatch({
+        control: form.control,
+        name: 'regimenFiscal',
+    })
+
+    const { data: cfdiUses = [], isLoading: isLoadingCfdiUses } = useQuery({
+        queryKey: ['cfdi-uses', regimenFiscal],
+        queryFn: () => getCfdiUses(regimenFiscal),
+        enabled: !!regimenFiscal,
+    })
+
+    const currentDefaultUse = useWatch({
+        control: form.control,
+        name: 'default_invoice_use',
+    })
+
+    useEffect(() => {
+        if (regimenFiscal && cfdiUses.length > 0 && currentDefaultUse) {
+            const isValid = cfdiUses.some(u => u.value === currentDefaultUse)
+            if (!isValid) {
+                form.setValue('default_invoice_use', '')
+            }
+        }
+    }, [cfdiUses, currentDefaultUse, form, regimenFiscal])
+
     const { mutate: createMutate, isPending: isCreating } = useMutation({
         mutationFn: createClient,
-        onSuccess: () => {
+        onSuccess: (data) => {
+            queryClient.setQueryData(['clients', selectedWorkCenterId], (old: Client[] | undefined) => {
+                return old ? [data, ...old] : [data]
+            })
             queryClient.invalidateQueries({ queryKey: ['clients', selectedWorkCenterId] })
             toast.success('Cliente registrado correctamente')
-            navigate({ to: '/clients', search: { page: 1, perPage: 10 } })
+            if (onSuccess) {
+                onSuccess(data)
+            } else {
+                navigate({ to: '/clients', search: { page: 1, perPage: 10 } })
+            }
         },
         onError: (error: any) => {
             toast.error(error.response?.data?.message || 'Error al registrar el cliente')
@@ -247,6 +285,26 @@ function ClientsFormInner({ client }: ClientsFormInnerProps) {
                                 )}
                             />
                         </div>
+                        <FormField
+                            control={form.control}
+                            name='default_invoice_use'
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Uso de CFDI (Opcional)</FormLabel>
+                                    <FormControl>
+                                        <Combobox
+                                            items={cfdiUses}
+                                            value={field.value || ''}
+                                            onValueChange={field.onChange}
+                                            placeholder='Selecciona el uso por defecto...'
+                                            searchPlaceholder='Buscar uso CFDI...'
+                                            isLoading={isLoadingCfdiUses}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                     </CardContent>
                 </Card>
 
@@ -254,7 +312,13 @@ function ClientsFormInner({ client }: ClientsFormInnerProps) {
                     <Button
                         type='button'
                         variant='outline'
-                        onClick={() => navigate({ to: '/clients', search: { page: 1, perPage: 10 } })}
+                        onClick={() => {
+                            if (onCancel) {
+                                onCancel()
+                            } else {
+                                navigate({ to: '/clients', search: { page: 1, perPage: 10 } })
+                            }
+                        }}
                     >
                         Cancelar
                     </Button>

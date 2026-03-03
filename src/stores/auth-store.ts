@@ -1,10 +1,10 @@
 import { create } from 'zustand'
 import { jwtDecode } from 'jwt-decode'
 import { getCookie, setCookie, removeCookie } from '@/lib/cookies'
+import { env } from '@/env'
 
 const AUTH_TOKEN_KEY = 'haz_factura_token'
 const AUTH_USER_KEY = 'haz_factura_user'
-const API_URL = import.meta.env.VITE_API_URL || 'https://api.hazfactura.com/api'
 
 export interface Business {
   _id: string
@@ -110,7 +110,7 @@ export const useAuthStore = create<AuthState>()((set, get) => {
 
         refreshPromise = (async () => {
           try {
-            const response = await fetch(`${API_URL}/auth/refresh-token`, {
+            const response = await fetch(`${env.VITE_API_BASE_URL}/auth/refresh-token`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

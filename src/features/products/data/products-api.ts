@@ -6,12 +6,14 @@ export const getProductosByWorkCenter = async (workCenterId: string): Promise<Pr
     return response.data
 }
 
-export const createProducto = async (data: CreateProductPayload): Promise<void> => {
-    await api.post('/productos', data)
+export const createProducto = async (data: CreateProductPayload): Promise<Product> => {
+    const response = await api.post('/productos', data)
+    return response.data
 }
 
-export const updateProducto = async (id: string, data: Partial<CreateProductPayload>): Promise<void> => {
-    await api.put(`/productos/${id}`, data)
+export const updateProducto = async (id: string, data: Partial<CreateProductPayload>): Promise<Product> => {
+    const response = await api.put(`/productos/${id}`, data)
+    return response.data
 }
 
 export const getProductoById = async (id: string): Promise<Product> => {

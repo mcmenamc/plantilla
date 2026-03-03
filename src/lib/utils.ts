@@ -1,4 +1,5 @@
 import { type ClassValue, clsx } from 'clsx'
+import { format } from 'date-fns'
 import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
@@ -63,4 +64,32 @@ export function normalizeString(str: string) {
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
+}
+
+/**
+ * Formatea una fecha asegurando que se muestre exactamente el día que viene en el string,
+ * evitando desplazamientos por zona horaria.
+ */
+export function formatDateUnshifted(dateStr: string | null | undefined, formatStr: string = 'dd/MM/yyyy') {
+  if (!dateStr) return '-'
+  try {
+    // Si el string contiene una T (ISO string completo), tomamos solo la parte de la fecha
+    // para evitar que el constructor de Date lo interprete como UTC y lo mueva a local.
+    const onlyDate = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr
+    const parts = onlyDate.split(/[-/]/)
+
+    if (parts.length >= 3) {
+      const year = parseInt(parts[0], 10)
+      const month = parseInt(parts[1], 10)
+      const day = parseInt(parts[2], 10)
+
+      if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
+        return format(new Date(year, month - 1, day), formatStr)
+      }
+    }
+
+    return format(new Date(dateStr), formatStr)
+  } catch (e) {
+    return '-'
+  }
 }

@@ -1,6 +1,7 @@
-import { format, parseISO, formatDistanceToNow } from 'date-fns'
+import { parseISO, formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { ColumnDef } from '@tanstack/react-table'
+import { formatDateUnshifted } from '@/lib/utils'
 import { LongText } from '@/components/long-text'
 import { WorkCenter } from '../data/schema'
 import { DataTableRowActions } from './work-centers-row-actions'
@@ -33,6 +34,19 @@ export const workCentersColumns: ColumnDef<WorkCenter>[] = [
         cell: ({ row }) => <div className='w-fit text-nowrap'>{row.getValue('tipo_persona') || '-'}</div>,
         filterFn: (row, id, value) => {
             return value.includes(row.getValue(id))
+        },
+    },
+       {
+        id: 'direccion_summary',
+        header: 'Dirección',
+        cell: ({ row }) => {
+            const dir = row.original.direccion
+            if (!dir) return '-'
+            return (
+                <LongText className='max-w-50 text-xs'>
+                    {`${dir.calle} ${dir.exterior}${dir.interior ? `-${dir.interior}` : ''}, ${dir.municipio}, ${dir.estado}`}
+                </LongText>
+            )
         },
     },
     {
@@ -68,7 +82,7 @@ export const workCentersColumns: ColumnDef<WorkCenter>[] = [
                             Cargados
                         </div>
                         <div className='text-[11px] font-medium text-nowrap'>
-                            {format(date, 'dd/MM/yyyy')}
+                            {formatDateUnshifted(dateStr)}
                         </div>
                         <div className='text-[10px] text-muted-foreground italic text-nowrap'>
                             ({relativeTime})
@@ -80,40 +94,67 @@ export const workCentersColumns: ColumnDef<WorkCenter>[] = [
             }
         },
     },
+    
     {
-        id: 'direccion_summary',
-        header: 'Dirección',
+        id: 'opinion_sat',
+        header: 'Opinión SAT',
         cell: ({ row }) => {
-            const dir = row.original.direccion
-            if (!dir) return '-'
+            const op = row.original.opinionCumplimiento
+            if (!op || !op.url) {
+                return (
+                    <div className='bg-slate-100 text-slate-500 w-fit rounded-full px-2 py-0.5 text-[10px] font-medium'>
+                        No subida
+                    </div>
+                )
+            }
+            if (op.valida) {
+                return (
+                    <a
+                        href={op.url}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        className='bg-green-100 text-green-700 hover:bg-green-200 transition-colors w-fit rounded-full px-2 py-0.5 text-[10px] font-medium flex items-center gap-1'
+                        title='Ver PDF'
+                    >
+                        Positiva
+                    </a>
+                )
+            }
             return (
-                <LongText className='max-w-50 text-xs'>
-                    {`${dir.calle} ${dir.exterior}${dir.interior ? `-${dir.interior}` : ''}, ${dir.municipio}, ${dir.estado}`}
-                </LongText>
+                <a
+                    href={op.url}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='bg-yellow-100 text-yellow-700 hover:bg-yellow-200 transition-colors w-fit rounded-full px-2 py-0.5 text-[10px] font-medium flex items-center gap-1'
+                    title='Ver PDF'
+                >
+                    Subida (Revisar)
+                </a>
             )
         },
     },
+ 
 
-    {
-        accessorKey: 'estatus',
-        header: 'Estado',
-        cell: ({ row }) => {
-            const status = row.getValue('estatus') as string
-            if (!status) return '-'
-            const colorClass =
-                status === 'Activo' ? 'bg-green-100 text-green-700' :
-                    status === 'Inactivo' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-red-100 text-red-700'
-            return (
-                <div className={`w-fit rounded-full px-2 py-1 text-xs font-medium ${colorClass}`}>
-                    {status}
-                </div>
-            )
-        },
-        filterFn: (row, id, value) => {
-            return value.includes(row.getValue(id))
-        },
-    },
+    // {
+    //     accessorKey: 'estatus',
+    //     header: 'Estado',
+    //     cell: ({ row }) => {
+    //         const status = row.getValue('estatus') as string
+    //         if (!status) return '-'
+    //         const colorClass =
+    //             status === 'Activo' ? 'bg-green-100 text-green-700' :
+    //                 status === 'Inactivo' ? 'bg-yellow-100 text-yellow-700' :
+    //                     'bg-red-100 text-red-700'
+    //         return (
+    //             <div className={`w-fit rounded-full px-2 py-1 text-xs font-medium ${colorClass}`}>
+    //                 {status}
+    //             </div>
+    //         )
+    //     },
+    //     filterFn: (row, id, value) => {
+    //         return value.includes(row.getValue(id))
+    //     },
+    // },
     {
         id: 'actions',
         cell: ({ row }) => <DataTableRowActions row={row} />,

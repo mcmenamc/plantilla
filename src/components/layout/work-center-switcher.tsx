@@ -30,7 +30,7 @@ export function WorkCenterSwitcher() {
     })
 
     const activeWorkCenters = React.useMemo(() =>
-        workCenters.filter(wc => wc.estatus === 'Activo'),
+        workCenters?.filter(wc => wc?.estatus === 'Activo'),
         [workCenters])
 
     const activeWorkCenter = React.useMemo(() => {
