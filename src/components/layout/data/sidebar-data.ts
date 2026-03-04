@@ -6,10 +6,6 @@ import {
   Database,
   Map,
   FileText,
-  FilePlus,
-  UserPlus,
-  PlusSquare,
-  PlusCircle,
   Users,
   Download,
   LucideIcon
