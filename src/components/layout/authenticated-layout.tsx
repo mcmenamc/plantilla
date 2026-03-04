@@ -10,6 +10,7 @@ import { SearchProvider } from '@/context/search-provider'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
 import { SkipToMain } from '@/components/skip-to-main'
+import { NotificationInitializer } from '@/components/notifications/notification-initializer'
 import { toast } from 'sonner'
 
 type AuthenticatedLayoutProps = {
@@ -98,6 +99,7 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
       <LayoutProvider>
         <SidebarProvider defaultOpen={defaultOpen}>
           <SkipToMain />
+          <NotificationInitializer />
           <AppSidebar />
           <SidebarInset
             className={cn(
