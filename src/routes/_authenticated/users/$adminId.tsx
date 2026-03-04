@@ -13,7 +13,6 @@ import {
   getModules,
   updatePermissions
 } from '@/features/administrators/data/administrators-api'
-import { useAuthStore } from '@/stores/auth-store'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 import { useWorkCenterStore } from '@/stores/work-center-store'
