@@ -46,6 +46,8 @@ import { Route as ClerkAuthenticatedUserManagementRouteImport } from './routes/c
 import { Route as ClerkauthSignUpRouteImport } from './routes/clerk/(auth)/sign-up'
 import { Route as ClerkauthSignInRouteImport } from './routes/clerk/(auth)/sign-in'
 import { Route as AuthenticatedWorkCentersAddRouteImport } from './routes/_authenticated/work-centers/add'
+import { Route as AuthenticatedUsersAddRouteImport } from './routes/_authenticated/users/add'
+import { Route as AuthenticatedUsersAdminIdRouteImport } from './routes/_authenticated/users/$adminId'
 import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes/_authenticated/settings/notifications'
 import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_authenticated/settings/display'
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
@@ -261,6 +263,17 @@ const AuthenticatedWorkCentersAddRoute =
     path: '/work-centers/add',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedUsersAddRoute = AuthenticatedUsersAddRouteImport.update({
+  id: '/users/add',
+  path: '/users/add',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedUsersAdminIdRoute =
+  AuthenticatedUsersAdminIdRouteImport.update({
+    id: '/users/$adminId',
+    path: '/users/$adminId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSettingsNotificationsRoute =
   AuthenticatedSettingsNotificationsRouteImport.update({
     id: '/notifications',
@@ -396,6 +409,8 @@ export interface FileRoutesByFullPath {
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
+  '/users/$adminId': typeof AuthenticatedUsersAdminIdRoute
+  '/users/add': typeof AuthenticatedUsersAddRoute
   '/work-centers/add': typeof AuthenticatedWorkCentersAddRoute
   '/clerk/sign-in': typeof ClerkauthSignInRoute
   '/clerk/sign-up': typeof ClerkauthSignUpRoute
@@ -448,6 +463,8 @@ export interface FileRoutesByTo {
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
+  '/users/$adminId': typeof AuthenticatedUsersAdminIdRoute
+  '/users/add': typeof AuthenticatedUsersAddRoute
   '/work-centers/add': typeof AuthenticatedWorkCentersAddRoute
   '/clerk/sign-in': typeof ClerkauthSignInRoute
   '/clerk/sign-up': typeof ClerkauthSignUpRoute
@@ -506,6 +523,8 @@ export interface FileRoutesById {
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/_authenticated/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
+  '/_authenticated/users/$adminId': typeof AuthenticatedUsersAdminIdRoute
+  '/_authenticated/users/add': typeof AuthenticatedUsersAddRoute
   '/_authenticated/work-centers/add': typeof AuthenticatedWorkCentersAddRoute
   '/clerk/(auth)/sign-in': typeof ClerkauthSignInRoute
   '/clerk/(auth)/sign-up': typeof ClerkauthSignUpRoute
@@ -563,6 +582,8 @@ export interface FileRouteTypes {
     | '/settings/appearance'
     | '/settings/display'
     | '/settings/notifications'
+    | '/users/$adminId'
+    | '/users/add'
     | '/work-centers/add'
     | '/clerk/sign-in'
     | '/clerk/sign-up'
@@ -615,6 +636,8 @@ export interface FileRouteTypes {
     | '/settings/appearance'
     | '/settings/display'
     | '/settings/notifications'
+    | '/users/$adminId'
+    | '/users/add'
     | '/work-centers/add'
     | '/clerk/sign-in'
     | '/clerk/sign-up'
@@ -672,6 +695,8 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/display'
     | '/_authenticated/settings/notifications'
+    | '/_authenticated/users/$adminId'
+    | '/_authenticated/users/add'
     | '/_authenticated/work-centers/add'
     | '/clerk/(auth)/sign-in'
     | '/clerk/(auth)/sign-up'
@@ -979,6 +1004,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWorkCentersAddRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/users/add': {
+      id: '/_authenticated/users/add'
+      path: '/users/add'
+      fullPath: '/users/add'
+      preLoaderRoute: typeof AuthenticatedUsersAddRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/users/$adminId': {
+      id: '/_authenticated/users/$adminId'
+      path: '/users/$adminId'
+      fullPath: '/users/$adminId'
+      preLoaderRoute: typeof AuthenticatedUsersAdminIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/settings/notifications': {
       id: '/_authenticated/settings/notifications'
       path: '/notifications'
@@ -1159,6 +1198,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
   AuthenticatedInvoicingNewRoute: typeof AuthenticatedInvoicingNewRoute
   AuthenticatedProductsAddRoute: typeof AuthenticatedProductsAddRoute
+  AuthenticatedUsersAdminIdRoute: typeof AuthenticatedUsersAdminIdRoute
+  AuthenticatedUsersAddRoute: typeof AuthenticatedUsersAddRoute
   AuthenticatedWorkCentersAddRoute: typeof AuthenticatedWorkCentersAddRoute
   AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
   AuthenticatedCatalogsIndexRoute: typeof AuthenticatedCatalogsIndexRoute
@@ -1189,6 +1230,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
   AuthenticatedInvoicingNewRoute: AuthenticatedInvoicingNewRoute,
   AuthenticatedProductsAddRoute: AuthenticatedProductsAddRoute,
+  AuthenticatedUsersAdminIdRoute: AuthenticatedUsersAdminIdRoute,
+  AuthenticatedUsersAddRoute: AuthenticatedUsersAddRoute,
   AuthenticatedWorkCentersAddRoute: AuthenticatedWorkCentersAddRoute,
   AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
   AuthenticatedCatalogsIndexRoute: AuthenticatedCatalogsIndexRoute,

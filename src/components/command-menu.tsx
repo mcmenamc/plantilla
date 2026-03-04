@@ -12,13 +12,17 @@ import {
   CommandList,
   CommandSeparator,
 } from '@/components/ui/command'
-import { sidebarData } from './layout/data/sidebar-data'
+import { generateNavGroups } from './layout/data/sidebar-data'
+import { usePermissions } from '@/hooks/use-permissions'
 import { ScrollArea } from './ui/scroll-area'
 
 export function CommandMenu() {
   const navigate = useNavigate()
   const { setTheme } = useTheme()
   const { open, setOpen } = useSearch()
+
+  const { permissions } = usePermissions()
+  const dynamicNavGroups = React.useMemo(() => generateNavGroups(permissions), [permissions])
 
   const runCommand = React.useCallback(
     (command: () => unknown) => {
@@ -61,7 +65,7 @@ export function CommandMenu() {
             </CommandItem>
           </CommandGroup>
           <CommandSeparator />
-          {sidebarData.navGroups.map((group) => (
+          {dynamicNavGroups.map((group) => (
             <CommandGroup key={group.title} heading={group.title}>
               {group.items.map((navItem, i) => {
                 if (navItem.url)

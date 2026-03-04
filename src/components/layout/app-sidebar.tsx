@@ -7,13 +7,17 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar'
 // import { AppTitle } from './app-title'
-import { sidebarData } from './data/sidebar-data'
+import { generateNavGroups } from './data/sidebar-data'
 import { NavGroup } from './nav-group'
 import { NavUser } from './nav-user'
 import { WorkCenterSwitcher } from './work-center-switcher'
+import { usePermissions } from '@/hooks/use-permissions'
 
 export function AppSidebar() {
   const { collapsible, variant } = useLayout()
+  const { permissions, isLoading } = usePermissions()
+
+  const dynamicNavGroups = generateNavGroups(permissions)
   // const { auth } = useAuthStore()
 
   return (
@@ -26,9 +30,15 @@ export function AppSidebar() {
         {/* <AppTitle /> */}
       </SidebarHeader>
       <SidebarContent>
-        {sidebarData.navGroups.map((props) => (
-          <NavGroup key={props.title} {...props} />
-        ))}
+        {isLoading ? (
+          <div className='p-4 text-sm text-muted-foreground flex items-center justify-center space-x-2 h-full'>
+            <span>Cargando navegación...</span>
+          </div>
+        ) : (
+          dynamicNavGroups.map((props) => (
+            <NavGroup key={props.title} {...props} />
+          ))
+        )}
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

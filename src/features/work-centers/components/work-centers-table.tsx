@@ -55,7 +55,6 @@ export function WorkCentersTable({ data, search, navigate }: DataTableProps) {
         navigate,
         globalFilter: { enabled: true, key: 'q' },
         columnFilters: [
-            { columnId: 'estatus', searchKey: 'status', type: 'array' },
             { columnId: 'tipo_persona', searchKey: 'tipo', type: 'array' },
         ],
     })
@@ -88,14 +87,6 @@ export function WorkCentersTable({ data, search, navigate }: DataTableProps) {
                 table={table}
                 searchPlaceholder='Buscar por nombre o RFC...'
                 filters={[
-                    {
-                        columnId: 'estatus',
-                        title: 'Estado',
-                        options: [
-                            { label: 'Activo', value: 'Activo' },
-                            { label: 'Inactivo', value: 'Inactivo' },
-                        ],
-                    },
                     {
                         columnId: 'tipo_persona',
                         title: 'Tipo Persona',
