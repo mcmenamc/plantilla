@@ -15,7 +15,7 @@ export function InvoicesDialogs() {
             {currentRow && (
                 <>
                     <InvoicesActionDialog
-                        key={`invoice-edit-${currentRow.id}`}
+                        key={`invoice-edit-${currentRow._id}`}
                         open={open === 'edit'}
                         onOpenChange={() => {
                             setOpen('edit')
@@ -27,7 +27,7 @@ export function InvoicesDialogs() {
                     />
 
                     <InvoicesDeleteDialog
-                        key={`invoice-delete-${currentRow.id}`}
+                        key={`invoice-delete-${currentRow._id}`}
                         open={open === 'delete'}
                         onOpenChange={() => {
                             setOpen('delete')

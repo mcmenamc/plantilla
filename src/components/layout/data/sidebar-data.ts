@@ -1,135 +1,81 @@
+
+
 import {
-  AudioWaveform,
-  Command,
-  GalleryVerticalEnd,
   LayoutDashboard,
   Settings,
   Database,
   Map,
-  Files,
   FileText,
-  CreditCard,
+  Users,
+  Download,
+  LucideIcon
 } from 'lucide-react'
-import { type SidebarData } from '../types'
+import { type NavGroup } from '../types'
+import { type UserPermission } from '@/hooks/use-permissions'
 
-export const sidebarData: SidebarData = {
-  user: {
-    name: '',
-    email: '',
-    avatar: '/avatars/shadcn.jpg',
-  },
-  teams: [
-    {
-      name: 'Haz factura',
-      logo: Command,
-      plan: 'Vite + ShadcnUI',
-    },
-    {
-      name: 'Acme Inc',
-      logo: GalleryVerticalEnd,
-      plan: 'Enterprise',
-    },
-    {
-      name: 'Acme Corp.',
-      logo: AudioWaveform,
-      plan: 'Startup',
-    },
-  ],
-  navGroups: [
-    {
-      title: 'General',
-      items: [
-        {
-          title: 'Centros de Trabajo',
-          url: '/work-centers',
-          icon: Database,
-        },
-        {
-          title: 'Dashboard',
-          url: '/',
-          icon: LayoutDashboard,
-        },
-        // {
-        //   title: 'Cotizador',
-        //   url: '/quotes',
-        //   icon: FileText,
-        // },
-      ],
-    },
-    {
-      title: 'Gestión',
-      items: [
-        {
-          title: 'Clientes',
-          url: '/clients',
-          icon: Map,
-        },
-        {
-          title: 'Productos',
-          url: '/products',
-          icon: Files,
-        },
-      ],
-    },
-    {
-      title: 'Facturación',
-      items: [
-        {
-          title: 'Facturas',
-          url: '/invoicing',
-          icon: FileText,
-        },
-        {
-          title: 'Complementos de Pago',
-          url: '/invoicing/payment-complements',
-          icon: CreditCard,
-        },
-        // {
-        //   title: 'Notas de Crédito',
-        //   url: '/invoicing/credit-notes',
-        //   icon: FileText,
-        // },
-        // {
-        //   title: 'Carta Porte',
-        //   url: '/invoicing/bill-of-lading',
-        //   icon: Truck,
-        // },
-      ],
-    },
-    // {
-    //   title: 'Reportes',
-    //   items: [
-    //     {
-    //       title: 'Reporte de Ventas',
-    //       url: '/reports/sales',
-    //       icon: BarChart3,
-    //     },
-    //   ],
-    // },
-    {
-      title: 'Configuración',
-      items: [
-        {
-          title: 'Catálogos SAT',
-          url: '/catalogs',
-          icon: Database,
-        },
-        {
-          title: 'Configuración',
-          url: '/settings',
-          icon: Settings,
-        },
-      ],
-    },
-    // {
-    //   title: 'Soporte',
-    //   items: [
-    //     {
-    //       title: 'Ayuda',
-    //       url: '/help-center',
-    //       icon: HelpCircle,
-    //     },
-    //   ],
-    // },
-  ],
+// Map the API string 'icono' to a react component
+const ICON_MAP: Record<string, LucideIcon> = {
+  dashboard: LayoutDashboard,
+  workcenter: Database,
+  customers: Map,
+  products: FileText,
+  invoices: FileText,
+  download: Download,
+  administrators: Users,
+  series: FileText,
+  settings: Settings,
 }
+
+/**
+ * Transforms an array of backend UserPermissions into an array of NavGroups
+ * for the sidebar.
+ */
+export function generateNavGroups(permissions: UserPermission[]): NavGroup[] {
+  const groupsTemp: Record<string, { title: string, items: any[] }> = {}
+
+  // Sort permissions globally by their module 'orden' first
+  const sortedPerms = [...permissions].sort((a, b) => a.module.orden - b.module.orden)
+
+  sortedPerms.forEach(p => {
+    // If the module has 0 actions, it means they don't have access to see it
+    if (!p.actions || p.actions.length === 0) return
+
+    const m = p.module
+    const parentTitle = m.padre || 'General'
+
+    // Initialize group if not exists
+    if (!groupsTemp[parentTitle]) {
+      groupsTemp[parentTitle] = {
+        title: parentTitle,
+        items: []
+      }
+    }
+
+    // Determine basic navigation info
+    const url = m.url || '#'
+    const icon = ICON_MAP[m.icono] || FileText // Default fallback
+
+    // Add main valid module item
+    groupsTemp[parentTitle].items.push({
+      title: m.nombre,
+      url,
+      icon,
+    })
+  })
+
+  // Convert the generated Record to the raw Array of navGroups
+  // You might want to sort these parent groups themselves using hard-coded order if needed
+  const parentOrder = ['General', 'Gestión', 'Facturación', 'Reportes', 'Configuración', 'Soporte']
+  const finalGroups = Object.values(groupsTemp)
+
+  finalGroups.sort((a, b) => {
+    const i = parentOrder.indexOf(a.title)
+    const j = parentOrder.indexOf(b.title)
+    // Put unknown groups at the end
+    return (i !== -1 ? i : 99) - (j !== -1 ? j : 99)
+  })
+
+  return finalGroups
+}
+
+

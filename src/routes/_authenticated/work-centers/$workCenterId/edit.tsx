@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button'
 import { WorkCentersForm } from '@/features/work-centers/components/work-centers-form'
 import { WorkCentersProvider } from '@/features/work-centers/components/work-centers-provider'
 import { WorkCentersActionDialog } from '@/features/work-centers/components/work-centers-action-dialog'
+import { NotAuthorized } from '@/components/not-authorized'
+import { usePermissions } from '@/hooks/use-permissions'
 
 export const Route = createFileRoute(
     '/_authenticated/work-centers/$workCenterId/edit'
@@ -20,6 +22,9 @@ export const Route = createFileRoute(
 function EditWorkCenter() {
     const navigate = useNavigate()
     const { workCenterId } = Route.useParams()
+    const { can, isLoading: isLoadingPermissions } = usePermissions()
+
+    if (!isLoadingPermissions && !can('Editar')) return <NotAuthorized />
 
     return (
         <WorkCentersProvider>

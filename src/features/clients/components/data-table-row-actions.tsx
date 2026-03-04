@@ -6,12 +6,12 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuSeparator,
     DropdownMenuShortcut,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Client } from '../data/schema'
 import { useClients } from './clients-provider'
+import { usePermissions } from '@/hooks/use-permissions'
 
 interface DataTableRowActionsProps<TData> {
     row: Row<TData>
@@ -20,6 +20,7 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
     row,
 }: DataTableRowActionsProps<TData>) {
+    const { can } = usePermissions()
     const navigate = useNavigate()
     const { setOpen, setCurrentRow } = useClients()
     const client = row.original as Client
@@ -36,27 +37,29 @@ export function DataTableRowActions<TData>({
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end' className='w-[160px]'>
-                <DropdownMenuItem
-                    onClick={() => navigate({
-                        to: '/clients/$clientId/edit',
-                        params: { clientId: client._id }
-                    })}
-                >
-                    <Pen className='mr-2 h-3.5 w-3.5 text-muted-foreground/70' />
-                    Editar
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                    onClick={() => {
-                        setCurrentRow(client)
-                        setOpen('delete')
-                    }}
-                    className='text-red-600'
-                >
-                    <Trash className='mr-2 h-3.5 w-3.5 text-muted-foreground/70' />
-                    Eliminar
-                    <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
-                </DropdownMenuItem>
+                {can('Editar') && (
+                    <DropdownMenuItem
+                        onClick={() => navigate({
+                            to: '/clients/$clientId/edit',
+                            params: { clientId: client._id }
+                        })}
+                    >
+                        <Pen className='mr-2 h-3.5 w-3.5 text-muted-foreground/70' />
+                        Editar
+                    </DropdownMenuItem>
+                )}
+                {can('Eliminar') && (
+                    <DropdownMenuItem
+                        onClick={() => {
+                            setCurrentRow(client)
+                            setOpen('delete')
+                        }}
+                        className='text-red-600'
+                    >
+                        <Trash className='mr-2 h-3.5 w-3.5 text-muted-foreground/70' />
+                        Eliminar
+                    </DropdownMenuItem>
+                )}
             </DropdownMenuContent>
         </DropdownMenu>
     )

@@ -9,6 +9,8 @@ import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Button } from '@/components/ui/button'
 import { ClientsForm } from '@/features/clients/components/clients-form'
 import { ClientsProvider } from '@/features/clients/components/clients-provider'
+import { usePermissions } from '@/hooks/use-permissions'
+import { NotAuthorized } from '@/components/not-authorized'
 
 export const Route = createFileRoute('/_authenticated/clients/add')({
     component: AddClient,
@@ -16,6 +18,10 @@ export const Route = createFileRoute('/_authenticated/clients/add')({
 
 function AddClient() {
     const navigate = useNavigate()
+    const { can, isLoading: isLoadingPermissions } = usePermissions()
+
+    if (!isLoadingPermissions && !can('Agregar')) return <NotAuthorized />
+
     return (
         <ClientsProvider>
             <Header fixed>
@@ -44,7 +50,7 @@ function AddClient() {
                         </p>
                     </div>
                 </div>
-                <div className='mx-auto max-w-5xl'>
+                <div className='mx-auto max-w-8xl'>
                     <ClientsForm />
                 </div>
             </Main>

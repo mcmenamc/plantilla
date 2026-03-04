@@ -1,12 +1,17 @@
+import { useNavigate } from '@tanstack/react-router'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useProducts } from './products-provider'
+import { usePermissions } from '@/hooks/use-permissions'
 
 export function ProductsPrimaryButtons() {
-    const { setOpen } = useProducts()
+    const { can } = usePermissions()
+    const navigate = useNavigate()
+
+    if (!can('Agregar')) return null
+
     return (
         <div className='flex gap-2'>
-            <Button className='space-x-1' onClick={() => setOpen('add')}>
+            <Button className='space-x-1' onClick={() => navigate({ to: '/products/add' })}>
                 <span>Agregar Producto</span> <Plus size={18} />
             </Button>
         </div>

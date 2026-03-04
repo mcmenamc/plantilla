@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button'
 import { WorkCentersForm } from '@/features/work-centers/components/work-centers-form'
 import { WorkCentersProvider } from '@/features/work-centers/components/work-centers-provider'
 import { WorkCentersActionDialog } from '@/features/work-centers/components/work-centers-action-dialog'
+import { usePermissions } from '@/hooks/use-permissions'
+import { NotAuthorized } from '@/components/not-authorized'
 
 export const Route = createFileRoute('/_authenticated/work-centers/add')({
     component: AddWorkCenter,
@@ -17,6 +19,10 @@ export const Route = createFileRoute('/_authenticated/work-centers/add')({
 
 function AddWorkCenter() {
     const navigate = useNavigate()
+    const { can, isLoading: isLoadingPermissions } = usePermissions()
+
+    if (!isLoadingPermissions && !can('Agregar')) return <NotAuthorized />
+
     return (
         <WorkCentersProvider>
             <Header fixed>

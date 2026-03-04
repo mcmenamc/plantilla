@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
     type SortingState,
     type VisibilityState,
@@ -7,7 +7,6 @@ import {
     getFacetedRowModel,
     getFacetedUniqueValues,
     getFilteredRowModel,
-    getPaginationRowModel,
     getSortedRowModel,
     useReactTable,
 } from '@tanstack/react-table'
@@ -21,7 +20,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
-import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
+import { DataTableToolbar } from '@/components/data-table'
 import { type Invoice } from '../data/schema'
 import { invoicesColumns as columns } from './invoices-columns'
 
@@ -39,17 +38,16 @@ export function InvoicesTable({ data, search, navigate }: DataTableProps) {
     const {
         columnFilters,
         onColumnFiltersChange,
-        pagination,
-        onPaginationChange,
-        ensurePageInRange,
+        globalFilter,
+        onGlobalFilterChange,
     } = useTableUrlState({
         search,
         navigate,
-        pagination: { defaultPage: 1, defaultPageSize: 10 },
-        globalFilter: { enabled: false },
+        globalFilter: { enabled: true, key: 'q' },
         columnFilters: [
-            { columnId: 'client', searchKey: 'client', type: 'string' },
             { columnId: 'status', searchKey: 'status', type: 'array' },
+            { columnId: 'tipo_cfdi', searchKey: 'tipo', type: 'array' },
+            { columnId: 'metodo_pago', searchKey: 'metodo', type: 'array' },
         ],
     })
 
@@ -58,18 +56,17 @@ export function InvoicesTable({ data, search, navigate }: DataTableProps) {
         columns,
         state: {
             sorting,
-            pagination,
             rowSelection,
             columnFilters,
             columnVisibility,
+            globalFilter,
         },
-        enableRowSelection: true,
-        onPaginationChange,
+        enableRowSelection: false,
         onColumnFiltersChange,
+        onGlobalFilterChange,
         onRowSelectionChange: setRowSelection,
         onSortingChange: setSorting,
         onColumnVisibilityChange: setColumnVisibility,
-        getPaginationRowModel: getPaginationRowModel(),
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),
@@ -77,24 +74,41 @@ export function InvoicesTable({ data, search, navigate }: DataTableProps) {
         getFacetedUniqueValues: getFacetedUniqueValues(),
     })
 
-    useEffect(() => {
-        ensurePageInRange(table.getPageCount())
-    }, [table, ensurePageInRange])
+
 
     return (
         <div className='flex flex-1 flex-col gap-4'>
             <DataTableToolbar
                 table={table}
-                searchPlaceholder='Buscar facturas...'
-                searchKey='client'
+                searchPlaceholder='Buscar por nombre, RFC, UUID...'
                 filters={[
                     {
                         columnId: 'status',
                         title: 'Estado',
                         options: [
-                            { label: 'Pagada', value: 'paid' },
+                            { label: 'Válida', value: 'valid' },
+                            { label: 'Borrador', value: 'draft' },
                             { label: 'Pendiente', value: 'pending' },
                             { label: 'Cancelada', value: 'cancelled' },
+                        ],
+                    },
+                    {
+                        columnId: 'tipo_cfdi',
+                        title: 'Tipo',
+                        options: [
+                            { label: 'Ingreso', value: 'I' },
+                            { label: 'Egreso', value: 'E' },
+                            { label: 'Pago', value: 'P' },
+                            { label: 'Nómina', value: 'N' },
+                            { label: 'Traslado', value: 'T' },
+                        ],
+                    },
+                    {
+                        columnId: 'metodo_pago',
+                        title: 'Método',
+                        options: [
+                            { label: 'PUE - Una exhibición', value: 'PUE' },
+                            { label: 'PPD - Diferido', value: 'PPD' },
                         ],
                     },
                 ]}
@@ -163,7 +177,6 @@ export function InvoicesTable({ data, search, navigate }: DataTableProps) {
                     </TableBody>
                 </Table>
             </div>
-            <DataTablePagination table={table} className='mt-auto' />
         </div>
     )
 }

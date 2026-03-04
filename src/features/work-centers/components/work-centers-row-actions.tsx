@@ -1,7 +1,7 @@
 import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 import { type Row } from '@tanstack/react-table'
 import { useNavigate } from '@tanstack/react-router'
-import { Trash2, Edit, FileUp, ImagePlus } from 'lucide-react'
+import { Trash2, Edit, FileUp, ImagePlus, FileCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
     DropdownMenu,
@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { type WorkCenter } from '../data/schema'
 import { useWorkCenters } from './work-centers-provider'
+import { usePermissions } from '@/hooks/use-permissions'
 
 type DataTableRowActionsProps = {
     row: Row<WorkCenter>
@@ -21,6 +22,9 @@ type DataTableRowActionsProps = {
 export function DataTableRowActions({ row }: DataTableRowActionsProps) {
     const navigate = useNavigate()
     const { setOpen, setCurrentRow } = useWorkCenters()
+    const { can } = usePermissions()
+
+    // Si no tiene el permiso de 'Agregar' en la ruta actual o en '/work-centers', no renderizamos nada
     return (
         <>
             <DropdownMenu modal={false}>
@@ -34,17 +38,19 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align='end' className='w-[160px]'>
-                    <DropdownMenuItem
-                        onClick={() => navigate({
-                            to: '/work-centers/$workCenterId/edit',
-                            params: { workCenterId: row.original._id }
-                        })}
-                    >
-                        Editar
-                        <DropdownMenuShortcut>
-                            <Edit size={16} />
-                        </DropdownMenuShortcut>
-                    </DropdownMenuItem>
+                    {can('Editar') && (
+                        <DropdownMenuItem
+                            onClick={() => navigate({
+                                to: '/work-centers/$workCenterId/edit',
+                                params: { workCenterId: row.original._id }
+                            })}
+                        >
+                            Editar
+                            <DropdownMenuShortcut>
+                                <Edit size={16} />
+                            </DropdownMenuShortcut>
+                        </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem
                         onClick={() => {
                             setCurrentRow(row.original)
@@ -67,19 +73,34 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
                             <ImagePlus size={16} />
                         </DropdownMenuShortcut>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
                     <DropdownMenuItem
                         onClick={() => {
                             setCurrentRow(row.original)
-                            setOpen('delete')
+                            setOpen('upload-opinion')
                         }}
-                        className='text-red-500!'
                     >
-                        Eliminar
+                        Opinión del SAT
                         <DropdownMenuShortcut>
-                            <Trash2 size={16} />
+                            <FileCheck size={16} />
                         </DropdownMenuShortcut>
                     </DropdownMenuItem>
+                    {can('Eliminar') && (
+                        <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                                onClick={() => {
+                                    setCurrentRow(row.original)
+                                    setOpen('delete')
+                                }}
+                                className='text-red-500!'
+                            >
+                                Eliminar
+                                <DropdownMenuShortcut>
+                                    <Trash2 size={16} />
+                                </DropdownMenuShortcut>
+                            </DropdownMenuItem>
+                        </>
+                    )}
                 </DropdownMenuContent>
             </DropdownMenu>
         </>

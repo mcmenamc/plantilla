@@ -1,9 +1,8 @@
 import axios from 'axios'
 import { env } from '@/env'
 import { useAuthStore } from '@/stores/auth-store'
-
 export const api = axios.create({
-    baseURL: env.VITE_API_URL,
+    baseURL: env.VITE_API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },

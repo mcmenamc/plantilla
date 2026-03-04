@@ -35,6 +35,15 @@ export const uploadCertificates = async (data: FormData): Promise<any> => {
     return response.data
 }
 
+export const uploadOpinionCumplimiento = async (workcenterId: string, data: FormData): Promise<any> => {
+    const response = await api.post(`/workcenter/${workcenterId}/opinion-sat`, data, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    })
+    return response.data
+}
+
 export const getTaxRegimes = async (type: 'Persona Física' | 'Persona Moral'): Promise<{ label: string, value: string }[]> => {
     const slug = type === 'Persona Física' ? 'persona-fisica' : 'persona-moral'
     // Using the full URL as provided by the user, or assuming it's under the same base if possible.

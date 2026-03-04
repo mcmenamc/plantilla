@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { ChevronsUpDown, Plus, Building2 } from 'lucide-react'
+import { ChevronsUpDown, Plus, Building2, Check } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import {
@@ -18,8 +18,10 @@ import {
 } from '@/components/ui/sidebar'
 import { getWorkCenters } from '@/features/work-centers/data/work-centers-api'
 import { useWorkCenterStore } from '@/stores/work-center-store'
+import { usePermissions } from '@/hooks/use-permissions'
 
 export function WorkCenterSwitcher() {
+    const { can } = usePermissions()
     const { isMobile } = useSidebar()
     const navigate = useNavigate()
     const { selectedWorkCenterId, setSelectedWorkCenterId } = useWorkCenterStore()
@@ -30,7 +32,7 @@ export function WorkCenterSwitcher() {
     })
 
     const activeWorkCenters = React.useMemo(() =>
-        workCenters.filter(wc => wc.estatus === 'Activo'),
+        workCenters?.filter(wc => wc?.estatus === 'Activo'),
         [workCenters])
 
     const activeWorkCenter = React.useMemo(() => {
@@ -141,7 +143,7 @@ export function WorkCenterSwitcher() {
                             <DropdownMenuItem
                                 key={wc._id}
                                 onClick={() => setSelectedWorkCenterId(wc._id)}
-                                className='gap-2 p-2 cursor-pointer'
+                                className={`gap-2 p-2 cursor-pointer ${selectedWorkCenterId === wc._id ? 'bg-accent text-accent-foreground font-medium' : ''}`}
                             >
                                 <div className='flex size-8 shrink-0 items-center justify-center rounded-md border bg-white overflow-hidden shadow-sm'>
                                     {wc.imagen ? (
@@ -158,18 +160,25 @@ export function WorkCenterSwitcher() {
                                     <span className='text-sm font-medium truncate'>{wc.workcenterName}</span>
                                     <span className='text-xs text-muted-foreground truncate'>{wc.rfc}</span>
                                 </div>
+                                {selectedWorkCenterId === wc._id && (
+                                    <Check className='ms-auto size-4 shrink-0 opacity-100' />
+                                )}
                             </DropdownMenuItem>
                         ))}
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                            className='gap-2 p-2'
-                            onClick={() => navigate({ to: '/work-centers/add' })}
-                        >
-                            <div className='bg-background flex size-6 items-center justify-center rounded-md border'>
-                                <Plus className='size-4' />
-                            </div>
-                            <div className='text-muted-foreground font-medium'>Añadir Centro</div>
-                        </DropdownMenuItem>
+                        {can('Agregar') && (
+                            <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                    className='gap-2 p-2'
+                                    onClick={() => navigate({ to: '/work-centers/add' })}
+                                >
+                                    <div className='bg-background flex size-6 items-center justify-center rounded-md border'>
+                                        <Plus className='size-4' />
+                                    </div>
+                                    <div className='text-muted-foreground font-medium'>Añadir Centro</div>
+                                </DropdownMenuItem>
+                            </>
+                        )}
                     </DropdownMenuContent>
                 </DropdownMenu>
             </SidebarMenuItem>

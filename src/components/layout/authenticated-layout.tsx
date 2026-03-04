@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Outlet } from '@tanstack/react-router'
+import { Outlet, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
@@ -11,6 +11,7 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
 import { SkipToMain } from '@/components/skip-to-main'
 import { NotificationInitializer } from '@/components/notifications/notification-initializer'
+import { toast } from 'sonner'
 
 type AuthenticatedLayoutProps = {
   children?: React.ReactNode
@@ -18,10 +19,11 @@ type AuthenticatedLayoutProps = {
 
 export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
   const defaultOpen = getCookie('sidebar_state') !== 'false'
+  const navigate = useNavigate()
   const { auth } = useAuthStore()
 
   // Fetch updated user data whenever the authenticated layout is loaded/reloaded
-  const { data: userData, isSuccess } = useQuery({
+  const { data: userData, isSuccess, isError } = useQuery({
     queryKey: ['user-data'],
     queryFn: async () => {
       const response = await api.get('/user/data-user')
@@ -34,6 +36,20 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
     // Ensure it refetches even when the tab is not focused (optional, but good for real-time)
     refetchIntervalInBackground: true,
   })
+
+  // Handle API validation errors (e.g., token expired or revoked)
+  useEffect(() => {
+    if (isError) {
+      toast.error('La sesión ha expirado o hubo un problema al validar el usuario.')
+      const currentPath = location.href
+      auth.reset()
+      navigate({
+        to: '/sign-in',
+        search: { redirect: currentPath },
+        replace: true,
+      })
+    }
+  }, [isError, navigate, auth])
 
   // Sync with auth store
   useEffect(() => {
@@ -51,8 +67,32 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
         tipoPersona: userData.tipoPersona,
         exp: auth.user?.exp || Date.now() + 24 * 60 * 60 * 1000,
       })
+      // si el usuario no tiene workcenters y es user, redirigir a sign-in
+      if (userData.workcenters.length == 0 && auth.user?.role == 'User') {
+        toast.error('No tienes workcenters asignados')
+        const currentPath = location.href
+        // eliminar sesion
+        auth.reset()
+        navigate({
+          to: '/sign-in',
+          search: { redirect: currentPath },
+          replace: true,
+        })
+      }
     }
   }, [isSuccess, userData])
+
+  // Refresh token only on initial mount (page reload)
+  useEffect(() => {
+    const performInitialRefresh = async () => {
+      try {
+        await auth.refreshToken()
+      } catch (error) {
+        console.error('Initial session refresh failed:', error)
+      }
+    }
+    performInitialRefresh()
+  }, []) // Empty dependency array means it only runs once on mount
 
   return (
     <SearchProvider>
