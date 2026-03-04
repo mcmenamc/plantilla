@@ -26,12 +26,14 @@ import {
 } from '@/components/ui/alert-dialog'
 import { type Administrator } from '../data/schema'
 import { deleteAdministrator } from '../data/administrators-api'
+import { usePermissions } from '@/hooks/use-permissions'
 
 type DataTableRowActionsProps = {
     row: Row<Administrator>
 }
 
 export function DataTableRowActions({ row }: DataTableRowActionsProps) {
+    const { can } = usePermissions()
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
     const queryClient = useQueryClient()
     const navigate = useNavigate()
@@ -63,22 +65,28 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align='end' className='w-[160px]'>
-                    <DropdownMenuItem onClick={() => navigate({ to: `/users/${admin._id}` })}>
-                        Editar Administrador
-                        <DropdownMenuShortcut>
-                            <UserPen size={16} />
-                        </DropdownMenuShortcut>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                        onClick={() => setShowDeleteDialog(true)}
-                        className='text-red-500!'
-                    >
-                        Eliminar
-                        <DropdownMenuShortcut>
-                            <Trash2 size={16} />
-                        </DropdownMenuShortcut>
-                    </DropdownMenuItem>
+                    {can('Editar') && (
+                        <DropdownMenuItem onClick={() => navigate({ to: `/users/${admin._id}` })}>
+                            Editar
+                            <DropdownMenuShortcut>
+                                <UserPen size={16} />
+                            </DropdownMenuShortcut>
+                        </DropdownMenuItem>
+                    )}
+                    {can('Eliminar') && (
+                        <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                                onClick={() => setShowDeleteDialog(true)}
+                                className='text-red-500!'
+                            >
+                                Eliminar
+                                <DropdownMenuShortcut>
+                                    <Trash2 size={16} />
+                                </DropdownMenuShortcut>
+                            </DropdownMenuItem>
+                        </>
+                    )}
                 </DropdownMenuContent>
             </DropdownMenu>
 

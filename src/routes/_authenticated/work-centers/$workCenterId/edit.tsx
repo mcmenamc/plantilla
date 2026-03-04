@@ -22,9 +22,9 @@ export const Route = createFileRoute(
 function EditWorkCenter() {
     const navigate = useNavigate()
     const { workCenterId } = Route.useParams()
-    const { can } = usePermissions()
+    const { can, isLoading: isLoadingPermissions } = usePermissions()
 
-    if (!can('Editar')) return <NotAuthorized />
+    if (!isLoadingPermissions && !can('Editar')) return <NotAuthorized />
 
     return (
         <WorkCentersProvider>

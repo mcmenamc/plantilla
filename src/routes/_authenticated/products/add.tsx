@@ -45,7 +45,7 @@ function AddProduct() {
                         </p>
                     </div>
                 </div>
-                <div className='mx-auto max-w-5xl'>
+                <div className='mx-auto max-w-8xl'>
                     <ProductsForm />
                 </div>
             </Main>

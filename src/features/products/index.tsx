@@ -12,10 +12,13 @@ import { ProductsPrimaryButtons } from './components/products-primary-buttons'
 import { ProductsProvider } from './components/products-provider'
 import { ProductsTable } from './components/products-table'
 import { getProductosByWorkCenter } from './data/products-api'
+import { usePermissions } from '@/hooks/use-permissions'
+import { NotAuthorized } from '@/components/not-authorized'
 
 const route = getRouteApi('/_authenticated/products/')
 
 export function Products() {
+    const { can, isLoading: isLoadingPermissions } = usePermissions()
     const search = route.useSearch()
     const navigate = route.useNavigate()
     const { selectedWorkCenterId } = useWorkCenterStore()
@@ -25,6 +28,8 @@ export function Products() {
         queryFn: () => getProductosByWorkCenter(selectedWorkCenterId || ''),
         enabled: !!selectedWorkCenterId,
     })
+
+    if (!isLoadingPermissions && !can('Ver')) return <NotAuthorized />
 
     return (
         <ProductsProvider>

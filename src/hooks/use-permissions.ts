@@ -23,13 +23,14 @@ export function usePermissions() {
     const { data: permissions = [], isLoading, isError, refetch } = useQuery<UserPermission[]>({
         queryKey: ['user-permissions', selectedWorkCenterId],
         queryFn: async () => {
-            // Only fetch if we have a workcenter selected
             if (!selectedWorkCenterId) return []
             const res = await api.get('/user/permissions')
             return res.data
         },
         enabled: !!selectedWorkCenterId,
         refetchOnWindowFocus: true,
+        staleTime: 1000 * 60 * 5,
+        retry: 1,
     })
 
     const location = useLocation()

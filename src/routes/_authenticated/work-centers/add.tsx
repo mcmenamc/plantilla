@@ -19,9 +19,9 @@ export const Route = createFileRoute('/_authenticated/work-centers/add')({
 
 function AddWorkCenter() {
     const navigate = useNavigate()
-    const { can } = usePermissions()
+    const { can, isLoading: isLoadingPermissions } = usePermissions()
 
-    if (!can('Agregar')) return <NotAuthorized />
+    if (!isLoadingPermissions && !can('Agregar')) return <NotAuthorized />
 
     return (
         <WorkCentersProvider>

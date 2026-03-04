@@ -11,20 +11,25 @@ import { Plus } from 'lucide-react'
 import { AdministratorsTable } from './components/administrators-table'
 import { getAdministratorsByWorkCenter } from './data/administrators-api'
 import { useWorkCenterStore } from '@/stores/work-center-store'
+import { usePermissions } from '@/hooks/use-permissions'
+import { NotAuthorized } from '@/components/not-authorized'
 
 const route = getRouteApi('/_authenticated/users/')
 
 export function Administrators() {
+    const { can, isLoading: isLoadingPermissions } = usePermissions()
     const search = route.useSearch()
     const navigate = route.useNavigate()
     const { selectedWorkCenterId } = useWorkCenterStore()
 
 
-    const { data: administrators = [] } = useQuery({
+    const { data: administrators = [], isLoading } = useQuery({
         queryKey: ['administrators', selectedWorkCenterId],
         queryFn: () => getAdministratorsByWorkCenter(selectedWorkCenterId || ''),
         enabled: !!selectedWorkCenterId,
     })
+
+    if (!isLoadingPermissions && !can('Ver')) return <NotAuthorized />
 
     return (
         <>
@@ -45,10 +50,12 @@ export function Administrators() {
                             Gestiona los accesos y permisos de los usuarios en este centro de trabajo.
                         </p>
                     </div>
-                    <Button onClick={() => navigate({ to: '/users/add' })} className='space-x-1'>
-                        <Plus size={18} />
-                        <span>Nuevo Administrador</span>
-                    </Button>
+                    {can('Agregar') && (
+                        <Button onClick={() => navigate({ to: '/users/add' })} className='space-x-1'>
+                            <Plus size={18} />
+                            <span>Nuevo Administrador</span>
+                        </Button>
+                    )}
                 </div>
 
                 <AdministratorsTable

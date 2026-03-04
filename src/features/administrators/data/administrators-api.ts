@@ -11,6 +11,11 @@ export const getAdministratorsByWorkCenter = async (workCenterId: string): Promi
     return response.data
 }
 
+export const getAdministratorById = async (id: string): Promise<Administrator> => {
+    const response = await api.get(`/administrators/${id}`)
+    return response.data
+}
+
 export const createAdministrator = async (data: any): Promise<{ message: string, administrator: Administrator }> => {
     const response = await api.post('/administrators', data)
     return response.data

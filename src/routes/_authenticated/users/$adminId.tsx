@@ -9,36 +9,36 @@ import { ProfileDropdown } from '@/components/profile-dropdown'
 import { ConfigDrawer } from '@/components/config-drawer'
 import { AdministratorsForm } from '@/features/administrators/components/administrators-form'
 import {
-  getAdministratorsByWorkCenter,
+  getAdministratorById,
   getModules,
   updatePermissions
 } from '@/features/administrators/data/administrators-api'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
-import { useWorkCenterStore } from '@/stores/work-center-store'
+import { usePermissions } from '@/hooks/use-permissions'
+import { NotAuthorized } from '@/components/not-authorized'
 
 export const Route = createFileRoute('/_authenticated/users/$adminId')({
   component: EditAdministrator,
 })
 
 function EditAdministrator() {
+  const { can, isLoading: isLoadingPermissions } = usePermissions()
+  if (!isLoadingPermissions && !can('Editar')) return <NotAuthorized />
   const { adminId } = Route.useParams()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const { selectedWorkCenterId } = useWorkCenterStore()
 
   const { data: modules = [] } = useQuery({
     queryKey: ['admin-modules'],
     queryFn: getModules,
   })
 
-  const { data: administrators = [], isLoading: loadingAdmins } = useQuery({
-    queryKey: ['administrators', selectedWorkCenterId],
-    queryFn: () => getAdministratorsByWorkCenter(selectedWorkCenterId || ''),
-    enabled: !!selectedWorkCenterId,
+  const { data: currentAdmin, isLoading: loadingAdmins } = useQuery({
+    queryKey: ['administrator', adminId],
+    queryFn: () => getAdministratorById(adminId),
+    enabled: !!adminId,
   })
-
-  const currentAdmin = administrators.find((a) => a._id === adminId)
 
   const { mutate, isPending } = useMutation({
     mutationFn: updatePermissions,

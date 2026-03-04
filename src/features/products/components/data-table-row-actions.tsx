@@ -7,11 +7,11 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuSeparator,
-    DropdownMenuShortcut,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Product } from '../data/schema'
 import { useProducts } from './products-provider'
+import { usePermissions } from '@/hooks/use-permissions'
 
 interface DataTableRowActionsProps<TData> {
     row: Row<TData>
@@ -21,6 +21,7 @@ export function DataTableRowActions<TData>({
     row,
 }: DataTableRowActionsProps<TData>) {
     const navigate = useNavigate()
+    const { can } = usePermissions()
     const { setOpen, setCurrentRow } = useProducts()
     const product = row.original as Product
 
@@ -36,29 +37,34 @@ export function DataTableRowActions<TData>({
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end' className='w-[160px]'>
-                <DropdownMenuItem
-                    onClick={() => {
-                        navigate({
-                            to: '/products/$productId/edit',
-                            params: { productId: product._id }
-                        })
-                    }}
-                >
-                    <Pen className='mr-2 h-3.5 w-3.5 text-muted-foreground/70' />
-                    Editar
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                    onClick={() => {
-                        setCurrentRow(product)
-                        setOpen('delete')
-                    }}
-                    className='text-red-600'
-                >
-                    <Trash className='mr-2 h-3.5 w-3.5 text-muted-foreground/70' />
-                    Eliminar
-                    <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
-                </DropdownMenuItem>
+                {can('Editar') && (
+                    <DropdownMenuItem
+                        onClick={() => {
+                            navigate({
+                                to: '/products/$productId/edit',
+                                params: { productId: product._id }
+                            })
+                        }}
+                    >
+                        <Pen className='mr-2 h-3.5 w-3.5 text-muted-foreground/70' />
+                        Editar
+                    </DropdownMenuItem>
+                )}
+                {can('Eliminar') && (
+                    <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                            onClick={() => {
+                                setCurrentRow(product)
+                                setOpen('delete')
+                            }}
+                            className='text-red-600'
+                        >
+                            <Trash className='mr-2 h-3.5 w-3.5 text-muted-foreground/70' />
+                            Eliminar
+                        </DropdownMenuItem>
+                    </>
+                )}
             </DropdownMenuContent>
         </DropdownMenu>
     )

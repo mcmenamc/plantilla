@@ -1,9 +1,12 @@
 import { useNavigate } from '@tanstack/react-router'
 import { ShieldAlert } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import LoadingBar from 'react-top-loading-bar'
 
-export function NotAuthorized() {
+export function NotAuthorized({ is_loading }: { is_loading?: boolean }) {
     const navigate = useNavigate()
+
+    if (is_loading) return <LoadingBar />
 
     return (
         <div className='flex h-[80vh] w-full flex-col items-center justify-center gap-6 px-4 text-center'>

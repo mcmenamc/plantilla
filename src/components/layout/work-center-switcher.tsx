@@ -18,8 +18,10 @@ import {
 } from '@/components/ui/sidebar'
 import { getWorkCenters } from '@/features/work-centers/data/work-centers-api'
 import { useWorkCenterStore } from '@/stores/work-center-store'
+import { usePermissions } from '@/hooks/use-permissions'
 
 export function WorkCenterSwitcher() {
+    const { can } = usePermissions()
     const { isMobile } = useSidebar()
     const navigate = useNavigate()
     const { selectedWorkCenterId, setSelectedWorkCenterId } = useWorkCenterStore()
@@ -163,16 +165,20 @@ export function WorkCenterSwitcher() {
                                 )}
                             </DropdownMenuItem>
                         ))}
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                            className='gap-2 p-2'
-                            onClick={() => navigate({ to: '/work-centers/add' })}
-                        >
-                            <div className='bg-background flex size-6 items-center justify-center rounded-md border'>
-                                <Plus className='size-4' />
-                            </div>
-                            <div className='text-muted-foreground font-medium'>Añadir Centro</div>
-                        </DropdownMenuItem>
+                        {can('Agregar') && (
+                            <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                    className='gap-2 p-2'
+                                    onClick={() => navigate({ to: '/work-centers/add' })}
+                                >
+                                    <div className='bg-background flex size-6 items-center justify-center rounded-md border'>
+                                        <Plus className='size-4' />
+                                    </div>
+                                    <div className='text-muted-foreground font-medium'>Añadir Centro</div>
+                                </DropdownMenuItem>
+                            </>
+                        )}
                     </DropdownMenuContent>
                 </DropdownMenu>
             </SidebarMenuItem>

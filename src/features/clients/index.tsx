@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getRouteApi } from '@tanstack/react-router'
+import { getRouteApi, useNavigate, useSearch } from '@tanstack/react-router'
 import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
@@ -12,20 +12,27 @@ import { ClientsPrimaryButtons } from './components/clients-primary-buttons'
 import { ClientsProvider } from './components/clients-provider'
 import { ClientsTable } from './components/clients-table'
 import { getClientsByWorkCenter } from './data/clients-api'
+import { usePermissions } from '@/hooks/use-permissions'
+import { NotAuthorized } from '@/components/not-authorized'
 
 const route = getRouteApi('/_authenticated/clients/')
 
 export function Clients() {
+    const { can, isLoading: isLoadingPermissions } = usePermissions()
     const search = route.useSearch()
     const navigate = route.useNavigate()
     const { selectedWorkCenterId } = useWorkCenterStore()
+
+
 
     const { data: clients = [], isLoading } = useQuery({
         queryKey: ['clients', selectedWorkCenterId],
         queryFn: () => getClientsByWorkCenter(selectedWorkCenterId || ''),
         enabled: !!selectedWorkCenterId,
+
     })
 
+    if (!isLoadingPermissions && !can('Ver')) return <NotAuthorized />
     return (
         <ClientsProvider>
             <Header fixed>

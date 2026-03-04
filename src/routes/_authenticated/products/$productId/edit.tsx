@@ -10,12 +10,16 @@ import { Button } from '@/components/ui/button'
 import { ProductsForm } from '@/features/products/components/products-form'
 import { ProductsProvider, useProducts } from '@/features/products/components/products-provider'
 import { ProductsDeleteDialog } from '@/features/products/components/products-delete-dialog'
+import { usePermissions } from '@/hooks/use-permissions'
+import { NotAuthorized } from '@/components/not-authorized'
 
 export const Route = createFileRoute('/_authenticated/products/$productId/edit')({
     component: EditProduct,
 })
 
 function EditProduct() {
+    const { can, isLoading: isLoadingPermissions } = usePermissions()
+    if (!isLoadingPermissions && !can('Editar')) return <NotAuthorized />
     const navigate = useNavigate()
     const { productId } = Route.useParams()
 
@@ -47,7 +51,7 @@ function EditProduct() {
                         </p>
                     </div>
                 </div>
-                <div className='mx-auto max-w-5xl space-y-4'>
+                <div className='mx-auto max-w-8xl space-y-4'>
                     <ProductsForm productId={productId} />
                     <ProductDeleteSection />
                 </div>

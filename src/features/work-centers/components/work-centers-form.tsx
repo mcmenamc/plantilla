@@ -218,7 +218,7 @@ export function WorkCentersForm({ workCenterId, initialData, onSuccess }: WorkCe
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
-                <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+                <div className='grid grid-cols-1 gap-6'>
                     {/* Información General */}
                     <Card className={onSuccess ? 'border-0 shadow-none' : ''}>
                         {!onSuccess && (

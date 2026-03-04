@@ -12,12 +12,17 @@ import { createAdministrator, getModules } from '@/features/administrators/data/
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 import { useWorkCenterStore } from '@/stores/work-center-store'
+import { usePermissions } from '@/hooks/use-permissions'
+import { NotAuthorized } from '@/components/not-authorized'
 
 export const Route = createFileRoute('/_authenticated/users/add')({
     component: AddAdministrator,
 })
 
 function AddAdministrator() {
+    const { can, isLoading: isLoadingPermissions } = usePermissions()
+    if (!isLoadingPermissions && !can('Agregar')) return <NotAuthorized />
+
     const navigate = useNavigate()
     const queryClient = useQueryClient()
     const { selectedWorkCenterId } = useWorkCenterStore()

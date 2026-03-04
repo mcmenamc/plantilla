@@ -10,17 +10,22 @@ import { WorkCentersPrimaryButtons } from './components/work-centers-primary-but
 import { WorkCentersProvider } from './components/work-centers-provider'
 import { WorkCentersTable } from './components/work-centers-table'
 import { getWorkCenters } from './data/work-centers-api'
+import { usePermissions } from '@/hooks/use-permissions'
+import { NotAuthorized } from '@/components/not-authorized'
 
 const route = getRouteApi('/_authenticated/work-centers/')
 
 export function WorkCenters() {
     const search = route.useSearch()
     const navigate = route.useNavigate()
+    const { can, isLoading: isLoadingPermissions } = usePermissions()
 
     const { data: workCenters = [], isLoading } = useQuery({
         queryKey: ['work-centers'],
         queryFn: getWorkCenters,
     })
+
+    if (!isLoadingPermissions && !can('Ver')) return <NotAuthorized />
 
     return (
         <WorkCentersProvider>
