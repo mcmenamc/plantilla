@@ -207,7 +207,7 @@ export function ConfigurarCuenta() {
                                             <div className="relative">
                                                 <Input
                                                     {...field}
-                                                    placeholder={tipoPersona === "persona_fisica" ? "Juan García López" : "Empresa SA de CV"}
+                                                    placeholder={tipoPersona === "persona_fisica" ? "Juan García López" : "Empresa"}
                                                     className="pl-11 h-12 rounded-xl focus-visible:ring-primary bg-gray-50/50 dark:bg-muted/50 border-gray-200 dark:border-border"
                                                 />
                                                 <Building className="w-5 h-5 text-gray-400 dark:text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />

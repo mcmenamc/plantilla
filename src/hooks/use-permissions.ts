@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useLocation } from '@tanstack/react-router'
 import { api } from '@/lib/api'
 import { useWorkCenterStore } from '@/stores/work-center-store'
+import { useAuthStore } from '@/stores/auth-store'
 
 export interface UserPermission {
     module: {
@@ -19,17 +20,19 @@ export interface UserPermission {
 
 export function usePermissions() {
     const { selectedWorkCenterId } = useWorkCenterStore()
+    const { auth } = useAuthStore()
+    const userId = auth.user?.id
 
     const { data: permissions = [], isLoading, isError, refetch } = useQuery<UserPermission[]>({
-        queryKey: ['user-permissions', selectedWorkCenterId],
+        queryKey: ['user-permissions', selectedWorkCenterId, userId],
         queryFn: async () => {
-            if (!selectedWorkCenterId) return []
+            if (!selectedWorkCenterId || !userId) return []
             const res = await api.get('/user/permissions')
             return res.data
         },
-        enabled: !!selectedWorkCenterId,
+        enabled: !!selectedWorkCenterId && !!userId,
         refetchOnWindowFocus: true,
-        staleTime: 1000 * 60 * 5,
+        staleTime: 1000 * 60 * 1, // Reducido a 1 minuto para mayor reactividad
         retry: 1,
     })
 

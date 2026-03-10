@@ -17,6 +17,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { useTheme } from '@/context/theme-provider'
+import { useFont } from '@/context/font-provider'
 import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/password-input'
 
@@ -31,6 +33,8 @@ export function SignIn() {
   const { redirect } = useSearch({ from: '/(auth)/sign-in' })
   const navigate = useNavigate()
   const { auth } = useAuthStore()
+  const { setTheme } = useTheme()
+  const { setFont } = useFont()
   const [isLoading, setIsLoading] = useState(false)
 
   const form = useForm<SignInForm>({
@@ -55,11 +59,15 @@ export function SignIn() {
         email: data.usuario.email,
         imagen: data.usuario.imagen,
         business: data.usuario.business,
-        workcenter: data.usuario.workcenter,
         role: data.usuario.role,
-        workcenters: [],
+        theme: data.usuario.theme,
+        font: data.usuario.font,
+        workcenters: data.usuario.workcenters || [],
         exp: Date.now() + 24 * 60 * 60 * 1000,
       }
+
+      if (data.usuario.theme) setTheme(data.usuario.theme)
+      if (data.usuario.font) setFont(data.usuario.font)
 
       auth.setUser(mockUser)
       auth.setAccessToken(data.token)

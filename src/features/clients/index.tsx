@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getRouteApi, useNavigate, useSearch } from '@tanstack/react-router'
+import { getRouteApi, } from '@tanstack/react-router'
 import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'

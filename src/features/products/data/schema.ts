@@ -14,6 +14,7 @@ export const productSchema = z.object({
         base: z.number().default(100),
         factor: z.enum(['Tasa', 'Cuota', 'Exento']).optional(),
         withholding: z.boolean().optional(),
+        ieps_mode: z.enum(['sum_before_taxes', 'break_down', 'unit', 'subtract_before_break_down']).optional(),
     })),
     local_taxes: z.array(z.object({
         type: z.string(),
@@ -43,6 +44,7 @@ export const createProductSchema = z.object({
         withholding: z.boolean(),
         base: z.number().default(100),
         factor: z.enum(['Tasa', 'Cuota', 'Exento']).default('Tasa'),
+        ieps_mode: z.enum(['sum_before_taxes', 'break_down', 'unit', 'subtract_before_break_down']).optional(),
     })),
     local_taxes: z.array(z.object({
         type: z.string().min(1, 'El nombre del impuesto local es obligatorio'),

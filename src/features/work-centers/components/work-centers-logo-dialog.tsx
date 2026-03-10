@@ -25,7 +25,7 @@ import { api } from '@/lib/api'
 import { useWorkCenters } from './work-centers-provider'
 
 const MAX_SIZE = 500 * 1024 // 500 KB
-const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/svg+xml']
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png']
 
 const formSchema = z.object({
     file: z
@@ -33,7 +33,7 @@ const formSchema = z.object({
         .refine((files) => files.length > 0, 'La imagen es obligatoria')
         .refine(
             (files) => ALLOWED_MIME_TYPES.includes(files[0]?.type),
-            'Solo se permiten archivos .jpg, .png y .svg'
+            'Solo se permiten archivos .jpg y .png'
         )
         .refine(
             (files) => files[0]?.size <= MAX_SIZE,
@@ -110,11 +110,8 @@ export function WorkCentersLogoDialog() {
                 <DialogHeader>
                     <DialogTitle>Actualizar Logo</DialogTitle>
                     <DialogDescription>
-                        Sube una imagen para el centro de trabajo{' '}
-                        <span className='font-semibold italic'>
-                            {currentRow?.workcenterName}
-                        </span>
-                        .
+                        Sube el logotipo de la organización que será colocado en el PDF y en los correos que se envían al cliente.
+                        Se recomienda un tamaño de <span className='font-medium text-zinc-900 dark:text-zinc-100'>800 × 500px</span>.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -137,7 +134,7 @@ export function WorkCentersLogoDialog() {
                                                 {...field}
                                                 value={undefined}
                                                 type='file'
-                                                accept='image/png, image/jpeg, image/svg+xml'
+                                                accept='image/png, image/jpeg'
                                                 className='hidden'
                                                 ref={fileInputRef}
                                                 onChange={(e) => {
@@ -176,7 +173,7 @@ export function WorkCentersLogoDialog() {
                                                         : 'Clic para subir imagen'}
                                                 </p>
                                                 <p className='text-xs text-muted-foreground'>
-                                                    PNG, JPG o SVG (Máx. 500KB)
+                                                    PNG o JPG (Máx. 500KB)
                                                 </p>
                                             </div>
                                         </div>

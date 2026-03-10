@@ -15,14 +15,6 @@ interface WorkCentersLogoColumnProps {
 export function WorkCentersLogoColumn({ row }: WorkCentersLogoColumnProps) {
     const { setOpen, setCurrentRow } = useWorkCenters()
 
-    if (!row.imagen) {
-        return (
-            <div className='w-10 h-10 rounded-full bg-muted flex items-center justify-center border border-border shadow-sm'>
-                <Building2 className='w-5 h-5 text-muted-foreground/50' />
-            </div>
-        )
-    }
-
     const handleClick = () => {
         setCurrentRow(row)
         setOpen('upload-logo')
@@ -34,18 +26,28 @@ export function WorkCentersLogoColumn({ row }: WorkCentersLogoColumnProps) {
                 <TooltipTrigger asChild>
                     <div
                         onClick={handleClick}
-                        className='relative w-10 h-10 rounded-full overflow-hidden border border-border shadow-sm cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all group'
+                        className='relative w-10 h-10 rounded-full overflow-hidden border border-border bg-muted shadow-sm cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all group shrink-0'
                     >
-                        <img
-                            src={row.imagen}
-                            alt={row.workcenterName}
-                            className='w-full h-full object-cover'
-                        />
-                        <div className='absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors' />
+                        {row.imagen ? (
+                            <>
+                                <img
+                                    src={row.imagen}
+                                    alt={row.workcenterName}
+                                    className='w-full h-full object-cover'
+                                />
+                                <div className='absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors' />
+                            </>
+                        ) : (
+                            <div className='flex size-full items-center justify-center bg-zinc-50 dark:bg-zinc-900 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800 transition-colors'>
+                                <Building2 className='w-5 h-5 text-muted-foreground/50' />
+                            </div>
+                        )}
                     </div>
                 </TooltipTrigger>
                 <TooltipContent>
-                    <p className='text-xs'>Clic para actualizar logo</p>
+                    <p className='text-xs'>
+                        {row.imagen ? 'Clic para actualizar logo' : 'Clic para subir logo'}
+                    </p>
                 </TooltipContent>
             </Tooltip>
         </TooltipProvider>

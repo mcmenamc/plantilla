@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
 import { ArrowRight, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { sleep, cn } from '@/lib/utils'
+import { api } from '@/lib/api'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -17,10 +19,12 @@ import {
 import { Input } from '@/components/ui/input'
 
 const formSchema = z.object({
-  email: z.email({
-    error: (iss) => (iss.input === '' ? 'Please enter your email' : undefined),
+  email: z.string().email({
+    message: 'Ingresa un correo electrónico válido',
   }),
 })
+
+type ForgotPasswordFormValues = z.infer<typeof formSchema>
 
 export function ForgotPasswordForm({
   className,
@@ -28,25 +32,33 @@ export function ForgotPasswordForm({
 }: React.HTMLAttributes<HTMLFormElement>) {
   const [isLoading, setIsLoading] = useState(false)
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<ForgotPasswordFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: { email: '' },
   })
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
-    setIsLoading(true)
-    // eslint-disable-next-line no-console
-    console.log(data)
+  const { mutate } = useMutation({
+    mutationFn: async (values: ForgotPasswordFormValues) => {
+      const response = await api.post('/auth/recovery-password', {
+        correo: values.email
+      })
+      return response.data
+    },
+    onSuccess: (data) => {
+      toast.success(data.message || 'Correo de recuperación enviado con éxito')
+      setIsLoading(false)
+      form.reset()
+    },
+    onError: (error: any) => {
+      const message = error.response?.data?.message || 'Error al enviar el correo'
+      toast.error(message)
+      setIsLoading(false)
+    },
+  })
 
-    toast.promise(sleep(2000), {
-      loading: 'Sending email...',
-      success: () => {
-        setIsLoading(false)
-        form.reset()
-        return `Email sent to ${data.email}`
-      },
-      error: 'Error',
-    })
+  function onSubmit(data: ForgotPasswordFormValues) {
+    setIsLoading(true)
+    mutate(data)
   }
 
   return (
@@ -61,19 +73,24 @@ export function ForgotPasswordForm({
           name='email'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Correo Electrónico</FormLabel>
               <FormControl>
-                <Input placeholder='name@example.com' {...field} />
+                <Input placeholder='nombre@ejemplo.com' {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
         <Button className='mt-2' disabled={isLoading}>
-          Continue
-          {isLoading ? <Loader2 className='animate-spin' /> : <ArrowRight />}
+          Continuar
+          {isLoading ? (
+            <Loader2 className='ml-2 h-4 w-4 animate-spin' />
+          ) : (
+            <ArrowRight className='ml-2 h-4 w-4' />
+          )}
         </Button>
       </form>
     </Form>
   )
 }
+

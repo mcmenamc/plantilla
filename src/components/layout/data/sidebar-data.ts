@@ -52,7 +52,11 @@ export function generateNavGroups(permissions: UserPermission[]): NavGroup[] {
     }
 
     // Determine basic navigation info
-    const url = m.url || '#'
+    let url = m.url || '#'
+    // Ensure absolute paths for internal links
+    if (url !== '#' && !url.startsWith('/') && !url.startsWith('http')) {
+      url = `/${url}`
+    }
     const icon = ICON_MAP[m.icono] || FileText // Default fallback
 
     // Add main valid module item

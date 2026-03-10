@@ -1,10 +1,9 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { LucideIcon } from 'lucide-react'
 
 export interface Notification {
     id: string
-    logo: LucideIcon | string // Lucide icon component or image URL
+    logo: string // name of the lucide icon
     title: string
     description: string
     actionUrl: string

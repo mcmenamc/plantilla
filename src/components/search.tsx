@@ -2,6 +2,7 @@ import { SearchIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useSearch } from '@/context/search-provider'
 import { Button } from './ui/button'
+import { useEffect, useState } from 'react'
 
 type SearchProps = {
   className?: string
@@ -14,6 +15,12 @@ export function Search({
   placeholder = 'Search',
 }: SearchProps) {
   const { setOpen } = useSearch()
+  const [isMac, setIsMac] = useState(false)
+
+  useEffect(() => {
+    setIsMac(navigator.userAgent.toUpperCase().indexOf('MAC') >= 0)
+  }, [])
+
   return (
     <Button
       variant='outline'
@@ -30,8 +37,10 @@ export function Search({
       />
       <span className='ms-4'>{placeholder}</span>
       <kbd className='bg-muted group-hover:bg-accent pointer-events-none absolute end-[0.3rem] top-[0.3rem] hidden h-5 items-center gap-1 rounded border px-1.5 font-mono text-[10px] font-medium opacity-100 select-none sm:flex'>
-        <span className='text-xs'>⌘</span>K
+        <span className='text-xs'>{isMac ? '⌘' : 'Ctrl'}</span>
+        <span>K</span>
       </kbd>
     </Button>
   )
 }
+

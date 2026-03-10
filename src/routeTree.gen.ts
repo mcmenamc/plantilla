@@ -23,6 +23,7 @@ import { Route as errors401RouteImport } from './routes/(errors)/401'
 import { Route as authSignUpRouteImport } from './routes/(auth)/sign-up'
 import { Route as authSignIn2RouteImport } from './routes/(auth)/sign-in-2'
 import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
+import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-password'
 import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-password'
 import { Route as ClerkAuthenticatedRouteRouteImport } from './routes/clerk/_authenticated/route'
 import { Route as ClerkauthRouteRouteImport } from './routes/clerk/(auth)/route'
@@ -36,6 +37,7 @@ import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedSeriesIndexRouteImport } from './routes/_authenticated/series/index'
 import { Route as AuthenticatedQuotesIndexRouteImport } from './routes/_authenticated/quotes/index'
 import { Route as AuthenticatedProductsIndexRouteImport } from './routes/_authenticated/products/index'
+import { Route as AuthenticatedMassiveDownloadsIndexRouteImport } from './routes/_authenticated/massive-downloads/index'
 import { Route as AuthenticatedInvoicingIndexRouteImport } from './routes/_authenticated/invoicing/index'
 import { Route as AuthenticatedHelpCenterIndexRouteImport } from './routes/_authenticated/help-center/index'
 import { Route as AuthenticatedClientsIndexRouteImport } from './routes/_authenticated/clients/index'
@@ -50,10 +52,12 @@ import { Route as AuthenticatedUsersAddRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedUsersAdminIdRouteImport } from './routes/_authenticated/users/$adminId'
 import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes/_authenticated/settings/notifications'
 import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_authenticated/settings/display'
+import { Route as AuthenticatedSettingsBusinessRouteImport } from './routes/_authenticated/settings/business'
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
 import { Route as AuthenticatedSeriesCreateRouteImport } from './routes/_authenticated/series/create'
 import { Route as AuthenticatedProductsAddRouteImport } from './routes/_authenticated/products/add'
+import { Route as AuthenticatedMassiveDownloadsAddRouteImport } from './routes/_authenticated/massive-downloads/add'
 import { Route as AuthenticatedInvoicingNewRouteImport } from './routes/_authenticated/invoicing/new'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
 import { Route as AuthenticatedClientsAddRouteImport } from './routes/_authenticated/clients/add'
@@ -65,6 +69,7 @@ import { Route as AuthenticatedWorkCentersWorkCenterIdEditRouteImport } from './
 import { Route as AuthenticatedSeriesEditSeriesIdRouteImport } from './routes/_authenticated/series/edit.$seriesId'
 import { Route as AuthenticatedSeriesSeriesIdEditRouteImport } from './routes/_authenticated/series/$seriesId/edit'
 import { Route as AuthenticatedProductsProductIdEditRouteImport } from './routes/_authenticated/products/$productId/edit'
+import { Route as AuthenticatedMassiveDownloadsViewerDownloadIdRouteImport } from './routes/_authenticated/massive-downloads/viewer.$downloadId'
 import { Route as AuthenticatedClientsClientIdEditRouteImport } from './routes/_authenticated/clients/$clientId/edit'
 
 const PruebaGratisRoute = PruebaGratisRouteImport.update({
@@ -136,6 +141,11 @@ const authSignInRoute = authSignInRouteImport.update({
   path: '/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
+const authResetPasswordRoute = authResetPasswordRouteImport.update({
+  id: '/(auth)/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const authForgotPasswordRoute = authForgotPasswordRouteImport.update({
   id: '/(auth)/forgot-password',
   path: '/forgot-password',
@@ -205,6 +215,12 @@ const AuthenticatedProductsIndexRoute =
   AuthenticatedProductsIndexRouteImport.update({
     id: '/products/',
     path: '/products/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMassiveDownloadsIndexRoute =
+  AuthenticatedMassiveDownloadsIndexRouteImport.update({
+    id: '/massive-downloads/',
+    path: '/massive-downloads/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedInvoicingIndexRoute =
@@ -286,6 +302,12 @@ const AuthenticatedSettingsDisplayRoute =
     path: '/display',
     getParentRoute: () => AuthenticatedSettingsRouteRoute,
   } as any)
+const AuthenticatedSettingsBusinessRoute =
+  AuthenticatedSettingsBusinessRouteImport.update({
+    id: '/business',
+    path: '/business',
+    getParentRoute: () => AuthenticatedSettingsRouteRoute,
+  } as any)
 const AuthenticatedSettingsAppearanceRoute =
   AuthenticatedSettingsAppearanceRouteImport.update({
     id: '/appearance',
@@ -308,6 +330,12 @@ const AuthenticatedProductsAddRoute =
   AuthenticatedProductsAddRouteImport.update({
     id: '/products/add',
     path: '/products/add',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMassiveDownloadsAddRoute =
+  AuthenticatedMassiveDownloadsAddRouteImport.update({
+    id: '/massive-downloads/add',
+    path: '/massive-downloads/add',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedInvoicingNewRoute =
@@ -375,6 +403,12 @@ const AuthenticatedProductsProductIdEditRoute =
     path: '/products/$productId/edit',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMassiveDownloadsViewerDownloadIdRoute =
+  AuthenticatedMassiveDownloadsViewerDownloadIdRouteImport.update({
+    id: '/massive-downloads/viewer/$downloadId',
+    path: '/massive-downloads/viewer/$downloadId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedClientsClientIdEditRoute =
   AuthenticatedClientsClientIdEditRouteImport.update({
     id: '/clients/$clientId/edit',
@@ -391,6 +425,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
   '/clerk/': typeof ClerkauthRouteRouteWithChildren
   '/forgot-password': typeof authForgotPasswordRoute
+  '/reset-password': typeof authResetPasswordRoute
   '/sign-in': typeof authSignInRoute
   '/sign-in-2': typeof authSignIn2Route
   '/sign-up': typeof authSignUpRoute
@@ -403,10 +438,12 @@ export interface FileRoutesByFullPath {
   '/clients/add': typeof AuthenticatedClientsAddRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/invoicing/new': typeof AuthenticatedInvoicingNewRoute
+  '/massive-downloads/add': typeof AuthenticatedMassiveDownloadsAddRoute
   '/products/add': typeof AuthenticatedProductsAddRoute
   '/series/create': typeof AuthenticatedSeriesCreateRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
+  '/settings/business': typeof AuthenticatedSettingsBusinessRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/users/$adminId': typeof AuthenticatedUsersAdminIdRoute
@@ -421,6 +458,7 @@ export interface FileRoutesByFullPath {
   '/clients': typeof AuthenticatedClientsIndexRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
   '/invoicing': typeof AuthenticatedInvoicingIndexRoute
+  '/massive-downloads': typeof AuthenticatedMassiveDownloadsIndexRoute
   '/products': typeof AuthenticatedProductsIndexRoute
   '/quotes': typeof AuthenticatedQuotesIndexRoute
   '/series/': typeof AuthenticatedSeriesIndexRoute
@@ -430,6 +468,7 @@ export interface FileRoutesByFullPath {
   '/viewer': typeof AuthenticatedViewerIndexRoute
   '/work-centers': typeof AuthenticatedWorkCentersIndexRoute
   '/clients/$clientId/edit': typeof AuthenticatedClientsClientIdEditRoute
+  '/massive-downloads/viewer/$downloadId': typeof AuthenticatedMassiveDownloadsViewerDownloadIdRoute
   '/products/$productId/edit': typeof AuthenticatedProductsProductIdEditRoute
   '/series/$seriesId/edit': typeof AuthenticatedSeriesSeriesIdEditRoute
   '/series/edit/$seriesId': typeof AuthenticatedSeriesEditSeriesIdRoute
@@ -445,6 +484,7 @@ export interface FileRoutesByTo {
   '/prueba-gratis': typeof PruebaGratisRoute
   '/clerk': typeof ClerkAuthenticatedRouteRouteWithChildren
   '/forgot-password': typeof authForgotPasswordRoute
+  '/reset-password': typeof authResetPasswordRoute
   '/sign-in': typeof authSignInRoute
   '/sign-in-2': typeof authSignIn2Route
   '/sign-up': typeof authSignUpRoute
@@ -457,10 +497,12 @@ export interface FileRoutesByTo {
   '/clients/add': typeof AuthenticatedClientsAddRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/invoicing/new': typeof AuthenticatedInvoicingNewRoute
+  '/massive-downloads/add': typeof AuthenticatedMassiveDownloadsAddRoute
   '/products/add': typeof AuthenticatedProductsAddRoute
   '/series/create': typeof AuthenticatedSeriesCreateRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
+  '/settings/business': typeof AuthenticatedSettingsBusinessRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/users/$adminId': typeof AuthenticatedUsersAdminIdRoute
@@ -475,6 +517,7 @@ export interface FileRoutesByTo {
   '/clients': typeof AuthenticatedClientsIndexRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
   '/invoicing': typeof AuthenticatedInvoicingIndexRoute
+  '/massive-downloads': typeof AuthenticatedMassiveDownloadsIndexRoute
   '/products': typeof AuthenticatedProductsIndexRoute
   '/quotes': typeof AuthenticatedQuotesIndexRoute
   '/series': typeof AuthenticatedSeriesIndexRoute
@@ -484,6 +527,7 @@ export interface FileRoutesByTo {
   '/viewer': typeof AuthenticatedViewerIndexRoute
   '/work-centers': typeof AuthenticatedWorkCentersIndexRoute
   '/clients/$clientId/edit': typeof AuthenticatedClientsClientIdEditRoute
+  '/massive-downloads/viewer/$downloadId': typeof AuthenticatedMassiveDownloadsViewerDownloadIdRoute
   '/products/$productId/edit': typeof AuthenticatedProductsProductIdEditRoute
   '/series/$seriesId/edit': typeof AuthenticatedSeriesSeriesIdEditRoute
   '/series/edit/$seriesId': typeof AuthenticatedSeriesEditSeriesIdRoute
@@ -505,6 +549,7 @@ export interface FileRoutesById {
   '/clerk/(auth)': typeof ClerkauthRouteRouteWithChildren
   '/clerk/_authenticated': typeof ClerkAuthenticatedRouteRouteWithChildren
   '/(auth)/forgot-password': typeof authForgotPasswordRoute
+  '/(auth)/reset-password': typeof authResetPasswordRoute
   '/(auth)/sign-in': typeof authSignInRoute
   '/(auth)/sign-in-2': typeof authSignIn2Route
   '/(auth)/sign-up': typeof authSignUpRoute
@@ -517,10 +562,12 @@ export interface FileRoutesById {
   '/_authenticated/clients/add': typeof AuthenticatedClientsAddRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/_authenticated/invoicing/new': typeof AuthenticatedInvoicingNewRoute
+  '/_authenticated/massive-downloads/add': typeof AuthenticatedMassiveDownloadsAddRoute
   '/_authenticated/products/add': typeof AuthenticatedProductsAddRoute
   '/_authenticated/series/create': typeof AuthenticatedSeriesCreateRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
+  '/_authenticated/settings/business': typeof AuthenticatedSettingsBusinessRoute
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/_authenticated/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/_authenticated/users/$adminId': typeof AuthenticatedUsersAdminIdRoute
@@ -535,6 +582,7 @@ export interface FileRoutesById {
   '/_authenticated/clients/': typeof AuthenticatedClientsIndexRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexRoute
   '/_authenticated/invoicing/': typeof AuthenticatedInvoicingIndexRoute
+  '/_authenticated/massive-downloads/': typeof AuthenticatedMassiveDownloadsIndexRoute
   '/_authenticated/products/': typeof AuthenticatedProductsIndexRoute
   '/_authenticated/quotes/': typeof AuthenticatedQuotesIndexRoute
   '/_authenticated/series/': typeof AuthenticatedSeriesIndexRoute
@@ -544,6 +592,7 @@ export interface FileRoutesById {
   '/_authenticated/viewer/': typeof AuthenticatedViewerIndexRoute
   '/_authenticated/work-centers/': typeof AuthenticatedWorkCentersIndexRoute
   '/_authenticated/clients/$clientId/edit': typeof AuthenticatedClientsClientIdEditRoute
+  '/_authenticated/massive-downloads/viewer/$downloadId': typeof AuthenticatedMassiveDownloadsViewerDownloadIdRoute
   '/_authenticated/products/$productId/edit': typeof AuthenticatedProductsProductIdEditRoute
   '/_authenticated/series/$seriesId/edit': typeof AuthenticatedSeriesSeriesIdEditRoute
   '/_authenticated/series/edit/$seriesId': typeof AuthenticatedSeriesEditSeriesIdRoute
@@ -564,6 +613,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/clerk/'
     | '/forgot-password'
+    | '/reset-password'
     | '/sign-in'
     | '/sign-in-2'
     | '/sign-up'
@@ -576,10 +626,12 @@ export interface FileRouteTypes {
     | '/clients/add'
     | '/errors/$error'
     | '/invoicing/new'
+    | '/massive-downloads/add'
     | '/products/add'
     | '/series/create'
     | '/settings/account'
     | '/settings/appearance'
+    | '/settings/business'
     | '/settings/display'
     | '/settings/notifications'
     | '/users/$adminId'
@@ -594,6 +646,7 @@ export interface FileRouteTypes {
     | '/clients'
     | '/help-center'
     | '/invoicing'
+    | '/massive-downloads'
     | '/products'
     | '/quotes'
     | '/series/'
@@ -603,6 +656,7 @@ export interface FileRouteTypes {
     | '/viewer'
     | '/work-centers'
     | '/clients/$clientId/edit'
+    | '/massive-downloads/viewer/$downloadId'
     | '/products/$productId/edit'
     | '/series/$seriesId/edit'
     | '/series/edit/$seriesId'
@@ -618,6 +672,7 @@ export interface FileRouteTypes {
     | '/prueba-gratis'
     | '/clerk'
     | '/forgot-password'
+    | '/reset-password'
     | '/sign-in'
     | '/sign-in-2'
     | '/sign-up'
@@ -630,10 +685,12 @@ export interface FileRouteTypes {
     | '/clients/add'
     | '/errors/$error'
     | '/invoicing/new'
+    | '/massive-downloads/add'
     | '/products/add'
     | '/series/create'
     | '/settings/account'
     | '/settings/appearance'
+    | '/settings/business'
     | '/settings/display'
     | '/settings/notifications'
     | '/users/$adminId'
@@ -648,6 +705,7 @@ export interface FileRouteTypes {
     | '/clients'
     | '/help-center'
     | '/invoicing'
+    | '/massive-downloads'
     | '/products'
     | '/quotes'
     | '/series'
@@ -657,6 +715,7 @@ export interface FileRouteTypes {
     | '/viewer'
     | '/work-centers'
     | '/clients/$clientId/edit'
+    | '/massive-downloads/viewer/$downloadId'
     | '/products/$productId/edit'
     | '/series/$seriesId/edit'
     | '/series/edit/$seriesId'
@@ -677,6 +736,7 @@ export interface FileRouteTypes {
     | '/clerk/(auth)'
     | '/clerk/_authenticated'
     | '/(auth)/forgot-password'
+    | '/(auth)/reset-password'
     | '/(auth)/sign-in'
     | '/(auth)/sign-in-2'
     | '/(auth)/sign-up'
@@ -689,10 +749,12 @@ export interface FileRouteTypes {
     | '/_authenticated/clients/add'
     | '/_authenticated/errors/$error'
     | '/_authenticated/invoicing/new'
+    | '/_authenticated/massive-downloads/add'
     | '/_authenticated/products/add'
     | '/_authenticated/series/create'
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/appearance'
+    | '/_authenticated/settings/business'
     | '/_authenticated/settings/display'
     | '/_authenticated/settings/notifications'
     | '/_authenticated/users/$adminId'
@@ -707,6 +769,7 @@ export interface FileRouteTypes {
     | '/_authenticated/clients/'
     | '/_authenticated/help-center/'
     | '/_authenticated/invoicing/'
+    | '/_authenticated/massive-downloads/'
     | '/_authenticated/products/'
     | '/_authenticated/quotes/'
     | '/_authenticated/series/'
@@ -716,6 +779,7 @@ export interface FileRouteTypes {
     | '/_authenticated/viewer/'
     | '/_authenticated/work-centers/'
     | '/_authenticated/clients/$clientId/edit'
+    | '/_authenticated/massive-downloads/viewer/$downloadId'
     | '/_authenticated/products/$productId/edit'
     | '/_authenticated/series/$seriesId/edit'
     | '/_authenticated/series/edit/$seriesId'
@@ -733,6 +797,7 @@ export interface RootRouteChildren {
   ConfigurarCuentaRoute: typeof ConfigurarCuentaRoute
   PruebaGratisRoute: typeof PruebaGratisRoute
   authForgotPasswordRoute: typeof authForgotPasswordRoute
+  authResetPasswordRoute: typeof authResetPasswordRoute
   authSignInRoute: typeof authSignInRoute
   authSignIn2Route: typeof authSignIn2Route
   authSignUpRoute: typeof authSignUpRoute
@@ -843,6 +908,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authSignInRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(auth)/reset-password': {
+      id: '/(auth)/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof authResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(auth)/forgot-password': {
       id: '/(auth)/forgot-password'
       path: '/forgot-password'
@@ -932,6 +1004,13 @@ declare module '@tanstack/react-router' {
       path: '/products'
       fullPath: '/products'
       preLoaderRoute: typeof AuthenticatedProductsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/massive-downloads/': {
+      id: '/_authenticated/massive-downloads/'
+      path: '/massive-downloads'
+      fullPath: '/massive-downloads'
+      preLoaderRoute: typeof AuthenticatedMassiveDownloadsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/invoicing/': {
@@ -1032,6 +1111,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsDisplayRouteImport
       parentRoute: typeof AuthenticatedSettingsRouteRoute
     }
+    '/_authenticated/settings/business': {
+      id: '/_authenticated/settings/business'
+      path: '/business'
+      fullPath: '/settings/business'
+      preLoaderRoute: typeof AuthenticatedSettingsBusinessRouteImport
+      parentRoute: typeof AuthenticatedSettingsRouteRoute
+    }
     '/_authenticated/settings/appearance': {
       id: '/_authenticated/settings/appearance'
       path: '/appearance'
@@ -1058,6 +1144,13 @@ declare module '@tanstack/react-router' {
       path: '/products/add'
       fullPath: '/products/add'
       preLoaderRoute: typeof AuthenticatedProductsAddRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/massive-downloads/add': {
+      id: '/_authenticated/massive-downloads/add'
+      path: '/massive-downloads/add'
+      fullPath: '/massive-downloads/add'
+      preLoaderRoute: typeof AuthenticatedMassiveDownloadsAddRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/invoicing/new': {
@@ -1137,6 +1230,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProductsProductIdEditRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/massive-downloads/viewer/$downloadId': {
+      id: '/_authenticated/massive-downloads/viewer/$downloadId'
+      path: '/massive-downloads/viewer/$downloadId'
+      fullPath: '/massive-downloads/viewer/$downloadId'
+      preLoaderRoute: typeof AuthenticatedMassiveDownloadsViewerDownloadIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/clients/$clientId/edit': {
       id: '/_authenticated/clients/$clientId/edit'
       path: '/clients/$clientId/edit'
@@ -1170,6 +1270,7 @@ const AuthenticatedSeriesRouteRouteWithChildren =
 interface AuthenticatedSettingsRouteRouteChildren {
   AuthenticatedSettingsAccountRoute: typeof AuthenticatedSettingsAccountRoute
   AuthenticatedSettingsAppearanceRoute: typeof AuthenticatedSettingsAppearanceRoute
+  AuthenticatedSettingsBusinessRoute: typeof AuthenticatedSettingsBusinessRoute
   AuthenticatedSettingsDisplayRoute: typeof AuthenticatedSettingsDisplayRoute
   AuthenticatedSettingsNotificationsRoute: typeof AuthenticatedSettingsNotificationsRoute
   AuthenticatedSettingsIndexRoute: typeof AuthenticatedSettingsIndexRoute
@@ -1179,6 +1280,7 @@ const AuthenticatedSettingsRouteRouteChildren: AuthenticatedSettingsRouteRouteCh
   {
     AuthenticatedSettingsAccountRoute: AuthenticatedSettingsAccountRoute,
     AuthenticatedSettingsAppearanceRoute: AuthenticatedSettingsAppearanceRoute,
+    AuthenticatedSettingsBusinessRoute: AuthenticatedSettingsBusinessRoute,
     AuthenticatedSettingsDisplayRoute: AuthenticatedSettingsDisplayRoute,
     AuthenticatedSettingsNotificationsRoute:
       AuthenticatedSettingsNotificationsRoute,
@@ -1197,6 +1299,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedClientsAddRoute: typeof AuthenticatedClientsAddRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
   AuthenticatedInvoicingNewRoute: typeof AuthenticatedInvoicingNewRoute
+  AuthenticatedMassiveDownloadsAddRoute: typeof AuthenticatedMassiveDownloadsAddRoute
   AuthenticatedProductsAddRoute: typeof AuthenticatedProductsAddRoute
   AuthenticatedUsersAdminIdRoute: typeof AuthenticatedUsersAdminIdRoute
   AuthenticatedUsersAddRoute: typeof AuthenticatedUsersAddRoute
@@ -1207,6 +1310,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedClientsIndexRoute: typeof AuthenticatedClientsIndexRoute
   AuthenticatedHelpCenterIndexRoute: typeof AuthenticatedHelpCenterIndexRoute
   AuthenticatedInvoicingIndexRoute: typeof AuthenticatedInvoicingIndexRoute
+  AuthenticatedMassiveDownloadsIndexRoute: typeof AuthenticatedMassiveDownloadsIndexRoute
   AuthenticatedProductsIndexRoute: typeof AuthenticatedProductsIndexRoute
   AuthenticatedQuotesIndexRoute: typeof AuthenticatedQuotesIndexRoute
   AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
@@ -1214,6 +1318,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedViewerIndexRoute: typeof AuthenticatedViewerIndexRoute
   AuthenticatedWorkCentersIndexRoute: typeof AuthenticatedWorkCentersIndexRoute
   AuthenticatedClientsClientIdEditRoute: typeof AuthenticatedClientsClientIdEditRoute
+  AuthenticatedMassiveDownloadsViewerDownloadIdRoute: typeof AuthenticatedMassiveDownloadsViewerDownloadIdRoute
   AuthenticatedProductsProductIdEditRoute: typeof AuthenticatedProductsProductIdEditRoute
   AuthenticatedWorkCentersWorkCenterIdEditRoute: typeof AuthenticatedWorkCentersWorkCenterIdEditRoute
   AuthenticatedInvoicingBillOfLadingIndexRoute: typeof AuthenticatedInvoicingBillOfLadingIndexRoute
@@ -1229,6 +1334,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedClientsAddRoute: AuthenticatedClientsAddRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
   AuthenticatedInvoicingNewRoute: AuthenticatedInvoicingNewRoute,
+  AuthenticatedMassiveDownloadsAddRoute: AuthenticatedMassiveDownloadsAddRoute,
   AuthenticatedProductsAddRoute: AuthenticatedProductsAddRoute,
   AuthenticatedUsersAdminIdRoute: AuthenticatedUsersAdminIdRoute,
   AuthenticatedUsersAddRoute: AuthenticatedUsersAddRoute,
@@ -1239,6 +1345,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedClientsIndexRoute: AuthenticatedClientsIndexRoute,
   AuthenticatedHelpCenterIndexRoute: AuthenticatedHelpCenterIndexRoute,
   AuthenticatedInvoicingIndexRoute: AuthenticatedInvoicingIndexRoute,
+  AuthenticatedMassiveDownloadsIndexRoute:
+    AuthenticatedMassiveDownloadsIndexRoute,
   AuthenticatedProductsIndexRoute: AuthenticatedProductsIndexRoute,
   AuthenticatedQuotesIndexRoute: AuthenticatedQuotesIndexRoute,
   AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
@@ -1246,6 +1354,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedViewerIndexRoute: AuthenticatedViewerIndexRoute,
   AuthenticatedWorkCentersIndexRoute: AuthenticatedWorkCentersIndexRoute,
   AuthenticatedClientsClientIdEditRoute: AuthenticatedClientsClientIdEditRoute,
+  AuthenticatedMassiveDownloadsViewerDownloadIdRoute:
+    AuthenticatedMassiveDownloadsViewerDownloadIdRoute,
   AuthenticatedProductsProductIdEditRoute:
     AuthenticatedProductsProductIdEditRoute,
   AuthenticatedWorkCentersWorkCenterIdEditRoute:
@@ -1312,6 +1422,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConfigurarCuentaRoute: ConfigurarCuentaRoute,
   PruebaGratisRoute: PruebaGratisRoute,
   authForgotPasswordRoute: authForgotPasswordRoute,
+  authResetPasswordRoute: authResetPasswordRoute,
   authSignInRoute: authSignInRoute,
   authSignIn2Route: authSignIn2Route,
   authSignUpRoute: authSignUpRoute,

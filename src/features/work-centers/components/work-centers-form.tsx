@@ -218,252 +218,292 @@ export function WorkCentersForm({ workCenterId, initialData, onSuccess }: WorkCe
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
-                <div className='grid grid-cols-1 gap-6'>
-                    {/* Información General */}
-                    <Card className={onSuccess ? 'border-0 shadow-none' : ''}>
-                        {!onSuccess && (
-                            <CardHeader>
-                                <CardTitle>Información General</CardTitle>
-                            </CardHeader>
-                        )}
-                        <CardContent className='space-y-4 pt-4'>
-                            <FormField
-                                control={form.control}
-                                name='nombre'
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Nombre del Centro de Trabajo (Alias)</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder='Ej. Sucursal Centro' {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name='legal_name'
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Razón Social (Legal Name)</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder='Ej. Mi Empresa' {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
-                                <FormField
-                                    control={form.control}
-                                    name='rfc'
-                                    render={({ field }) => (
-                                        <FormItem className='sm:col-span-1'>
-                                            <FormLabel>RFC</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder='XAXX010101000' {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name='tipo_persona'
-                                    render={({ field }) => (
-                                        <FormItem className='sm:col-span-2'>
-                                            <FormLabel>Tipo Persona</FormLabel>
-                                            <SelectDropdown
-                                                className='w-full'
-                                                defaultValue={field.value}
-                                                onValueChange={(val) => handleTipoPersonaChange(val, field.onChange)}
-                                                placeholder='Selecciona tipo'
-                                                isControlled={true}
-                                                items={[
-                                                    { label: 'Persona Física', value: 'Persona Física' },
-                                                    { label: 'Persona Moral', value: 'Persona Moral' },
-                                                ]}
-                                            />
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                <Card className='border border-zinc-200 dark:border-zinc-800 shadow-sm'>
+                    <CardHeader className='pb-2'>
+                        <CardTitle className='text-lg font-bold text-zinc-800 dark:text-zinc-100'>
+                            {isEdit ? 'Editar Centro de Trabajo' : 'Registro de Centro de Trabajo'}
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className='space-y-6 pt-4'>
+                        {/* Sección: Información General */}
+                        <div className='space-y-4'>
+                            <div className='text-sm font-semibold text-zinc-800 dark:text-zinc-100 border-b border-zinc-100 dark:border-zinc-800 pb-2 mb-4'>
+                                Información General
                             </div>
-                            <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
-                                <FormField
-                                    control={form.control}
-                                    name='regimenFiscal'
-                                    render={({ field }) => (
-                                        <FormItem className='sm:col-span-2'>
-                                            <FormLabel>Régimen Fiscal</FormLabel>
-                                            <FormControl>
-                                                <Combobox
-                                                    items={taxRegimes}
-                                                    value={field.value}
-                                                    onValueChange={field.onChange}
-                                                    placeholder='Selecciona un régimen'
-                                                    searchPlaceholder='Buscar régimen...'
-                                                    isLoading={isLoadingRegimes}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name='phone'
-                                    render={({ field }) => (
-                                        <FormItem className='sm:col-span-1'>
-                                            <FormLabel>Teléfono</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder='5512345678' {...field} maxLength={10} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-                            <FormField
-                                control={form.control}
-                                name='email'
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Email (Opcional)</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder='contacto@empresa.com' {...field} value={field.value || ''} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </CardContent>
-                    </Card>
 
-                    {/* Dirección */}
-                    <Card className={onSuccess ? 'border-0 shadow-none' : ''}>
-                        {!onSuccess && (
-                            <CardHeader>
-                                <CardTitle>Dirección</CardTitle>
-                            </CardHeader>
-                        )}
-                        <CardContent className='space-y-4 pt-4'>
-                            <FormField
-                                control={form.control}
-                                name='calle'
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Calle</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder='Av. Juárez' {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <div className='grid grid-cols-3 gap-4'>
-                                <FormField
-                                    control={form.control}
-                                    name='num_exterior'
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>No. Ext</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder='100' {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name='num_interior'
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>No. Int</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder='A' {...field} value={field.value || ''} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name='cp'
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>C.P.</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder='12345' {...field} maxLength={5} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                            <div className='grid grid-cols-1 md:grid-cols-12 gap-6'>
+                                <div className='md:col-span-6'>
+                                    <FormField
+                                        control={form.control}
+                                        name='nombre'
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className='text-xs font-bold text-zinc-500 uppercase'>Nombre del Centro de Trabajo (Alias) *</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder='Ej. Sucursal Centro' {...field} className='border-zinc-200 focus:ring-orange-500' />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                                <div className='md:col-span-6'>
+                                    <FormField
+                                        control={form.control}
+                                        name='legal_name'
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className='text-xs font-bold text-zinc-500 uppercase'>Razón Social (Legal Name) *</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder='Ej. Mi Empresa' {...field} className='border-zinc-200 focus:ring-orange-500' />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
                             </div>
-                            <FormField
-                                control={form.control}
-                                name='colonia'
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Colonia (Opcional)</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder='Centro' {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-                                <FormField
-                                    control={form.control}
-                                    name='ciudad'
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Ciudad (Opcional)</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder='Ciudad de México' {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name='municipio'
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Municipio (Opcional)</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder='Cuauhtémoc' {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+
+                            <div className='grid grid-cols-1 md:grid-cols-12 gap-6'>
+                                <div className='md:col-span-4'>
+                                    <FormField
+                                        control={form.control}
+                                        name='rfc'
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className='text-xs font-bold text-zinc-500 uppercase'>RFC *</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder='XAXX010101000' {...field} className='border-zinc-200 focus:ring-orange-500 uppercase' />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                                <div className='md:col-span-4'>
+                                    <FormField
+                                        control={form.control}
+                                        name='tipo_persona'
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className='text-xs font-bold text-zinc-500 uppercase'>Tipo de Persona *</FormLabel>
+                                                <SelectDropdown
+                                                    className='w-full border-zinc-200 focus:ring-orange-500'
+                                                    defaultValue={field.value}
+                                                    onValueChange={(val) => handleTipoPersonaChange(val, field.onChange)}
+                                                    placeholder='Seleccionar'
+                                                    isControlled={true}
+                                                    items={[
+                                                        { label: 'Persona Física', value: 'Persona Física' },
+                                                        { label: 'Persona Moral', value: 'Persona Moral' },
+                                                    ]}
+                                                />
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                                <div className='md:col-span-4'>
+                                    <FormField
+                                        control={form.control}
+                                        name='phone'
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className='text-xs font-bold text-zinc-500 uppercase'>Teléfono *</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder='5512345678' {...field} maxLength={10} className='border-zinc-200 focus:ring-orange-500' />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
                             </div>
-                            <FormField
-                                control={form.control}
-                                name='estado'
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Estado (Opcional)</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder='CDMX' {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </CardContent>
-                    </Card>
-                </div>
-                <div className='flex justify-end gap-4'>
+
+                            <div className='grid grid-cols-1 md:grid-cols-12 gap-6'>
+                                <div className='md:col-span-8'>
+                                    <FormField
+                                        control={form.control}
+                                        name='regimenFiscal'
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className='text-xs font-bold text-zinc-500 uppercase'>Régimen Fiscal *</FormLabel>
+                                                <FormControl>
+                                                    <Combobox
+                                                        items={taxRegimes}
+                                                        value={field.value}
+                                                        onValueChange={field.onChange}
+                                                        placeholder='Selecciona un régimen'
+                                                        searchPlaceholder='Buscar régimen...'
+                                                        isLoading={isLoadingRegimes}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                                <div className='md:col-span-4'>
+                                    <FormField
+                                        control={form.control}
+                                        name='email'
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className='text-xs font-bold text-zinc-500 uppercase'>Email</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder='contacto@empresa.com' {...field} value={field.value || ''} className='border-zinc-200 focus:ring-orange-500' />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Sección: Datos Fiscales y Domicilio */}
+                        <div className='space-y-4'>
+                            <div className='text-sm font-semibold text-zinc-800 dark:text-zinc-100 border-b border-zinc-100 dark:border-zinc-800 pb-2 mb-4'>
+                                Datos Fiscales y Domicilio
+                            </div>
+
+                            <div className='grid grid-cols-1 md:grid-cols-12 gap-6'>
+                                <div className='md:col-span-8'>
+                                    <FormField
+                                        control={form.control}
+                                        name='calle'
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className='text-xs font-bold text-zinc-500 uppercase'>Calle *</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder='Ej. Av. Juárez' {...field} className='border-zinc-200 focus:ring-orange-500' />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                                <div className='md:col-span-2'>
+                                    <FormField
+                                        control={form.control}
+                                        name='num_exterior'
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className='text-xs font-bold text-zinc-500 uppercase'>No. Ext *</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder='100' {...field} className='border-zinc-200 focus:ring-orange-500' />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                                <div className='md:col-span-2'>
+                                    <FormField
+                                        control={form.control}
+                                        name='num_interior'
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className='text-xs font-bold text-zinc-500 uppercase'>No. Int</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder='A' {...field} value={field.value || ''} className='border-zinc-200 focus:ring-orange-500' />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className='grid grid-cols-1 md:grid-cols-12 gap-6'>
+                                <div className='md:col-span-4'>
+                                    <FormField
+                                        control={form.control}
+                                        name='cp'
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className='text-xs font-bold text-zinc-500 uppercase'>Código Postal *</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder='12345' {...field} maxLength={5} className='border-zinc-200 focus:ring-orange-500' />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                                <div className='md:col-span-8'>
+                                    <FormField
+                                        control={form.control}
+                                        name='colonia'
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className='text-xs font-bold text-zinc-500 uppercase'>Colonia</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder='Ej. Centro' {...field} className='border-zinc-200 focus:ring-orange-500' />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className='grid grid-cols-1 md:grid-cols-12 gap-6'>
+                                <div className='md:col-span-4'>
+                                    <FormField
+                                        control={form.control}
+                                        name='municipio'
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className='text-xs font-bold text-zinc-500 uppercase'>Municipio / Delegación</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder='Ej. Cuauhtémoc' {...field} className='border-zinc-200 focus:ring-orange-500' />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                                <div className='md:col-span-4'>
+                                    <FormField
+                                        control={form.control}
+                                        name='ciudad'
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className='text-xs font-bold text-zinc-500 uppercase'>Ciudad / Localidad</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder='Ej. Ciudad de México' {...field} className='border-zinc-200 focus:ring-orange-500' />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                                <div className='md:col-span-4'>
+                                    <FormField
+                                        control={form.control}
+                                        name='estado'
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className='text-xs font-bold text-zinc-500 uppercase'>Estado</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder='Ej. CDMX' {...field} className='border-zinc-200 focus:ring-orange-500' />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <div className='flex justify-end gap-3'>
                     <Button type='button' variant='outline' onClick={handleCancel}>
                         Cancelar
                     </Button>
-                    <Button type='submit' disabled={isPending}>
+                    <Button type='submit' disabled={isPending} className='bg-orange-600 hover:bg-orange-700'>
                         {isPending ? (isEdit ? 'Guardando...' : 'Creando...') : (isEdit ? 'Guardar Cambios' : 'Crear Centro de Trabajo')}
                     </Button>
                 </div>

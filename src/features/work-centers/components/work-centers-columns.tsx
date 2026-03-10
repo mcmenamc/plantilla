@@ -1,7 +1,7 @@
 import { parseISO, formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { ColumnDef } from '@tanstack/react-table'
-import { formatDateUnshifted } from '@/lib/utils'
+import { cn, formatDateUnshifted } from '@/lib/utils'
 import { LongText } from '@/components/long-text'
 import { WorkCenter } from '../data/schema'
 import { DataTableRowActions } from './work-centers-row-actions'
@@ -36,17 +36,53 @@ export const workCentersColumns: ColumnDef<WorkCenter>[] = [
             return value.includes(row.getValue(id))
         },
     },
-       {
-        id: 'direccion_summary',
-        header: 'Dirección',
+    {
+        accessorKey: 'hasFiel',
+        header: 'FIEL / Vencimiento',
         cell: ({ row }) => {
-            const dir = row.original.direccion
-            if (!dir) return '-'
-            return (
-                <LongText className='max-w-50 text-xs'>
-                    {`${dir.calle} ${dir.exterior}${dir.interior ? `-${dir.interior}` : ''}, ${dir.municipio}, ${dir.estado}`}
-                </LongText>
-            )
+            const hasFiel = row.original.hasFiel as boolean
+            const dateStr = row.original.fielVencimiento
+
+            if (!hasFiel) {
+                return (
+                    <div className='bg-slate-100 text-slate-500 w-fit rounded-full px-2 py-0.5 text-[10px] font-medium text-nowrap'>
+                        No cargada
+                    </div>
+                )
+            }
+
+            if (!dateStr) {
+                return (
+                    <div className='bg-green-100 text-green-700 w-fit rounded-full px-2 py-0.5 text-[10px] font-medium text-nowrap'>
+                        Cargada (Sin fecha)
+                    </div>
+                )
+            }
+
+            try {
+                const date = parseISO(dateStr)
+                const relativeTime = formatDistanceToNow(date, { locale: es, addSuffix: true })
+                const isExpired = date < new Date()
+
+                return (
+                    <div className='flex flex-col gap-0.5'>
+                        <div className={cn(
+                            'w-fit rounded-full px-2 py-0.5 text-[10px] font-medium',
+                            isExpired ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'
+                        )}>
+                            {isExpired ? 'Expirada' : 'Cargada'}
+                        </div>
+                        <div className='text-[11px] font-medium text-nowrap'>
+                            {formatDateUnshifted(dateStr)}
+                        </div>
+                        <div className='text-[10px] text-muted-foreground italic text-nowrap'>
+                            ({relativeTime})
+                        </div>
+                    </div>
+                )
+            } catch (e) {
+                return <div className='text-destructive text-xs italic'>Error fecha</div>
+            }
         },
     },
     {
@@ -58,7 +94,7 @@ export const workCentersColumns: ColumnDef<WorkCenter>[] = [
 
             if (!hasStamps) {
                 return (
-                    <div className='bg-red-100 text-red-700 w-fit rounded-full px-2 py-0.5 text-[10px] font-medium'>
+                    <div className='bg-slate-100 text-slate-500 w-fit rounded-full px-2 py-0.5 text-[10px] font-medium text-nowrap'>
                         No cargados
                     </div>
                 )
@@ -75,11 +111,15 @@ export const workCentersColumns: ColumnDef<WorkCenter>[] = [
             try {
                 const date = parseISO(dateStr)
                 const relativeTime = formatDistanceToNow(date, { locale: es, addSuffix: true })
+                const isExpired = date < new Date()
 
                 return (
                     <div className='flex flex-col gap-0.5'>
-                        <div className='bg-green-100 text-green-700 w-fit rounded-full px-2 py-0.5 text-[10px] font-medium'>
-                            Cargados
+                        <div className={cn(
+                            'w-fit rounded-full px-2 py-0.5 text-[10px] font-medium',
+                            isExpired ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'
+                        )}>
+                            {isExpired ? 'Expirados' : 'Cargados'}
                         </div>
                         <div className='text-[11px] font-medium text-nowrap'>
                             {formatDateUnshifted(dateStr)}
@@ -94,7 +134,7 @@ export const workCentersColumns: ColumnDef<WorkCenter>[] = [
             }
         },
     },
-    
+
     {
         id: 'opinion_sat',
         header: 'Opinión SAT',
@@ -103,37 +143,48 @@ export const workCentersColumns: ColumnDef<WorkCenter>[] = [
             if (!op || !op.url) {
                 return (
                     <div className='bg-slate-100 text-slate-500 w-fit rounded-full px-2 py-0.5 text-[10px] font-medium'>
-                        No subida
+                        No cargada
                     </div>
                 )
             }
-            if (op.valida) {
+
+            const opinionDate = op.fecha ? parseISO(op.fecha) : null
+            const isFresh = opinionDate ? (new Date().getTime() - opinionDate.getTime()) < (180 * 24 * 60 * 60 * 1000) : false
+            const relativeTime = opinionDate ? formatDistanceToNow(opinionDate, { locale: es, addSuffix: true }) : null
+
+            if (op.valida && isFresh) {
                 return (
-                    <a
-                        href={op.url}
-                        target='_blank'
-                        rel='noopener noreferrer'
-                        className='bg-green-100 text-green-700 hover:bg-green-200 transition-colors w-fit rounded-full px-2 py-0.5 text-[10px] font-medium flex items-center gap-1'
-                        title='Ver PDF'
-                    >
-                        Positiva
-                    </a>
+                    <div className='flex flex-col gap-0.5'>
+                        <div className='bg-green-100 text-green-700 w-fit rounded-full px-2 py-0.5 text-[10px] font-medium'>
+                            Positiva
+                        </div>
+                        {relativeTime && (
+                            <div className='text-[10px] text-muted-foreground italic text-nowrap'>
+                                ({relativeTime})
+                            </div>
+                        )}
+                    </div>
                 )
             }
+
             return (
-                <a
-                    href={op.url}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='bg-yellow-100 text-yellow-700 hover:bg-yellow-200 transition-colors w-fit rounded-full px-2 py-0.5 text-[10px] font-medium flex items-center gap-1'
-                    title='Ver PDF'
-                >
-                    Subida (Revisar)
-                </a>
+                <div className='flex flex-col gap-0.5'>
+                    <div className={cn(
+                        'w-fit rounded-full px-2 py-0.5 text-[10px] font-medium',
+                        'bg-orange-100 text-orange-700'
+                    )}>
+                        {!op.valida ? 'Negativa' : 'Desactualizada'}
+                    </div>
+                    {relativeTime && (
+                        <div className='text-[10px] text-muted-foreground italic text-nowrap text-orange-600'>
+                            Hace {relativeTime.replace('hace ', '')}
+                        </div>
+                    )}
+                </div>
             )
         },
     },
- 
+
 
     // {
     //     accessorKey: 'estatus',

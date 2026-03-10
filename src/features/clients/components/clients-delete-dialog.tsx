@@ -2,11 +2,13 @@
 
 import { useState } from 'react'
 import { AlertTriangle } from 'lucide-react'
-import { showSubmittedData } from '@/lib/show-submitted-data'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ConfirmDialog } from '@/components/confirm-dialog'
+import { deleteClient } from '../data/clients-api'
 import { type Client } from '../data/schema'
 
 type ClientsDeleteDialogProps = {
@@ -21,12 +23,24 @@ export function ClientsDeleteDialog({
     currentRow,
 }: ClientsDeleteDialogProps) {
     const [value, setValue] = useState('')
+    const queryClient = useQueryClient()
+
+    const { mutate: deleteMutate, isPending } = useMutation({
+        mutationFn: () => deleteClient(currentRow._id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['clients'] })
+            toast.success('Cliente eliminado correctamente')
+            onOpenChange(false)
+            setValue('')
+        },
+        onError: (error: any) => {
+            toast.error(error.response?.data?.message || 'Error al eliminar el cliente')
+        },
+    })
 
     const handleDelete = () => {
         if (value.trim() !== currentRow.razonSocial) return
-
-        onOpenChange(false)
-        showSubmittedData(currentRow, 'El cliente ha sido eliminado:')
+        deleteMutate()
     }
 
     return (
@@ -71,6 +85,7 @@ export function ClientsDeleteDialog({
                 </div>
             }
             confirmText='Eliminar'
+            isLoading={isPending}
             destructive
         />
     )

@@ -2,11 +2,13 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { ChevronDownIcon } from '@radix-ui/react-icons'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { fonts } from '@/config/fonts'
-import { showSubmittedData } from '@/lib/show-submitted-data'
 import { cn } from '@/lib/utils'
 import { useFont } from '@/context/font-provider'
 import { useTheme } from '@/context/theme-provider'
+import { useAuthStore } from '@/stores/auth-store'
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
   Form,
@@ -18,22 +20,24 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { actualizarPerfil } from '../data/settings-api'
 
 const appearanceFormSchema = z.object({
-  theme: z.enum(['light', 'dark']),
-  font: z.enum(fonts),
+  theme: z.enum(['light', 'dark', 'system']),
+  font: z.enum(fonts as any),
 })
 
 type AppearanceFormValues = z.infer<typeof appearanceFormSchema>
 
 export function AppearanceForm() {
-  const { font, setFont } = useFont()
-  const { theme, setTheme } = useTheme()
+  const queryClient = useQueryClient()
+  const { auth: { user } } = useAuthStore()
+  const { font: currentFont, setFont } = useFont()
+  const { theme: currentTheme, setTheme } = useTheme()
 
-  // This can come from your database or API.
   const defaultValues: Partial<AppearanceFormValues> = {
-    theme: theme as 'light' | 'dark',
-    font,
+    theme: (user?.theme as any) || currentTheme || 'system',
+    font: (user?.font as any) || currentFont || 'Outfit',
   }
 
   const form = useForm<AppearanceFormValues>({
@@ -41,11 +45,29 @@ export function AppearanceForm() {
     defaultValues,
   })
 
-  function onSubmit(data: AppearanceFormValues) {
-    if (data.font != font) setFont(data.font)
-    if (data.theme != theme) setTheme(data.theme)
+  const { mutate, isPending } = useMutation({
+    mutationFn: actualizarPerfil,
+    onSuccess: () => {
+      toast.success('Preferencias actualizadas')
+      queryClient.invalidateQueries({ queryKey: ['user-data'] })
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Error al guardar preferencias')
+    },
+  })
 
-    showSubmittedData(data)
+  function onSubmit(data: AppearanceFormValues) {
+    // Actualizar localmente inmediatamente
+    setFont(data.font)
+    setTheme(data.theme)
+
+    // Guardar en base de datos
+    mutate({
+      nombre: user?.nombre || '',
+      apellidos: user?.apellidos || '',
+      theme: data.theme,
+      font: data.font
+    })
   }
 
   return (
@@ -56,7 +78,7 @@ export function AppearanceForm() {
           name='font'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Font</FormLabel>
+              <FormLabel>Fuente <span className='text-red-500'>*</span></FormLabel>
               <div className='relative w-max'>
                 <FormControl>
                   <select
@@ -76,8 +98,8 @@ export function AppearanceForm() {
                 </FormControl>
                 <ChevronDownIcon className='absolute end-3 top-2.5 h-4 w-4 opacity-50' />
               </div>
-              <FormDescription className='font-manrope'>
-                Set the font you want to use in the dashboard.
+              <FormDescription>
+                Elige la tipografía que prefieras para el panel de control.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -88,9 +110,9 @@ export function AppearanceForm() {
           name='theme'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Theme</FormLabel>
+              <FormLabel>Tema <span className='text-red-500'>*</span></FormLabel>
               <FormDescription>
-                Select the theme for the dashboard.
+                Selecciona el tema visual para el panel de control.
               </FormDescription>
               <FormMessage />
               <RadioGroup
@@ -103,7 +125,7 @@ export function AppearanceForm() {
                     <FormControl>
                       <RadioGroupItem value='light' className='sr-only' />
                     </FormControl>
-                    <div className='border-muted hover:border-accent items-center rounded-md border-2 p-1'>
+                    <div className='border-muted hover:border-accent items-center rounded-md border-2 p-1 cursor-pointer'>
                       <div className='space-y-2 rounded-sm bg-[#ecedef] p-2'>
                         <div className='space-y-2 rounded-md bg-white p-2 shadow-xs'>
                           <div className='h-2 w-[80px] rounded-lg bg-[#ecedef]' />
@@ -113,14 +135,10 @@ export function AppearanceForm() {
                           <div className='h-4 w-4 rounded-full bg-[#ecedef]' />
                           <div className='h-2 w-[100px] rounded-lg bg-[#ecedef]' />
                         </div>
-                        <div className='flex items-center space-x-2 rounded-md bg-white p-2 shadow-xs'>
-                          <div className='h-4 w-4 rounded-full bg-[#ecedef]' />
-                          <div className='h-2 w-[100px] rounded-lg bg-[#ecedef]' />
-                        </div>
                       </div>
                     </div>
                     <span className='block w-full p-2 text-center font-normal'>
-                      Light
+                      Claro
                     </span>
                   </FormLabel>
                 </FormItem>
@@ -129,7 +147,7 @@ export function AppearanceForm() {
                     <FormControl>
                       <RadioGroupItem value='dark' className='sr-only' />
                     </FormControl>
-                    <div className='border-muted bg-popover hover:bg-accent hover:text-accent-foreground items-center rounded-md border-2 p-1'>
+                    <div className='border-muted bg-popover hover:bg-accent hover:text-accent-foreground items-center rounded-md border-2 p-1 cursor-pointer'>
                       <div className='space-y-2 rounded-sm bg-slate-950 p-2'>
                         <div className='space-y-2 rounded-md bg-slate-800 p-2 shadow-xs'>
                           <div className='h-2 w-[80px] rounded-lg bg-slate-400' />
@@ -139,14 +157,10 @@ export function AppearanceForm() {
                           <div className='h-4 w-4 rounded-full bg-slate-400' />
                           <div className='h-2 w-[100px] rounded-lg bg-slate-400' />
                         </div>
-                        <div className='flex items-center space-x-2 rounded-md bg-slate-800 p-2 shadow-xs'>
-                          <div className='h-4 w-4 rounded-full bg-slate-400' />
-                          <div className='h-2 w-[100px] rounded-lg bg-slate-400' />
-                        </div>
                       </div>
                     </div>
                     <span className='block w-full p-2 text-center font-normal'>
-                      Dark
+                      Oscuro
                     </span>
                   </FormLabel>
                 </FormItem>
@@ -155,8 +169,11 @@ export function AppearanceForm() {
           )}
         />
 
-        <Button type='submit'>Update preferences</Button>
+        <Button type='submit' disabled={isPending}>
+          {isPending ? 'Guardando...' : 'Actualizar preferencias'}
+        </Button>
       </form>
     </Form>
   )
 }
+

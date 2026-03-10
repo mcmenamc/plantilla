@@ -23,7 +23,7 @@ export function Administrators() {
     const { selectedWorkCenterId } = useWorkCenterStore()
 
 
-    const { data: administrators = [], isLoading } = useQuery({
+    const { data: administrators = [] } = useQuery({
         queryKey: ['administrators', selectedWorkCenterId],
         queryFn: () => getAdministratorsByWorkCenter(selectedWorkCenterId || ''),
         enabled: !!selectedWorkCenterId,

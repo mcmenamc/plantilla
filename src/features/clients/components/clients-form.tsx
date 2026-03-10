@@ -22,7 +22,13 @@ import { useWorkCenterStore } from '@/stores/work-center-store'
 import { createClient, getClientById, updateClient } from '../data/clients-api'
 import { getTaxRegimes } from '@/features/work-centers/data/work-centers-api'
 import { createClientSchema, type CreateClientPayload, type Client } from '../data/schema'
-import { getCfdiUses } from '@/features/invoicing/data/invoicing-api'
+import {
+    getCfdiUses,
+    COUNTRIES_CATALOG,
+    STATES_MEXICO,
+    STATES_USA,
+    STATES_CANADA
+} from '@/features/invoicing/data/invoicing-api'
 import { Loader2 } from 'lucide-react'
 
 interface ClientsFormProps {
@@ -90,6 +96,15 @@ function ClientsFormInner({ client, onSuccess, onCancel }: ClientsFormInnerProps
         cp: client?.cp || '',
         workcenterId: client?.workcenterId || selectedWorkCenterId || '',
         default_invoice_use: client?.default_invoice_use || '',
+        street: client?.street || '',
+        exterior: client?.exterior || '',
+        interior: client?.interior || '',
+        neighborhood: client?.neighborhood || '',
+        city: client?.city || '',
+        municipality: client?.municipality || '',
+        state: client?.state || '',
+        country: client?.country || 'MEX',
+        phone: client?.phone || '',
     }
 
     const form = useForm<CreateClientPayload>({
@@ -129,6 +144,20 @@ function ClientsFormInner({ client, onSuccess, onCancel }: ClientsFormInnerProps
         name: 'default_invoice_use',
     })
 
+    const selectedCountry = useWatch({
+        control: form.control,
+        name: 'country',
+    })
+
+    const stateOptions = (() => {
+        switch (selectedCountry) {
+            case 'MEX': return STATES_MEXICO;
+            case 'USA': return STATES_USA;
+            case 'CAN': return STATES_CANADA;
+            default: return [];
+        }
+    })()
+
     useEffect(() => {
         if (regimenFiscal && cfdiUses.length > 0 && currentDefaultUse) {
             const isValid = cfdiUses.some(u => u.value === currentDefaultUse)
@@ -138,14 +167,29 @@ function ClientsFormInner({ client, onSuccess, onCancel }: ClientsFormInnerProps
         }
     }, [cfdiUses, currentDefaultUse, form, regimenFiscal])
 
+
+
     const { mutate: createMutate, isPending: isCreating } = useMutation({
         mutationFn: createClient,
-        onSuccess: (data) => {
+        onSuccess: (res: any) => {
+            const data = res.data_hazFactura || res;
+            const validation = res.validation;
+
             queryClient.setQueryData(['clients', selectedWorkCenterId], (old: Client[] | undefined) => {
                 return old ? [data, ...old] : [data]
             })
             queryClient.invalidateQueries({ queryKey: ['clients', selectedWorkCenterId] })
-            toast.success('Cliente registrado correctamente')
+            queryClient.invalidateQueries({ queryKey: ['notifications', 'my'] })
+
+            if (validation && !validation.is_valid) {
+                toast.warning('Cliente registrado con observaciones SAT', {
+                    description: 'Revisa el centro de notificaciones para ver el detalle de validación.',
+                    duration: 5000
+                });
+            } else {
+                toast.success('Cliente registrado correctamente')
+            }
+
             if (onSuccess) {
                 onSuccess(data)
             } else {
@@ -159,10 +203,22 @@ function ClientsFormInner({ client, onSuccess, onCancel }: ClientsFormInnerProps
 
     const { mutate: updateMutate, isPending: isUpdating } = useMutation({
         mutationFn: (data: CreateClientPayload) => updateClient(client!._id, data),
-        onSuccess: () => {
+        onSuccess: (res: any) => {
+            const validation = res.validation;
+
             queryClient.invalidateQueries({ queryKey: ['clients', selectedWorkCenterId] })
             queryClient.invalidateQueries({ queryKey: ['client', client?._id] })
-            toast.success('Cliente actualizado correctamente')
+            queryClient.invalidateQueries({ queryKey: ['notifications', 'my'] })
+
+            if (validation && !validation.is_valid) {
+                toast.warning('Cliente actualizado con observaciones SAT', {
+                    description: 'Revisa el centro de notificaciones para ver el detalle de validación.',
+                    duration: 5000
+                });
+            } else {
+                toast.success('Cliente actualizado correctamente')
+            }
+
             navigate({ to: '/clients', search: { page: 1, perPage: 10 } })
         },
         onError: (error: any) => {
@@ -193,9 +249,12 @@ function ClientsFormInner({ client, onSuccess, onCancel }: ClientsFormInnerProps
                             name='razonSocial'
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Nombre o Razón Social</FormLabel>
+                                    <FormLabel>Nombre o Razón Social *</FormLabel>
                                     <FormControl>
-                                        <Input placeholder='Ej. Servicios Integrales Osvaldo GS SA de CV' {...field} />
+                                        <Input
+                                            placeholder={tipoPersona === 'Persona Física' ? 'Ej. Juan García López' : 'Ej. Empresa'}
+                                            {...field}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -207,9 +266,9 @@ function ClientsFormInner({ client, onSuccess, onCancel }: ClientsFormInnerProps
                                 name='rfc'
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>RFC</FormLabel>
+                                        <FormLabel>RFC *</FormLabel>
                                         <FormControl>
-                                            <Input placeholder='XAXX010101000' {...field} className='uppercase' />
+                                            <Input placeholder='Ej. XAXX010101000' {...field} className='uppercase' />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -220,7 +279,7 @@ function ClientsFormInner({ client, onSuccess, onCancel }: ClientsFormInnerProps
                                 name='tipo_persona'
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Tipo de Persona</FormLabel>
+                                        <FormLabel>Tipo de Persona *</FormLabel>
                                         <SelectDropdown
                                             className='w-full'
                                             isControlled={true}
@@ -237,26 +296,43 @@ function ClientsFormInner({ client, onSuccess, onCancel }: ClientsFormInnerProps
                                 )}
                             />
                         </div>
-                        <FormField
-                            control={form.control}
-                            name='email'
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Email</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder='facturacion@osvaldogs.com' {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                            <FormField
+                                control={form.control}
+                                name='email'
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Email *</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder='Ej. contacto@ejemplo.com' {...field} value={field.value || ''} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name='phone'
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Teléfono</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder='Ej. 5512345678' {...field} value={field.value || ''} maxLength={10} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        <div className='text-sm font-semibold text-slate-800 dark:text-zinc-100 mt-6 border-b pb-2'>Datos Fiscales y Domicilio</div>
                         <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                             <FormField
                                 control={form.control}
                                 name='regimenFiscal'
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Régimen Fiscal</FormLabel>
+                                        <FormLabel>Régimen Fiscal *</FormLabel>
                                         <FormControl>
                                             <Combobox
                                                 items={taxRegimes}
@@ -276,9 +352,9 @@ function ClientsFormInner({ client, onSuccess, onCancel }: ClientsFormInnerProps
                                 name='cp'
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Código Postal</FormLabel>
+                                        <FormLabel>Código Postal *</FormLabel>
                                         <FormControl>
-                                            <Input placeholder='03100' {...field} maxLength={5} />
+                                            <Input placeholder='Ej. 03100' {...field} maxLength={5} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -290,7 +366,7 @@ function ClientsFormInner({ client, onSuccess, onCancel }: ClientsFormInnerProps
                             name='default_invoice_use'
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Uso de CFDI (Opcional)</FormLabel>
+                                    <FormLabel>Uso de CFDI por defecto</FormLabel>
                                     <FormControl>
                                         <Combobox
                                             items={cfdiUses}
@@ -305,6 +381,133 @@ function ClientsFormInner({ client, onSuccess, onCancel }: ClientsFormInnerProps
                                 </FormItem>
                             )}
                         />
+
+                        <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
+                            <FormField
+                                control={form.control}
+                                name='country'
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>País</FormLabel>
+                                        <FormControl>
+                                            <Combobox
+                                                items={COUNTRIES_CATALOG}
+                                                placeholder='Seleccione un país'
+                                                value={field.value || 'MEX'}
+                                                onValueChange={(val) => {
+                                                    field.onChange(val)
+                                                    form.setValue('state', '')
+                                                }}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name='state'
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Estado</FormLabel>
+                                        <FormControl>
+                                            <Combobox
+                                                items={stateOptions}
+                                                placeholder='Seleccione un estado'
+                                                value={field.value || ''}
+                                                onValueChange={field.onChange}
+                                                disabled={!selectedCountry}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name='municipality'
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Municipio / Delegación</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder='Ej. Cuauhtémoc' {...field} value={field.value || ''} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                            <FormField
+                                control={form.control}
+                                name='city'
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Ciudad / Localidad</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder='Ej. México' {...field} value={field.value || ''} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name='neighborhood'
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Colonia</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder='Ej. Centro' {...field} value={field.value || ''} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
+                            <FormField
+                                control={form.control}
+                                name='street'
+                                render={({ field }) => (
+                                    <FormItem className='sm:col-span-1'>
+                                        <FormLabel>Calle</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder='Ej. Av. Reforma' {...field} value={field.value || ''} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name='exterior'
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Num. Exterior</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder='Ej. 123' {...field} value={field.value || ''} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name='interior'
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Num. Interior</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder='Ej. B-4' {...field} value={field.value || ''} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
                     </CardContent>
                 </Card>
 

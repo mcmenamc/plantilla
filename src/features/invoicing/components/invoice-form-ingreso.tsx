@@ -4,7 +4,8 @@ import { es } from 'date-fns/locale'
 import { useForm, useFieldArray, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus, Trash2, Save, Zap, CreditCard, Eye, AlertCircle, Loader2 } from 'lucide-react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import {
     Form,
@@ -46,7 +47,8 @@ import {
     getCfdiUses,
     getExportationOptions,
     createInvoice,
-    TAXABILITY_CATALOG
+    TAXABILITY_CATALOG,
+    RELATION_TYPES_CATALOG
 } from '../data/invoicing-api'
 import { searchSatProducts, searchSatUnits } from '@/features/products/data/products-api'
 import { getSeriesConfig } from '@/features/series/data/series-api'
@@ -59,6 +61,7 @@ interface InvoiceFormIngresoProps {
 }
 
 export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps) {
+    const queryClient = useQueryClient()
     const { selectedWorkCenterId } = useWorkCenterStore()
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [submitType, setSubmitType] = useState<'draft' | 'pending'>('pending')
@@ -110,7 +113,7 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
             unit_name: p.unit_name || p.unitName || (p.data && (p.data.unit_name || p.data.unitName)) || 'Pieza',
             tax_included: p.tax_included ?? p.taxIncluded ?? (p.data && (p.data.tax_included ?? p.data.taxIncluded)) ?? false,
             sku: p.sku || (p.data && p.data.sku) || '',
-            objeto_imp: p.taxability || p.objeto_imp || (p.data && (p.data.taxability || p.data.objeto_imp)) || '02',
+            taxability: p.taxability || p.objeto_imp || (p.data && (p.data.taxability || p.data.objeto_imp)) || '02',
             taxes: (p.taxes || (p.data && p.data.taxes) || []).map((t: any) => ({ ...t, base: p.price || 0 })),
             local_taxes: (p.local_taxes || (p.data && p.data.local_taxes) || []).map((t: any) => ({ ...t, base: p.price || 0 }))
         }
@@ -246,6 +249,16 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
         }
     }, [cfdiUses, currentUse, form, customerRegime])
 
+    // Auto-select payment_form based on payment_method
+    const watchPaymentMethod = form.watch('payment_method')
+    useEffect(() => {
+        if (watchPaymentMethod === 'PPD') {
+            form.setValue('payment_form', '99')
+        } else if (watchPaymentMethod === 'PUE') {
+            form.setValue('payment_form', '01')
+        }
+    }, [watchPaymentMethod, form])
+
 
     const [currentItem, setCurrentItem] = useState<any>({
         product_id: '',
@@ -258,7 +271,7 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
         price: 0,
         tax_included: false,
         discount: 0,
-        objeto_imp: '02',
+        taxability: '02',
         taxes: [],
         local_taxes: [],
         use_local_taxes: true
@@ -285,7 +298,7 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
             unit_name: p.unit_name,
             tax_included: p.tax_included,
             sku: p.sku || '',
-            objeto_imp: p.objeto_imp || '02',
+            taxability: p.taxability || '02',
             taxes: (p.taxes || []).map((t: any) => ({
                 type: t.type,
                 rate: t.rate,
@@ -485,7 +498,7 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
                             product_key: item.product_key,
                             price: item.price || 0,
                             tax_included: item.tax_included || false,
-                            taxability: item.objeto_imp || '02',
+                            taxability: item.taxability || '02',
                             taxes,
                             local_taxes,
                             unit_key: item.unit_key || 'H87',
@@ -498,9 +511,16 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
 
             console.log('Final API Payload:', JSON.stringify(apiPayload, null, 2))
             await createInvoice(apiPayload as any)
+            toast.success(isDraft ? 'Borrador guardado' : 'CFDI generado exitosamente')
+            queryClient.invalidateQueries({ queryKey: ['invoices', selectedWorkCenterId] })
             onSubmitSuccess()
-        } catch (error) {
+        } catch (error: any) {
             console.error('Submit error:', error)
+            const msg = error.response?.data?.message || error.message || 'Error al procesar la factura'
+            toast.error(msg, {
+                duration: 5000,
+                className: 'font-bold uppercase text-xs'
+            })
         } finally {
             setIsSubmitting(false)
         }
@@ -553,13 +573,37 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
         if (!currentItem.description) errors.description = 'La descripción es requerida'
         if (!currentItem.product_key) errors.product_key = 'La clave SAT es requerida'
         if (!currentItem.unit_key) errors.unit_key = 'La clave de unidad es requerida'
-        if (!currentItem.objeto_imp) errors.objeto_imp = 'El objeto de impuesto es requerido'
+        if (!currentItem.taxability) errors.taxability = 'El objeto de impuesto es requerido'
         if (!currentItem.quantity || currentItem.quantity <= 0) errors.quantity = 'Cantidad debe ser mayor a 0'
         if (currentItem.price === undefined || currentItem.price === null || currentItem.price < 0) errors.price = 'Precio inválido'
 
         if (Object.keys(errors).length > 0) {
             setCurrentItemErrors(errors)
             return
+        }
+
+        // Validation for code 07 (SAT rule)
+        if (currentItem.taxability === '07') {
+            const hasIepsTr = currentItem.taxes?.some((t: any) => t.type === 'IEPS' && !t.withholding);
+            const hasIva = currentItem.taxes?.some((t: any) => t.type === 'IVA');
+            if (!hasIepsTr) {
+                toast.error('Para el objeto de impuesto "07", debes incluir al menos un IEPS de traslado.');
+                return;
+            }
+            if (hasIva) {
+                toast.error('Para el objeto de impuesto "07", no se permite incluir IVA.');
+                return;
+            }
+        }
+
+        // Validation for code 02
+        if (currentItem.taxability === '02') {
+            const hasFederal = currentItem.taxes && currentItem.taxes.length > 0;
+            const hasLocal = currentItem.local_taxes && currentItem.local_taxes.length > 0;
+            if (!hasFederal && !hasLocal) {
+                toast.error('Cuando Objeto de impuesto es "Sí (02)", debes agregar al menos un impuesto.');
+                return;
+            }
         }
 
         setCurrentItemErrors({})
@@ -593,7 +637,7 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
             price: 0,
             tax_included: false,
             discount: 0,
-            objeto_imp: '02',
+            taxability: '02',
             taxes: [],
             local_taxes: [],
             use_local_taxes: true
@@ -961,13 +1005,7 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
                                                     <ComboboxDropdown
                                                         defaultValue={field.value}
                                                         onValueChange={field.onChange}
-                                                        items={[
-                                                            { label: '01 - Nota de crédito', value: '01' },
-                                                            { label: '02 - Nota de débito', value: '02' },
-                                                            { label: '03 - Devolución de mercancía', value: '03' },
-                                                            { label: '04 - Sustitución de CFDI previos', value: '04' },
-                                                            { label: '07 - CFDI por anticipo', value: '07' },
-                                                        ]}
+                                                        items={RELATION_TYPES_CATALOG}
                                                     />
                                                 </FormItem>
                                             )}
@@ -1088,7 +1126,7 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
                         <div className='px-6 py-3 border-b flex items-center justify-between text-slate-700 dark:text-zinc-300'>
                             <span className='text-xs font-bold uppercase tracking-wide'>Añadir Nuevo Concepto</span>
                         </div>
-                        
+
                         <div className='p-4 md:p-8 space-y-6'>
                             {/* Product selection/Search */}
                             <div className='grid grid-cols-1 md:grid-cols-12 gap-6'>
@@ -1182,12 +1220,12 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
                                 <div className='lg:col-span-4 sm:col-span-2'>
                                     <Label className='text-[10px] font-black text-slate-400 uppercase tracking-wider'>Objeto Impuesto *</Label>
                                     <ComboboxDropdown
-                                        key={`obj-${currentItem.objeto_imp}-${currentItem.product_id}`}
-                                        defaultValue={currentItem.objeto_imp}
-                                        onValueChange={val => setCurrentItem({ ...currentItem, objeto_imp: val })}
+                                        key={`obj-${currentItem.taxability}-${currentItem.product_id}`}
+                                        defaultValue={currentItem.taxability}
+                                        onValueChange={val => setCurrentItem({ ...currentItem, taxability: val })}
                                         items={TAXABILITY_CATALOG}
                                     />
-                                    {currentItemErrors.objeto_imp && <p className='text-[10px] text-destructive font-bold mt-1 uppercase'>{currentItemErrors.objeto_imp}</p>}
+                                    {currentItemErrors.taxability && <p className='text-[10px] text-destructive font-bold mt-1 uppercase'>{currentItemErrors.taxability}</p>}
                                 </div>
 
 
@@ -1426,7 +1464,7 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
                                                     const item = watchItems[index]
                                                     if (!item) return null
 
-                                                    const objetoImpDesc = TAXABILITY_CATALOG.find((t: { value: string, label: string }) => t.value === item.objeto_imp)?.label || item.objeto_imp
+                                                    const objetoImpDesc = TAXABILITY_CATALOG.find((t: { value: string, label: string }) => t.value === item.taxability)?.label || item.taxability
 
                                                     return (
                                                         <TableRow key={field.id} className='hover:bg-zinc-50/80 dark:hover:bg-zinc-900/80 group border-zinc-100 dark:border-zinc-800/50 transition-colors'>

@@ -20,6 +20,15 @@ export interface Business {
   estatus: string
   createdAt: string
   updatedAt: string
+  street?: string | null
+  exterior?: string | null
+  interior?: string | null
+  zip?: string | null
+  neighborhood?: string | null
+  city?: string | null
+  municipality?: string | null
+  state?: string | null
+  country?: string | null
   __v: number
 }
 
@@ -34,6 +43,8 @@ export interface AuthUser {
   role: string
   regimenFiscal?: string | null
   tipoPersona?: string | null
+  theme?: 'light' | 'dark' | 'system'
+  font?: string
   exp: number
 }
 

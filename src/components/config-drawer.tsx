@@ -1,4 +1,3 @@
-import { type SVGProps } from 'react'
 import { NotificationBell } from '@/components/notifications/notification-bell'
 
 export function ConfigDrawer() {

@@ -7,6 +7,8 @@ import { getCookie } from '@/lib/cookies'
 import { cn } from '@/lib/utils'
 import { LayoutProvider } from '@/context/layout-provider'
 import { SearchProvider } from '@/context/search-provider'
+import { useTheme } from '@/context/theme-provider'
+import { useFont } from '@/context/font-provider'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
 import { SkipToMain } from '@/components/skip-to-main'
@@ -21,6 +23,8 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
   const defaultOpen = getCookie('sidebar_state') !== 'false'
   const navigate = useNavigate()
   const { auth } = useAuthStore()
+  const { theme, setTheme } = useTheme()
+  const { font, setFont } = useFont()
 
   // Fetch updated user data whenever the authenticated layout is loaded/reloaded
   const { data: userData, isSuccess, isError } = useQuery({
@@ -51,9 +55,17 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
     }
   }, [isError, navigate, auth])
 
-  // Sync with auth store
+  // Sync with auth store and contexts
   useEffect(() => {
     if (isSuccess && userData) {
+      // Apply theme and font if they differ from current state
+      if (userData.theme && userData.theme !== theme) {
+        setTheme(userData.theme)
+      }
+      if (userData.font && userData.font !== font) {
+        setFont(userData.font)
+      }
+
       auth.setUser({
         id: userData._id,
         nombre: userData.nombre,
@@ -65,6 +77,8 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
         role: userData.role,
         regimenFiscal: userData.regimenFiscal,
         tipoPersona: userData.tipoPersona,
+        theme: userData.theme,
+        font: userData.font,
         exp: auth.user?.exp || Date.now() + 24 * 60 * 60 * 1000,
       })
       // si el usuario no tiene workcenters y es user, redirigir a sign-in

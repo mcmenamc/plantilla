@@ -12,6 +12,15 @@ export const clientSchema = z.object({
     customerIdFacturaApi: z.string().optional().nullable(),
     default_invoice_use: z.string().optional().nullable(),
     cp: z.string(),
+    street: z.string().optional().nullable(),
+    exterior: z.string().optional().nullable(),
+    interior: z.string().optional().nullable(),
+    neighborhood: z.string().optional().nullable(),
+    city: z.string().optional().nullable(),
+    municipality: z.string().optional().nullable(),
+    state: z.string().optional().nullable(),
+    country: z.string().optional().default('MEX'),
+    phone: z.string().optional().nullable(),
     createdAt: z.string(),
     updatedAt: z.string(),
     __v: z.number().optional(),
@@ -27,6 +36,17 @@ export const createClientSchema = z.object({
     cp: z.string().regex(/^[0-9]{5}$/, 'El código postal debe tener 5 dígitos'),
     workcenterId: z.string().min(1, 'El centro de trabajo es obligatorio'),
     default_invoice_use: z.string().optional().nullable(),
+    street: z.string().optional(),
+    exterior: z.string().optional(),
+    interior: z.string().optional(),
+    neighborhood: z.string().optional(),
+    city: z.string().optional(),
+    municipality: z.string().optional(),
+    state: z.string().optional(),
+    country: z.string().optional(),
+    phone: z.string().optional().refine((val) => !val || /^[0-9]{10}$/.test(val), {
+        message: 'El teléfono debe tener exactamente 10 dígitos numéricos',
+    }),
 })
 
 export type Client = z.infer<typeof clientSchema>

@@ -1,9 +1,9 @@
 import { z } from 'zod'
-import { useFieldArray, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Link } from '@tanstack/react-router'
-import { showSubmittedData } from '@/lib/show-submitted-data'
-import { cn } from '@/lib/utils'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
+import { useAuthStore } from '@/stores/auth-store'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -15,162 +15,169 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
+import { actualizarPerfil } from '../data/settings-api'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { useState } from 'react'
 
 const profileFormSchema = z.object({
-  username: z
-    .string('Please enter your username.')
-    .min(2, 'Username must be at least 2 characters.')
-    .max(30, 'Username must not be longer than 30 characters.'),
-  email: z.email({
-    error: (iss) =>
-      iss.input === undefined
-        ? 'Please select an email to display.'
-        : undefined,
-  }),
-  bio: z.string().max(160).min(4),
-  urls: z
-    .array(
-      z.object({
-        value: z.url('Please enter a valid URL.'),
-      })
-    )
+  nombre: z
+    .string()
+    .min(2, 'El nombre debe tener al menos 2 caracteres.')
+    .max(30, 'El nombre debe tener menos de 30 caracteres.'),
+  apellidos: z
+    .string()
+    .min(2, 'Los apellidos deben tener al menos 2 caracteres.')
+    .max(30, 'Los apellidos deben tener menos de 30 caracteres.'),
+  password: z
+    .string()
+    .min(6, 'La contraseña debe tener al menos 6 caracteres.')
+    .or(z.literal(''))
     .optional(),
+  imagen: z.any().optional(),
 })
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>
 
-// This can come from your database or API.
-const defaultValues: Partial<ProfileFormValues> = {
-  bio: 'I own a computer.',
-  urls: [
-    { value: 'https://shadcn.com' },
-    { value: 'http://twitter.com/shadcn' },
-  ],
-}
-
 export function ProfileForm() {
+  const queryClient = useQueryClient()
+  const { auth: { user } } = useAuthStore()
+  const [preview, setPreview] = useState<string | null>(user?.imagen || null)
+
+  const defaultValues: Partial<ProfileFormValues> = {
+    nombre: user?.nombre || '',
+    apellidos: user?.apellidos || '',
+    password: '',
+  }
+
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues,
     mode: 'onChange',
   })
 
-  const { fields, append } = useFieldArray({
-    name: 'urls',
-    control: form.control,
+  const { mutate, isPending } = useMutation({
+    mutationFn: actualizarPerfil,
+    onSuccess: (data) => {
+      toast.success(data.message || 'Perfil actualizado con éxito')
+      queryClient.invalidateQueries({ queryKey: ['user-data'] })
+      form.reset({ ...form.getValues(), password: '' })
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Error al actualizar el perfil')
+    },
   })
+
+  function onSubmit(data: ProfileFormValues) {
+    const formData = new FormData()
+    formData.append('nombre', data.nombre)
+    formData.append('apellidos', data.apellidos)
+    if (data.password && data.password.trim() !== '') {
+      formData.append('password', data.password)
+    }
+
+    // El campo imagen del schema puede contener el File del input
+    const imageFile = form.getValues('imagen')
+    if (imageFile instanceof File) {
+      formData.append('imagen', imageFile)
+    }
+
+    mutate(formData)
+  }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validar tamaño (500KB)
+      if (file.size > 500 * 1024) {
+        toast.error('La imagen no debe superar los 500KB')
+        return
+      }
+
+      form.setValue('imagen', file)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setPreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
 
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit((data) => showSubmittedData(data))}
+        onSubmit={form.handleSubmit(onSubmit)}
         className='space-y-8'
       >
-        <FormField
-          control={form.control}
-          name='username'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input placeholder='shadcn' {...field} />
-              </FormControl>
-              <FormDescription>
-                This is your public display name. It can be your real name or a
-                pseudonym. You can only change this once every 30 days.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name='email'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select a verified email to display' />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value='m@example.com'>m@example.com</SelectItem>
-                  <SelectItem value='m@google.com'>m@google.com</SelectItem>
-                  <SelectItem value='m@support.com'>m@support.com</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormDescription>
-                You can manage verified email addresses in your{' '}
-                <Link to='/'>email settings</Link>.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name='bio'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Bio</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder='Tell us a little bit about yourself'
-                  className='resize-none'
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                You can <span>@mention</span> other users and organizations to
-                link to them.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div>
-          {fields.map((field, index) => (
-            <FormField
-              control={form.control}
-              key={field.id}
-              name={`urls.${index}.value`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className={cn(index !== 0 && 'sr-only')}>
-                    URLs
-                  </FormLabel>
-                  <FormDescription className={cn(index !== 0 && 'sr-only')}>
-                    Add links to your website, blog, or social media profiles.
-                  </FormDescription>
-                  <FormControl className={cn(index !== 0 && 'mt-1.5')}>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+        <div className='flex flex-col items-center gap-6 md:flex-row'>
+          <Avatar className='h-24 w-24'>
+            <AvatarImage src={preview || ''} className='object-cover' />
+            <AvatarFallback className='text-2xl bg-muted'>
+              {user?.nombre?.[0]}{user?.apellidos?.[0]}
+            </AvatarFallback>
+          </Avatar>
+          <div className='flex-1 space-y-2'>
+            <FormLabel>Imagen de Perfil</FormLabel>
+            <Input
+              type='file'
+              accept='image/*'
+              onChange={handleImageChange}
+              className='cursor-pointer'
             />
-          ))}
-          <Button
-            type='button'
-            variant='outline'
-            size='sm'
-            className='mt-2'
-            onClick={() => append({ value: '' })}
-          >
-            Add URL
-          </Button>
+            <p className='text-[0.8rem] text-muted-foreground'>
+              Sube una foto cuadrada (JPG o PNG). Máximo 500KB.
+            </p>
+          </div>
         </div>
-        <Button type='submit'>Update profile</Button>
+
+        <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+          <FormField
+            control={form.control}
+            name='nombre'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nombre <span className='text-red-500'>*</span></FormLabel>
+                <FormControl>
+                  <Input placeholder='Tu nombre' {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='apellidos'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Apellidos <span className='text-red-500'>*</span></FormLabel>
+                <FormControl>
+                  <Input placeholder='Tus apellidos' {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name='password'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Contraseña</FormLabel>
+              <FormControl>
+                <Input type='password' placeholder='********' {...field} />
+              </FormControl>
+              <FormDescription>
+                Deja este campo en blanco si no deseas cambiar tu contraseña.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button type='submit' disabled={isPending} className='w-full md:w-auto'>
+          {isPending ? 'Guardando...' : 'Actualizar perfil'}
+        </Button>
       </form>
     </Form>
   )

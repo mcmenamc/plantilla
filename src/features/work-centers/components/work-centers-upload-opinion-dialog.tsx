@@ -6,7 +6,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { FileUp } from 'lucide-react'
 import {
     Dialog,
     DialogContent,
@@ -26,6 +25,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useWorkCenters } from './work-centers-provider'
 import { uploadOpinionCumplimiento } from '../data/work-centers-api'
+import { AlertTriangle, ExternalLink, FileUp } from 'lucide-react'
 
 const uploadSchema = z.object({
     opinionFile: z.any().refine((file) => file instanceof File, 'El archivo PDF es obligatorio'),
@@ -99,9 +99,20 @@ export function WorkCentersUploadOpinionDialog() {
                         Subir Opinión de Cumplimiento
                     </DialogTitle>
                     <DialogDescription>
-                        Sube el archivo PDF de la Opinión de Cumplimiento (SAT) para: {currentRow?.workcenterName}. Se validará el RFC y que sea POSITIVO.
+                        Sube el archivo PDF de la Opinión de Cumplimiento (SAT) para: <span className='font-bold text-zinc-900 dark:text-zinc-100'>{currentRow?.workcenterName}</span>.
+                        Este documento tiene una vigencia de 6 meses (180 días) en el sistema.
                     </DialogDescription>
                 </DialogHeader>
+
+                <div className='bg-orange-50 border border-orange-200 rounded-lg p-3 text-xs text-orange-800 dark:bg-orange-950/20 dark:border-orange-900/30 dark:text-orange-400'>
+                    <p className='font-bold flex items-center gap-1.5 mb-1'>
+                        <AlertTriangle className='h-3.5 w-3.5' /> Recordatorio de Vigencia
+                    </p>
+                    <p>
+                        Para mantener tu capacidad de facturación, la Opinión del SAT debe renovarse cada <strong>6 meses</strong>.
+                        El sistema validará automáticamente que el archivo sea el correcto, el RFC coincida y que el sentido sea <strong>POSITIVO</strong>.
+                    </p>
+                </div>
 
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
@@ -110,17 +121,34 @@ export function WorkCentersUploadOpinionDialog() {
                             name='opinionFile'
                             render={({ field: { value, onChange, ...field } }) => (
                                 <FormItem>
-                                    <FormLabel>Archivo PDF</FormLabel>
+                                    <FormLabel className='text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
+                                        Seleccionar Archivo PDF
+                                    </FormLabel>
                                     <FormControl>
-                                        <Input
-                                            type='file'
-                                            accept='.pdf'
-                                            onChange={(e) => {
-                                                const file = e.target.files?.[0]
-                                                if (file) onChange(file)
-                                            }}
-                                            {...field}
-                                        />
+                                        <div className='space-y-3'>
+                                            <Input
+                                                type='file'
+                                                accept='.pdf'
+                                                className='bg-zinc-50 dark:bg-zinc-900'
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0]
+                                                    if (file) onChange(file)
+                                                }}
+                                                {...field}
+                                            />
+                                            <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+                                                <ExternalLink className='h-4 w-4' />
+                                                <span>¿No tienes tu opinión? </span>
+                                                <a
+                                                    href='https://www.sat.gob.mx/portal/public/tramites/opinion-del-cumplimiento'
+                                                    target='_blank'
+                                                    rel='noopener noreferrer'
+                                                    className='text-primary font-medium hover:underline flex items-center gap-1'
+                                                >
+                                                    Descárgala aquí desde el SAT
+                                                </a>
+                                            </div>
+                                        </div>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

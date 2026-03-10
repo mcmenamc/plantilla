@@ -1,11 +1,13 @@
 import { useNavigate } from '@tanstack/react-router'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { X } from 'lucide-react'
+import { X, AlertTriangle, CheckCircle, Info, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { Notification } from '@/stores/notification-store'
-import { useNotificationStore } from '@/stores/notification-store'
 import { Button } from '@/components/ui/button'
+import { useNotifications } from '@/hooks/use-notifications'
+import type { Notification } from '@/features/notifications/data/notifications-api'
+
+import { useState } from 'react'
 
 interface NotificationItemProps {
     notification: Notification
@@ -14,51 +16,73 @@ interface NotificationItemProps {
 
 export function NotificationItem({ notification, onClose }: NotificationItemProps) {
     const navigate = useNavigate()
-    const { markAsRead, deleteNotification } = useNotificationStore()
+    const { markAsRead, deleteNotification } = useNotifications()
+    const [isExpanded, setIsExpanded] = useState(false)
+
+    const isLongMessage = notification.message.length > 120
+    const displayMessage = isExpanded ? notification.message : notification.message.slice(0, 120) + (isLongMessage ? '...' : '')
+
+    const typeConfig = {
+        info: {
+            icon: Info,
+            color: 'text-blue-600',
+            bg: 'bg-blue-100 dark:bg-blue-900/30'
+        },
+        success: {
+            icon: CheckCircle,
+            color: 'text-green-600',
+            bg: 'bg-green-100 dark:bg-green-900/30'
+        },
+        warning: {
+            icon: AlertTriangle,
+            color: 'text-orange-600',
+            bg: 'bg-orange-100 dark:bg-orange-900/30'
+        },
+        error: {
+            icon: AlertCircle,
+            color: 'text-red-600',
+            bg: 'bg-red-100 dark:bg-red-900/30'
+        }
+    }
+
+    const { icon: Icon, color, bg } = typeConfig[notification.type || 'info']
 
     const handleClick = () => {
-        if (!notification.read) {
-            markAsRead(notification.id)
+        if (!notification.isRead) {
+            markAsRead(notification._id)
         }
-        navigate({ to: notification.actionUrl })
+
+        if (notification.link) {
+            navigate({ to: notification.link as any })
+        }
+
         onClose?.()
     }
 
     const handleDelete = (e: React.MouseEvent) => {
         e.stopPropagation()
-        deleteNotification(notification.id)
+        deleteNotification(notification._id)
     }
-
-    const Logo = notification.logo
 
     return (
         <div
             onClick={handleClick}
             className={cn(
-                'group relative flex cursor-pointer gap-2.5 rounded-md border px-2.5 py-2 transition-colors hover:bg-accent',
-                !notification.read && 'bg-accent/30'
+                'group relative flex cursor-pointer gap-4 border-b bg-background px-4 py-3 transition-colors hover:bg-accent/50',
+                !notification.isRead && 'bg-accent/10'
             )}
         >
-            {/* Unread indicator */}
-            {!notification.read && (
-                <div className="bg-primary absolute left-1 top-1/2 size-1.5 -translate-y-1/2 rounded-full" />
-            )}
-
-            {/* Logo */}
-            <div className="flex-shrink-0">
-                {typeof Logo === 'string' ? (
-                    <img src={Logo} alt="" className="size-8 rounded object-cover" />
-                ) : (
-                    <div className="bg-primary/10 text-primary flex size-8 items-center justify-center rounded">
-                        <Logo className="size-4" />
-                    </div>
-                )}
+            {/* Icon Based on Type */}
+            <div className="flex-shrink-0 mt-0.5">
+                <div className={cn("flex size-9 items-center justify-center rounded-md", bg)}>
+                    <Icon className={cn("size-5", color)} />
+                </div>
             </div>
 
             {/* Content */}
             <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-2">
-                    <h4 className="text-sm font-medium leading-tight">{notification.title}</h4>
+                    <h4 className="text-xs font-semibold leading-tight uppercase tracking-tight">{notification.title}</h4>
                     <Button
                         size="icon"
                         variant="ghost"
@@ -69,15 +93,32 @@ export function NotificationItem({ notification, onClose }: NotificationItemProp
                         <X className="size-3" />
                     </Button>
                 </div>
-                <p className="text-muted-foreground mt-0.5 line-clamp-2 text-xs leading-snug">
-                    {notification.description}
+                <p className={cn("text-muted-foreground mt-1 text-xs leading-snug break-words", isExpanded ? "" : "line-clamp-3")}>
+                    {displayMessage}
                 </p>
-                <p className="text-muted-foreground mt-1 text-xs">
-                    {formatDistanceToNow(notification.createdAt, {
-                        addSuffix: true,
-                        locale: es,
-                    })}
-                </p>
+                {isLongMessage && (
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            setIsExpanded(!isExpanded)
+                        }}
+                        className="text-[10px] text-primary hover:underline mt-1 font-semibold uppercase tracking-wider"
+                    >
+                        {isExpanded ? 'Ver menos' : 'Ver más'}
+                    </button>
+                )}
+                <div className="flex items-center justify-between mt-2">
+                    <p className="text-muted-foreground text-[10px] uppercase font-medium">
+                        {formatDistanceToNow(new Date(notification.createdAt), {
+                            addSuffix: true,
+                            locale: es,
+                        })}
+                    </p>
+                    {/* Unread dot indicator on the right side */}
+                    {!notification.isRead && (
+                        <div className="bg-orange-600 size-2 rounded-full shadow-[0_0_8px_rgba(234,88,12,0.6)]" />
+                    )}
+                </div>
             </div>
         </div>
     )

@@ -96,14 +96,38 @@ export const invoicesColumns: ColumnDef<Invoice>[] = [
         header: 'Importe Facturado',
         enableSorting: true,
         cell: ({ row }) => {
-            const total = parseFloat(row.getValue('total'))
+            const tipo = row.original.tipo_cfdi
+            let amount = parseFloat(row.getValue('total') ?? 0)
+            let isPago = false
+
+            // Para tipo P el total siempre es 0 (regla SAT)
+            // El monto real está en complements[].data[].related_documents[].amount
+            if (tipo === 'P') {
+                const complements: any[] = row.original.complements || []
+                amount = complements.reduce((sum: number, comp: any) => {
+                    const dataArr: any[] = Array.isArray(comp.data) ? comp.data : (comp.data ? [comp.data] : [])
+                    return sum + dataArr.reduce((s2: number, d: any) => {
+                        const docs: any[] = d.related_documents || []
+                        return s2 + docs.reduce((s3: number, doc: any) => s3 + (Number(doc.amount) || 0), 0)
+                    }, 0)
+                }, 0)
+                isPago = true
+            }
+
             const formatted = new Intl.NumberFormat('es-MX', {
                 style: 'currency',
                 currency: 'MXN',
-            }).format(total)
-            return <div className='font-bold text-slate-900 dark:text-white'>{formatted}</div>
+            }).format(amount)
+
+            return (
+                <div className='flex flex-col'>
+                    <span className='font-bold text-slate-900 dark:text-white'>{formatted}</span>
+                    {isPago && <span className='text-[9px] text-slate-400 uppercase tracking-wide'>Monto pagado</span>}
+                </div>
+            )
         },
     },
+
     {
         accessorKey: 'moneda',
         header: 'Moneda',

@@ -16,11 +16,11 @@ export function ForgotPassword() {
       <Card className='gap-4'>
         <CardHeader>
           <CardTitle className='text-lg tracking-tight'>
-            Forgot Password
+            ¿Olvidaste tu contraseña?
           </CardTitle>
           <CardDescription>
-            Enter your registered email and <br /> we will send you a link to
-            reset your password.
+            Ingresa tu correo registrado y <br /> te enviaremos un enlace para
+            restablecer tu contraseña.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -28,12 +28,12 @@ export function ForgotPassword() {
         </CardContent>
         <CardFooter>
           <p className='text-muted-foreground mx-auto px-8 text-center text-sm text-balance'>
-            Don't have an account?{' '}
+            ¿Ya recordaste tu contraseña?{' '}
             <Link
-              to='/sign-up'
+              to='/sign-in'
               className='hover:text-primary underline underline-offset-4'
             >
-              Sign up
+              Inicia sesión
             </Link>
             .
           </p>
@@ -42,3 +42,4 @@ export function ForgotPassword() {
     </AuthLayout>
   )
 }
+

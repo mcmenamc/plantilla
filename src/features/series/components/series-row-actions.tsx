@@ -7,7 +7,6 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuSeparator,
-    DropdownMenuShortcut,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { type SeriesRow } from './series-columns'
@@ -57,7 +56,6 @@ export function DataTableRowActions<TData>({
                 >
                     <Trash className='mr-2 h-3.5 w-3.5 text-muted-foreground/70' />
                     Eliminar
-                    <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

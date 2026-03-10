@@ -1,7 +1,7 @@
 import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 import { type Row } from '@tanstack/react-table'
 import { useNavigate } from '@tanstack/react-router'
-import { Trash2, Edit, FileUp, ImagePlus, FileCheck } from 'lucide-react'
+import { Trash2, Edit, FileUp, ImagePlus, FileCheck, Settings2, ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
     DropdownMenu,
@@ -51,39 +51,69 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
                             </DropdownMenuShortcut>
                         </DropdownMenuItem>
                     )}
+                    {can('Subir CSD') && (
+                        <DropdownMenuItem
+                            onClick={() => {
+                                setCurrentRow(row.original)
+                                setOpen('upload-cert')
+                            }}
+                        >
+                            Certificados CSD
+                            <DropdownMenuShortcut>
+                                <FileUp size={16} />
+                            </DropdownMenuShortcut>
+                        </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem
                         onClick={() => {
                             setCurrentRow(row.original)
-                            setOpen('upload-cert')
+                            setOpen('upload-fiel')
                         }}
                     >
-                        Certificados
+                        Firma Electrónica (FIEL)
                         <DropdownMenuShortcut>
-                            <FileUp size={16} />
+                            <ShieldCheck size={16} />
                         </DropdownMenuShortcut>
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                        onClick={() => {
-                            setCurrentRow(row.original)
-                            setOpen('upload-logo')
-                        }}
-                    >
-                        Logo
-                        <DropdownMenuShortcut>
-                            <ImagePlus size={16} />
-                        </DropdownMenuShortcut>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                        onClick={() => {
-                            setCurrentRow(row.original)
-                            setOpen('upload-opinion')
-                        }}
-                    >
-                        Opinión del SAT
-                        <DropdownMenuShortcut>
-                            <FileCheck size={16} />
-                        </DropdownMenuShortcut>
-                    </DropdownMenuItem>
+                    {can('Actualizar Logo') && (
+                        <DropdownMenuItem
+                            onClick={() => {
+                                setCurrentRow(row.original)
+                                setOpen('upload-logo')
+                            }}
+                        >
+                            Logo
+                            <DropdownMenuShortcut>
+                                <ImagePlus size={16} />
+                            </DropdownMenuShortcut>
+                        </DropdownMenuItem>
+                    )}
+                    {can('Subir Opinión de Cumplimiento') && (
+                        <DropdownMenuItem
+                            onClick={() => {
+                                setCurrentRow(row.original)
+                                setOpen('upload-opinion')
+                            }}
+                        >
+                            Opinión del SAT
+                            <DropdownMenuShortcut>
+                                <FileCheck size={16} />
+                            </DropdownMenuShortcut>
+                        </DropdownMenuItem>
+                    )}
+                    {can('Perzonalización') && (
+                        <DropdownMenuItem
+                            onClick={() => {
+                                setCurrentRow(row.original)
+                                setOpen('edit-config')
+                            }}
+                        >
+                            Personalización
+                            <DropdownMenuShortcut>
+                                <Settings2 size={16} />
+                            </DropdownMenuShortcut>
+                        </DropdownMenuItem>
+                    )}
                     {can('Eliminar') && (
                         <>
                             <DropdownMenuSeparator />

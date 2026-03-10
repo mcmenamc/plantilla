@@ -1,31 +1,27 @@
 import { Bell } from 'lucide-react'
-import { useNotificationStore } from '@/stores/notification-store'
+
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
-    Sheet,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-} from '@/components/ui/sheet'
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover'
 import { NotificationList } from './notification-list'
 import { useState } from 'react'
+import { useNotifications } from '@/hooks/use-notifications'
 
 export function NotificationBell() {
     const [open, setOpen] = useState(false)
-    const { getUnreadCount } = useNotificationStore()
-    const unreadCount = getUnreadCount()
+    const { unreadCount } = useNotifications()
 
     return (
-        <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger asChild>
+        <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
                 <Button
                     size="icon"
                     variant="ghost"
                     aria-label="Abrir notificaciones"
-                    aria-describedby="notification-sheet-description"
                     className="relative rounded-full"
                 >
                     <Bell aria-hidden="true" />
@@ -38,16 +34,13 @@ export function NotificationBell() {
                         </Badge>
                     )}
                 </Button>
-            </SheetTrigger>
-            <SheetContent className="flex w-full flex-col sm:max-w-md">
-                <SheetHeader className="pb-4 text-start">
-                    <SheetTitle>Notificaciones</SheetTitle>
-                    <SheetDescription id="notification-sheet-description">
-                        Mantente al tanto de las actualizaciones importantes
-                    </SheetDescription>
-                </SheetHeader>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-[380px] p-0 shadow-lg overflow-hidden">
+                <div className="flex items-center justify-between border-b px-4 py-3">
+                    <h4 className="font-semibold leading-none tracking-tight">Notificaciones</h4>
+                </div>
                 <NotificationList onClose={() => setOpen(false)} />
-            </SheetContent>
-        </Sheet>
+            </PopoverContent>
+        </Popover>
     )
 }

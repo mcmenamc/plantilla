@@ -3,6 +3,8 @@ import { WorkCentersLogoDialog } from './work-centers-logo-dialog'
 import { WorkCentersUploadCertDialog } from './work-centers-upload-cert-dialog'
 import { WorkCentersConfirmUploadDialog } from './work-centers-confirm-upload-dialog'
 import { WorkCentersUploadOpinionDialog } from './work-centers-upload-opinion-dialog'
+import { WorkCentersUploadFielDialog } from './work-centers-upload-fiel-dialog'
+import { WorkCentersConfigDialog } from './work-centers-config-dialog'
 import { useWorkCenters } from './work-centers-provider'
 
 export function WorkCentersActionDialog() {
@@ -27,6 +29,8 @@ export function WorkCentersActionDialog() {
                     <WorkCentersUploadCertDialog />
                     <WorkCentersConfirmUploadDialog />
                     <WorkCentersUploadOpinionDialog />
+                    <WorkCentersUploadFielDialog />
+                    <WorkCentersConfigDialog />
                 </>
             )}
         </>
