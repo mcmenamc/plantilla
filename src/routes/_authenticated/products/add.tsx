@@ -9,6 +9,8 @@ import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Button } from '@/components/ui/button'
 import { ProductsForm } from '@/features/products/components/products-form'
 import { ProductsProvider } from '@/features/products/components/products-provider'
+import { NotAuthorized } from '@/components/not-authorized'
+import { usePermissions } from '@/hooks/use-permissions'
 
 export const Route = createFileRoute('/_authenticated/products/add')({
     component: AddProduct,
@@ -16,6 +18,8 @@ export const Route = createFileRoute('/_authenticated/products/add')({
 
 function AddProduct() {
     const navigate = useNavigate()
+    const { can, isLoading: isLoadingPermissions } = usePermissions()
+    if (!isLoadingPermissions && !can('Ver')) return <NotAuthorized />
 
     return (
         <ProductsProvider>

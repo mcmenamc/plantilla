@@ -12,6 +12,8 @@ import { SeriesPrimaryButtons } from './components/series-primary-buttons'
 import { SeriesProvider } from './components/series-provider'
 import { SeriesTable } from './components/series-table'
 import { getSeriesConfig } from './data/series-api'
+import { NotAuthorized } from '@/components/not-authorized'
+import { usePermissions } from '@/hooks/use-permissions'
 
 const route = getRouteApi('/_authenticated/series/')
 
@@ -54,6 +56,9 @@ export function Series() {
     // Filter out Nómina if it's there but user said "quitar la nomina"
     const seriesData = flattenedData.filter(d => d.typeCode !== 'N')
     const hasConfig = !!seriesResp?.data
+
+    const { can, isLoading: isLoadingPermissions } = usePermissions()
+    if (!isLoadingPermissions && !can('Ver')) return <NotAuthorized />
 
     return (
         <SeriesProvider>

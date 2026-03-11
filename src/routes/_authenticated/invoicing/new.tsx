@@ -9,13 +9,17 @@ import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Button } from '@/components/ui/button'
 import { InvoicesProvider } from '@/features/invoicing/components/invoices-provider'
 import { InvoiceCreateView } from '@/features/invoicing/components/invoice-create-view'
+import { usePermissions } from '@/hooks/use-permissions'
+import { NotAuthorized } from '@/components/not-authorized'
 
 export const Route = createFileRoute('/_authenticated/invoicing/new')({
     component: NewInvoicePage,
 })
 
 function NewInvoicePage() {
-    const navigate = useNavigate()
+  const navigate = useNavigate()
+  const { can, isLoading: isLoadingPermissions } = usePermissions()
+  if (!isLoadingPermissions && !can('Ver')) return <NotAuthorized />
 
     return (
         <InvoicesProvider>

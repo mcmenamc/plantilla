@@ -6,11 +6,9 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
-import { TopNav } from '@/components/layout/top-nav'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
@@ -21,22 +19,24 @@ import { RecentSales } from './components/recent-sales'
 import { Users, FileCheck, Zap, TrendingUp } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { getWorkCenters } from '../work-centers/data/work-centers-api'
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from '@/components/ui/select'
 import { useState } from 'react'
-import { Timer, LayoutDashboard, FileSpreadsheet, PlusCircle } from 'lucide-react'
+import { Timer, FileSpreadsheet, PlusCircle } from 'lucide-react'
+import { usePermissions } from '@/hooks/use-permissions'
+import { NotAuthorized } from '@/components/not-authorized'
 
 export function Dashboard() {
   const [selectedWorkCenter, setSelectedWorkCenter] = useState('all')
-  
+
   // Check if admin (this would normally come from an auth hook, 
   // using a dummy true for demonstration based on the request)
-  const isAdmin = true 
+  const isAdmin = true
 
   const { data: workCenters = [], isLoading } = useQuery({
     queryKey: ['work-centers', selectedWorkCenter],
@@ -44,15 +44,18 @@ export function Dashboard() {
     enabled: isAdmin
   })
 
+  const { can, isLoading: isLoadingPermissions } = usePermissions()
+  if (!isLoadingPermissions && !can('Ver')) return <NotAuthorized />
+
   return (
     <>
+
       <Header>
-        
         <div className='ml-auto flex items-center gap-2 sm:gap-4'>
           {isAdmin && (
             <div className="hidden sm:block w-40 md:w-56 lg:w-64">
-              <Select 
-                value={selectedWorkCenter} 
+              <Select
+                value={selectedWorkCenter}
                 onValueChange={setSelectedWorkCenter}
                 disabled={isLoading}
               >
@@ -97,8 +100,8 @@ export function Dashboard() {
 
         {isAdmin && (
           <div className="sm:hidden w-full">
-            <Select 
-              value={selectedWorkCenter} 
+            <Select
+              value={selectedWorkCenter}
               onValueChange={setSelectedWorkCenter}
               disabled={isLoading}
             >
@@ -205,28 +208,27 @@ export function Dashboard() {
 
         {/* --- Lower Stats Grid --- */}
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-           <Card className='shadow-none bg-zinc-50/30 dark:bg-zinc-900/40 border border-zinc-200/60 dark:border-zinc-800/60'>
-             <CardHeader className="pb-4">
-                <CardTitle className='text-[10px] uppercase tracking-[0.2em] font-black text-zinc-400/80'>Distribución Fiscal</CardTitle>
-             </CardHeader>
-             <CardContent>
-                <Analytics />
-             </CardContent>
-           </Card>
-           
-           <Card className='lg:col-span-2 shadow-sm border-zinc-100 dark:border-zinc-800/50'>
-              <CardHeader className='pb-4'>
-                <CardTitle className="text-md font-bold">Uso de Timbres (Consumo Semanal)</CardTitle>
-                <CardDescription className="text-xs text-zinc-500">Folios fiscales consumidos por día</CardDescription>
-              </CardHeader>
-              <CardContent>
-                 <AnalyticsChart />
-              </CardContent>
-           </Card>
+          <Card className='shadow-none bg-zinc-50/30 dark:bg-zinc-900/40 border border-zinc-200/60 dark:border-zinc-800/60'>
+            <CardHeader className="pb-4">
+              <CardTitle className='text-[10px] uppercase tracking-[0.2em] font-black text-zinc-400/80'>Distribución Fiscal</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Analytics />
+            </CardContent>
+          </Card>
+
+          <Card className='lg:col-span-2 shadow-sm border-zinc-100 dark:border-zinc-800/50'>
+            <CardHeader className='pb-4'>
+              <CardTitle className="text-md font-bold">Uso de Timbres (Consumo Semanal)</CardTitle>
+              <CardDescription className="text-xs text-zinc-500">Folios fiscales consumidos por día</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AnalyticsChart />
+            </CardContent>
+          </Card>
         </div>
       </Main>
     </>
   )
 }
 
-const topNav: any[] = []
