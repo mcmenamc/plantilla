@@ -91,6 +91,7 @@ export function WorkCentersForm({ workCenterId, initialData, onSuccess }: WorkCe
             if (businessData) {
                 if (businessData.rfc) form.setValue('rfc', businessData.rfc)
                 if (businessData.phone) form.setValue('phone', businessData.phone)
+                if (businessData.zip) form.setValue('cp', businessData.zip)
 
                 // Use business data or user profile data
                 const regimenFiscal = businessData.regimenFiscal || auth.user.regimenFiscal

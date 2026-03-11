@@ -27,6 +27,7 @@ const formSchema = z.object({
     nombre: z.string().min(3, "La razón social debe tener al menos 3 caracteres"),
     phone: z.string().length(10, "El teléfono debe tener 10 dígitos").regex(/^\d+$/, "Solo se permiten números"),
     regimenFiscal: z.string().min(1, "El régimen fiscal es requerido"),
+    cp: z.string().length(5, "El Código Postal deben ser 5 dígitos").regex(/^\d+$/, "Solo se permiten números"),
 })
 
 type ConfigFormValues = z.infer<typeof formSchema>
@@ -49,6 +50,7 @@ export function ConfigurarCuenta() {
             nombre: "",
             phone: "",
             regimenFiscal: "",
+            cp: "",
         },
     })
 
@@ -260,6 +262,29 @@ export function ConfigurarCuenta() {
                                                     className="pl-11 h-12 rounded-xl focus-visible:ring-primary bg-gray-50/50 dark:bg-muted/50 border-gray-200 dark:border-border"
                                                 />
                                                 <Phone className="w-5 h-5 text-gray-400 dark:text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* CP */}
+                            <FormField
+                                control={form.control}
+                                name="cp"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="text-gray-700 dark:text-gray-300">Código Postal</FormLabel>
+                                        <FormControl>
+                                            <div className="relative">
+                                                <Input
+                                                    {...field}
+                                                    maxLength={5}
+                                                    placeholder="64000"
+                                                    className="pl-11 h-12 rounded-xl focus-visible:ring-primary bg-gray-50/50 dark:bg-muted/50 border-gray-200 dark:border-border"
+                                                />
+                                                <Building2 className="w-5 h-5 text-gray-400 dark:text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
                                             </div>
                                         </FormControl>
                                         <FormMessage />
