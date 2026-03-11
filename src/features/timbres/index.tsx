@@ -11,7 +11,8 @@ import {
   ShieldCheck,
   Users,
   Building2,
-  Headphones
+  Headphones,
+  CheckCircle2
 } from 'lucide-react'
 import {
   crearIntentoPago,
@@ -20,58 +21,12 @@ import { TimbresPackageCard } from './components/timbres-package-card'
 import { StripeCheckoutForm } from './components/stripe-checkout-form'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
-import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
-import { ProfileDropdown } from '@/components/profile-dropdown'
-import { Search } from '@/components/search'
-import { ThemeSwitch } from '@/components/theme-switch'
-import { ConfigDrawer } from '@/components/config-drawer'
 import { useTheme } from '@/context/theme-provider'
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
 
-const TIMBRE_PACKAGES = [
-  {
-    title: 'Inicial',
-    timbres: 25,
-    price: 250,
-    description: 'Para pruebas o facturación esporádica.',
-    highlighted: false,
-    discountLabel: ''
-  },
-  {
-    title: 'Básico',
-    timbres: 50,
-    price: 475,
-    description: 'Ideal para pequeños negocios.',
-    highlighted: false,
-    discountLabel: '5% ahorro'
-  },
-  {
-    title: 'Profesional',
-    timbres: 100,
-    price: 900,
-    description: 'Nuestra opción más equilibrada.',
-    highlighted: true,
-    discountLabel: '10% ahorro'
-  },
-  {
-    title: 'Crecimiento',
-    timbres: 250,
-    price: 2125,
-    description: 'Para empresas en expansión.',
-    highlighted: false,
-    discountLabel: '15% ahorro'
-  },
-  {
-    title: 'Empresarial',
-    timbres: 500,
-    price: 4000,
-    description: 'Máximo ahorro para alto volumen.',
-    highlighted: false,
-    discountLabel: '20% ahorro'
-  }
-]
+// Packages are now fetched from the backend
 
 const GLOBAL_BENEFITS = [
   { icon: Clock, title: 'Vigencia ilimitada', desc: 'Tus timbres nunca caducan' },
@@ -90,12 +45,13 @@ export default function TimbresPage() {
     amount: number,
     timbres: number
   } | null>(null)
+  const [isSuccessScreen, setIsSuccessScreen] = useState(false)
 
   // Handle success from a redirect
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
     if (urlParams.get('success') === 'true') {
-      toast.success('¡Pago procesado con éxito!')
+      setIsSuccessScreen(true)
       queryClient.invalidateQueries({ queryKey: ['business-data'] })
       window.history.replaceState({}, '', window.location.pathname)
     }
@@ -111,10 +67,19 @@ export default function TimbresPage() {
     }
   })
 
+  const { data: packagesData, isLoading: isLoadingPackages } = useQuery({
+    queryKey: ['packages-data'],
+    queryFn: async () => {
+      const response = await api.get('/package')
+      // Sort by timbres so they remain in the correct ascending order
+      return response.data.sort((a: any, b: any) => a.timbres - b.timbres)
+    }
+  })
+
   const mutation = useMutation({
     mutationFn: crearIntentoPago,
     onSuccess: (data, variables) => {
-      const selectedPkg = TIMBRE_PACKAGES.find(p => p.timbres === variables)
+      const selectedPkg = packagesData?.find((p: any) => p.timbres === variables)
       const amount = selectedPkg ? selectedPkg.price * 100 : 0
 
       setCheckoutData({
@@ -135,28 +100,24 @@ export default function TimbresPage() {
 
   const handlePaymentSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ['business-data'] })
+    setIsSuccessScreen(true)
+  }
+
+  const handleReturnToPackages = () => {
+    setIsSuccessScreen(false)
     setShowCheckout(false)
     setCheckoutData(null)
   }
 
   return (
     <>
-      <Header fixed>
-        <Search />
-        <div className='ms-auto flex items-center space-x-4'>
-          <ThemeSwitch />
-          <ConfigDrawer />
-          <ProfileDropdown />
-        </div>
-      </Header>
-
       <Main className='flex flex-1 flex-col gap-6 px-4 md:px-8 max-w-[1400px] mx-auto w-full'>
         <div className="relative overflow-hidden">
           {/* Dynamic Background Effects */}
           <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] -translate-y-1/2 pointer-events-none"></div>
           <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px] translate-y-1/2 pointer-events-none"></div>
           <div className="space-y-6 relative z-10 animate-in fade-in duration-1000">
-            {!showCheckout && (
+            {!showCheckout && !isSuccessScreen && (
               <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 border-b border-zinc-200 dark:border-zinc-800/60 pb-6 mt-1">
                 <div className="space-y-1.5 max-w-2xl">
                   <h1 className="text-2xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100">
@@ -182,7 +143,44 @@ export default function TimbresPage() {
             )}
 
             <div className="relative">
-              {showCheckout && checkoutData ? (
+              {isSuccessScreen ? (
+                <div className="animate-in zoom-in-75 fade-in duration-700 w-full max-w-4xl mx-auto py-10 md:py-20">
+                  <div className="bg-white/80 dark:bg-zinc-900/60 backdrop-blur-3xl border border-white/50 dark:border-zinc-800/50 p-8 md:p-16 rounded-[2.5rem] shadow-2xl text-center flex flex-col items-center relative overflow-hidden">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-green-500/10 rounded-full blur-[100px] opacity-70 animate-pulse pointer-events-none"></div>
+                    
+                    <div className="w-24 h-24 md:w-32 md:h-32 bg-green-500/10 dark:bg-green-500/20 rounded-full flex items-center justify-center mb-8 relative group">
+                      <div className="absolute inset-0 bg-green-500 animate-ping opacity-20 rounded-full"></div>
+                      <CheckCircle2 className="w-12 h-12 md:w-16 md:h-16 text-green-500 group-hover:scale-110 transition-transform duration-500" />
+                    </div>
+                    
+                    <h2 className="text-3xl md:text-5xl font-black tracking-tighter text-zinc-900 dark:text-zinc-50 mb-4 relative z-10">
+                      ¡Pago Completado!
+                    </h2>
+                    
+                    <p className="text-zinc-500 dark:text-zinc-400 font-medium mb-10 max-w-md mx-auto text-sm md:text-base leading-relaxed relative z-10">
+                      Tus folios se han acreditado de manera inmediata a tu cuenta de Haz Factura. Estás listo para emitir.
+                    </p>
+                    
+                    <div className="w-full flex flex-col sm:flex-row items-stretch justify-center gap-4 mb-10 relative z-10">
+                      <div className="bg-white dark:bg-zinc-950 w-full sm:w-auto px-6 md:px-10 py-5 md:py-8 rounded-[1.5rem] md:rounded-[2rem] border border-zinc-200 dark:border-zinc-800 flex flex-col justify-center items-center shadow-sm">
+                         <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-zinc-400 mb-2">Timbres Adquiridos</span>
+                         <span className="text-4xl md:text-5xl font-black text-primary tabular-nums">{(checkoutData?.timbres || 0).toLocaleString()}</span>
+                      </div>
+                      <div className="bg-white dark:bg-zinc-950 w-full sm:w-auto px-6 md:px-10 py-5 md:py-8 rounded-[1.5rem] md:rounded-[2rem] border border-zinc-200 dark:border-zinc-800 flex flex-col justify-center items-center shadow-sm">
+                         <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-zinc-400 mb-2">Disponibles en Total</span>
+                         <span className="text-4xl md:text-5xl font-black text-zinc-800 dark:text-zinc-100 tabular-nums">{(isLoadingBusiness ? '...' : (businessData?.timbresDisponibles ?? 0)).toLocaleString()}</span>
+                      </div>
+                    </div>
+
+                    <Button 
+                      onClick={handleReturnToPackages}
+                      className="w-full sm:w-auto px-10 h-14 md:h-16 text-base md:text-lg font-bold rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all duration-300 bg-primary text-white relative z-10"
+                    >
+                      Volver a Mi Cuenta
+                    </Button>
+                  </div>
+                </div>
+              ) : showCheckout && checkoutData ? (
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 w-full mx-auto">
                   {/* Checkout Header style Image 2 */}
                   <div className="flex items-center gap-4 mb-8">
@@ -240,7 +238,7 @@ export default function TimbresPage() {
                         <div className="space-y-4">
                           <div className="flex justify-between items-center text-sm font-medium">
                             <span className="text-zinc-500">Paquete</span>
-                            <span className="font-bold text-zinc-800 dark:text-zinc-200">{TIMBRE_PACKAGES.find(p => p.timbres === checkoutData.timbres)?.title}</span>
+                            <span className="font-bold text-zinc-800 dark:text-zinc-200">{packagesData?.find((p: any) => p.timbres === checkoutData.timbres)?.title}</span>
                           </div>
                           <div className="flex justify-between items-center text-sm font-medium">
                             <span className="text-zinc-500">Cantidad</span>
@@ -281,14 +279,20 @@ export default function TimbresPage() {
                 <div className="space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-1000">
                   {/* 5-Column Grid Refined - Compact on Mobile */}
                   <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-6 max-w-[1300px] mx-auto">
-                    {TIMBRE_PACKAGES.map((pkg, index) => (
-                      <TimbresPackageCard
-                        key={index}
-                        {...pkg}
-                        isLoading={mutation.isPending}
-                        onSelect={handleSelectPackage}
-                      />
-                    ))}
+                    {isLoadingPackages ? (
+                      <div className="col-span-full flex justify-center py-10 text-zinc-500">
+                        Cargando paquetes...
+                      </div>
+                    ) : (
+                      packagesData?.map((pkg: any, index: number) => (
+                        <TimbresPackageCard
+                          key={index}
+                          {...pkg}
+                          isLoading={mutation.isPending}
+                          onSelect={handleSelectPackage}
+                        />
+                      ))
+                    )}
                   </div>
 
                   {/* Global Benefits Section Compacted */}

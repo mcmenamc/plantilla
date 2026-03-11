@@ -69,7 +69,7 @@ export const invoicesColumns: ColumnDef<Invoice>[] = [
     },
     {
         accessorKey: 'tipo_cfdi',
-        header: 'Tipo Factura',
+        header: 'Tipo',
         cell: ({ row }) => {
             const tipo = row.getValue('tipo_cfdi') as string
             const labels: Record<string, string> = {
@@ -93,7 +93,7 @@ export const invoicesColumns: ColumnDef<Invoice>[] = [
     },
     {
         accessorKey: 'total',
-        header: 'Importe Facturado',
+        header: 'Importe',
         enableSorting: true,
         cell: ({ row }) => {
             const tipo = row.original.tipo_cfdi

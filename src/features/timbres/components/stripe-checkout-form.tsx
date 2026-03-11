@@ -7,6 +7,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { Loader2, CreditCard } from 'lucide-react'
+import { api } from '@/lib/api'
 
 interface StripeCheckoutFormProps {
   onSuccess: () => void
@@ -48,6 +49,11 @@ export function StripeCheckoutForm({ onSuccess, amount }: StripeCheckoutFormProp
       setIsProcessing(false)
     } else if (paymentIntent) {
       if (paymentIntent.status === 'succeeded') {
+        try {
+          await api.post('/pagos/confirm-payment', { paymentIntentId: paymentIntent.id })
+        } catch (err: any) {
+          console.error("Error confirmando pago en backend:", err.response?.data || err.message)
+        }
         toast.success('¡Pago completado con éxito!')
         onSuccess()
       } else if (paymentIntent.status === 'requires_action') {

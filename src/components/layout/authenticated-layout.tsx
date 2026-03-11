@@ -13,6 +13,7 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
 import { SkipToMain } from '@/components/skip-to-main'
 import { NotificationInitializer } from '@/components/notifications/notification-initializer'
+import { WhatsappSupport } from '@/components/whatsapp-support'
 import { toast } from 'sonner'
 
 type AuthenticatedLayoutProps = {
@@ -114,6 +115,7 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
         <SidebarProvider defaultOpen={defaultOpen}>
           <SkipToMain />
           <NotificationInitializer />
+          <WhatsappSupport />
           <AppSidebar />
           <SidebarInset
             className={cn(
