@@ -46,7 +46,6 @@ export function ClientsTable({ data, search, navigate, isLoading }: DataTablePro
         navigate,
         globalFilter: { enabled: true },
         columnFilters: [
-            { columnId: 'estatus', searchKey: 'status', type: 'array' },
             { columnId: 'tipo_persona', searchKey: 'type', type: 'array' },
         ],
     })
@@ -86,14 +85,6 @@ export function ClientsTable({ data, search, navigate, isLoading }: DataTablePro
                         options: [
                             { label: 'Persona Física', value: 'Persona Física' },
                             { label: 'Persona Moral', value: 'Persona Moral' },
-                        ],
-                    },
-                    {
-                        columnId: 'estatus',
-                        title: 'Estado',
-                        options: [
-                            { label: 'Activo', value: 'Activo' },
-                            { label: 'Inactivo', value: 'Inactivo' },
                         ],
                     },
                 ]}

@@ -1,151 +1,47 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import { AnalyticsChart } from './analytics-chart'
+import { Timer } from 'lucide-react'
 
 export function Analytics() {
   return (
-    <div className='space-y-4'>
-      <Card>
-        <CardHeader>
-          <CardTitle>Traffic Overview</CardTitle>
-          <CardDescription>Weekly clicks and unique visitors</CardDescription>
-        </CardHeader>
-        <CardContent className='px-6'>
-          <AnalyticsChart />
-        </CardContent>
-      </Card>
-      <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
-        <Card>
-          <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-            <CardTitle className='text-sm font-medium'>Total Clicks</CardTitle>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              viewBox='0 0 24 24'
-              fill='none'
-              stroke='currentColor'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth='2'
-              className='text-muted-foreground h-4 w-4'
-            >
-              <path d='M3 3v18h18' />
-              <path d='M7 15l4-4 4 4 4-6' />
-            </svg>
-          </CardHeader>
-          <CardContent>
-            <div className='text-2xl font-bold'>1,248</div>
-            <p className='text-muted-foreground text-xs'>+12.4% vs last week</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-            <CardTitle className='text-sm font-medium'>
-              Unique Visitors
-            </CardTitle>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              viewBox='0 0 24 24'
-              fill='none'
-              stroke='currentColor'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth='2'
-              className='text-muted-foreground h-4 w-4'
-            >
-              <circle cx='12' cy='7' r='4' />
-              <path d='M6 21v-2a6 6 0 0 1 12 0v2' />
-            </svg>
-          </CardHeader>
-          <CardContent>
-            <div className='text-2xl font-bold'>832</div>
-            <p className='text-muted-foreground text-xs'>+5.8% vs last week</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-            <CardTitle className='text-sm font-medium'>Bounce Rate</CardTitle>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              viewBox='0 0 24 24'
-              fill='none'
-              stroke='currentColor'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth='2'
-              className='text-muted-foreground h-4 w-4'
-            >
-              <path d='M3 12h6l3 6 3-6h6' />
-            </svg>
-          </CardHeader>
-          <CardContent>
-            <div className='text-2xl font-bold'>42%</div>
-            <p className='text-muted-foreground text-xs'>-3.2% vs last week</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-            <CardTitle className='text-sm font-medium'>Avg. Session</CardTitle>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              viewBox='0 0 24 24'
-              fill='none'
-              stroke='currentColor'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth='2'
-              className='text-muted-foreground h-4 w-4'
-            >
-              <circle cx='12' cy='12' r='10' />
-              <path d='M12 6v6l4 2' />
-            </svg>
-          </CardHeader>
-          <CardContent>
-            <div className='text-2xl font-bold'>3m 24s</div>
-            <p className='text-muted-foreground text-xs'>+18s vs last week</p>
-          </CardContent>
-        </Card>
+    <div className='space-y-6'>
+      <div>
+        <h4 className='text-xs font-bold text-muted-foreground uppercase mb-3 px-1'>Por Tipo de Comprobante</h4>
+        <SimpleBarList
+          items={[
+            { name: 'Factura (Ingreso)', value: 78 },
+            { name: 'Compl. de Pago', value: 15 },
+            { name: 'Nota de Crédito', value: 5 },
+            { name: 'Carta Porte', value: 2 },
+          ]}
+          barClass='bg-primary'
+          valueFormatter={(n) => `${n}%`}
+        />
       </div>
-      <div className='grid grid-cols-1 gap-4 lg:grid-cols-7'>
-        <Card className='col-span-1 lg:col-span-4'>
-          <CardHeader>
-            <CardTitle>Referrers</CardTitle>
-            <CardDescription>Top sources driving traffic</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <SimpleBarList
-              items={[
-                { name: 'Direct', value: 512 },
-                { name: 'Product Hunt', value: 238 },
-                { name: 'Twitter', value: 174 },
-                { name: 'Blog', value: 104 },
-              ]}
-              barClass='bg-primary'
-              valueFormatter={(n) => `${n}`}
-            />
-          </CardContent>
-        </Card>
-        <Card className='col-span-1 lg:col-span-3'>
-          <CardHeader>
-            <CardTitle>Devices</CardTitle>
-            <CardDescription>How users access your app</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <SimpleBarList
-              items={[
-                { name: 'Desktop', value: 74 },
-                { name: 'Mobile', value: 22 },
-                { name: 'Tablet', value: 4 },
-              ]}
-              barClass='bg-muted-foreground'
-              valueFormatter={(n) => `${n}%`}
-            />
-          </CardContent>
-        </Card>
+      
+      <div className='pt-2'>
+        <h4 className='text-xs font-bold text-muted-foreground uppercase mb-3 px-1'>Top Sucursales (Ingresos)</h4>
+        <SimpleBarList
+          items={[
+            { name: 'Matriz CDMX', value: 85000 },
+            { name: 'Monterrey', value: 42000 },
+            { name: 'Guadalajara', value: 31000 },
+          ]}
+          barClass='bg-zinc-400 dark:bg-zinc-600'
+          valueFormatter={(n) => `$${(n/1000).toFixed(0)}k`}
+        />
+      </div>
+
+      <div className='bg-primary/5 rounded-xl p-3 border border-primary/10 relative overflow-hidden'>
+        <div className='flex items-center justify-between mb-2'>
+          <p className='text-[9px] font-bold text-primary uppercase tracking-wider'>Estado de Timbres</p>
+          <Timer className='h-3 w-3 text-primary/60' />
+        </div>
+        <div className='flex justify-between items-end'>
+           <span className='text-[11px] font-medium text-zinc-600 dark:text-zinc-400'>Consumo este mes</span>
+           <span className='text-xs font-bold tabular-nums'>428 / 1,500</span>
+        </div>
+        <div className='h-1 w-full bg-zinc-200 dark:bg-zinc-800 rounded-full mt-2 overflow-hidden'>
+           <div className='h-full bg-primary rounded-full' style={{ width: '28%' }} />
+        </div>
       </div>
     </div>
   )

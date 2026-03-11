@@ -96,9 +96,9 @@ export function SignIn() {
         <div className='text-center space-y-2'>
           <div className='flex justify-center mb-2'>
             <img
-              src='/logo/logo%20transparente.png'
+              src='/logo/logo transparente.png'
               alt='Haz Factura'
-              className='w-32 h-32 object-contain drop-shadow-sm dark:hidden'
+              className='w-60 object-contain drop-shadow-sm dark:hidden'
             />
             <img
               src='/logo/logo-light.png'

@@ -32,6 +32,7 @@ import { Route as AuthenticatedSeriesRouteRouteImport } from './routes/_authenti
 import { Route as AuthenticatedWorkCentersIndexRouteImport } from './routes/_authenticated/work-centers/index'
 import { Route as AuthenticatedViewerIndexRouteImport } from './routes/_authenticated/viewer/index'
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
+import { Route as AuthenticatedTimbresIndexRouteImport } from './routes/_authenticated/timbres/index'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
 import { Route as AuthenticatedSeriesIndexRouteImport } from './routes/_authenticated/series/index'
@@ -188,6 +189,12 @@ const AuthenticatedUsersIndexRoute = AuthenticatedUsersIndexRouteImport.update({
   path: '/users/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTimbresIndexRoute =
+  AuthenticatedTimbresIndexRouteImport.update({
+    id: '/timbres/',
+    path: '/timbres/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedTasksIndexRoute = AuthenticatedTasksIndexRouteImport.update({
   id: '/tasks/',
   path: '/tasks/',
@@ -464,6 +471,7 @@ export interface FileRoutesByFullPath {
   '/series/': typeof AuthenticatedSeriesIndexRoute
   '/settings/': typeof AuthenticatedSettingsIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
+  '/timbres': typeof AuthenticatedTimbresIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
   '/viewer': typeof AuthenticatedViewerIndexRoute
   '/work-centers': typeof AuthenticatedWorkCentersIndexRoute
@@ -523,6 +531,7 @@ export interface FileRoutesByTo {
   '/series': typeof AuthenticatedSeriesIndexRoute
   '/settings': typeof AuthenticatedSettingsIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
+  '/timbres': typeof AuthenticatedTimbresIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
   '/viewer': typeof AuthenticatedViewerIndexRoute
   '/work-centers': typeof AuthenticatedWorkCentersIndexRoute
@@ -588,6 +597,7 @@ export interface FileRoutesById {
   '/_authenticated/series/': typeof AuthenticatedSeriesIndexRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
+  '/_authenticated/timbres/': typeof AuthenticatedTimbresIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
   '/_authenticated/viewer/': typeof AuthenticatedViewerIndexRoute
   '/_authenticated/work-centers/': typeof AuthenticatedWorkCentersIndexRoute
@@ -652,6 +662,7 @@ export interface FileRouteTypes {
     | '/series/'
     | '/settings/'
     | '/tasks'
+    | '/timbres'
     | '/users'
     | '/viewer'
     | '/work-centers'
@@ -711,6 +722,7 @@ export interface FileRouteTypes {
     | '/series'
     | '/settings'
     | '/tasks'
+    | '/timbres'
     | '/users'
     | '/viewer'
     | '/work-centers'
@@ -775,6 +787,7 @@ export interface FileRouteTypes {
     | '/_authenticated/series/'
     | '/_authenticated/settings/'
     | '/_authenticated/tasks/'
+    | '/_authenticated/timbres/'
     | '/_authenticated/users/'
     | '/_authenticated/viewer/'
     | '/_authenticated/work-centers/'
@@ -969,6 +982,13 @@ declare module '@tanstack/react-router' {
       path: '/users'
       fullPath: '/users'
       preLoaderRoute: typeof AuthenticatedUsersIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/timbres/': {
+      id: '/_authenticated/timbres/'
+      path: '/timbres'
+      fullPath: '/timbres'
+      preLoaderRoute: typeof AuthenticatedTimbresIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/tasks/': {
@@ -1314,6 +1334,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProductsIndexRoute: typeof AuthenticatedProductsIndexRoute
   AuthenticatedQuotesIndexRoute: typeof AuthenticatedQuotesIndexRoute
   AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
+  AuthenticatedTimbresIndexRoute: typeof AuthenticatedTimbresIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
   AuthenticatedViewerIndexRoute: typeof AuthenticatedViewerIndexRoute
   AuthenticatedWorkCentersIndexRoute: typeof AuthenticatedWorkCentersIndexRoute
@@ -1350,6 +1371,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProductsIndexRoute: AuthenticatedProductsIndexRoute,
   AuthenticatedQuotesIndexRoute: AuthenticatedQuotesIndexRoute,
   AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
+  AuthenticatedTimbresIndexRoute: AuthenticatedTimbresIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
   AuthenticatedViewerIndexRoute: AuthenticatedViewerIndexRoute,
   AuthenticatedWorkCentersIndexRoute: AuthenticatedWorkCentersIndexRoute,

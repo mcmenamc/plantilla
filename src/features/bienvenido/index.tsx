@@ -117,9 +117,9 @@ export function Bienvenido() {
           <div className='mb-8'>
             <div className='flex justify-center mb-6'>
               <img
-                src='/logo/logo%20transparente.png'
+                src='/logo/logo transparente.png'
                 alt='Haz Factura'
-                className='w-32 h-32 object-contain drop-shadow-sm dark:hidden'
+                className='w-60 object-contain drop-shadow-sm dark:hidden'
               />
               <img
                 src='/logo/logo-light.png'

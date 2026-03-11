@@ -15,20 +15,20 @@ export function Settings() {
 
   const sidebarNavItems = [
     {
-      title: 'Perfil',
+      title: 'Mi Perfil',
       href: '/settings',
       icon: <UserCog size={18} />,
+    },
+    {
+      title: 'Apariencia',
+      href: '/settings/appearance',
+      icon: <Palette size={18} />,
     },
     ...(user?.role === 'Admin' || user?.role === 'Root' ? [{
       title: 'Datos Fiscales',
       href: '/settings/business',
       icon: <Building2 size={18} />,
     }] : []),
-    {
-      title: 'Apariencia',
-      href: '/settings/appearance',
-      icon: <Palette size={18} />,
-    },
   ]
 
   return (

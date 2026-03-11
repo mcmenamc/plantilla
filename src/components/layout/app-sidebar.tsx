@@ -12,13 +12,28 @@ import { NavGroup } from './nav-group'
 import { NavUser } from './nav-user'
 import { WorkCenterSwitcher } from './work-center-switcher'
 import { usePermissions } from '@/hooks/use-permissions'
+import { useAuthStore } from '@/stores/auth-store'
 
 export function AppSidebar() {
   const { collapsible, variant } = useLayout()
   const { permissions, isLoading } = usePermissions()
 
   const dynamicNavGroups = generateNavGroups(permissions)
-  // const { auth } = useAuthStore()
+  const { auth } = useAuthStore()
+  const isAdmin = auth.user?.role === 'Admin'
+
+  // Filter Nav Groups to restrict certain items to Admins
+  const filteredNavGroups = dynamicNavGroups.map(group => ({
+    ...group,
+    items: group.items.filter(item => {
+      // Restrict "Datos Fiscales" and "Comprar Timbres" (safety) to Admins only
+      const restrictedItems = ['Datos Fiscales', 'Comprar Timbres', 'Timbres']
+      if (restrictedItems.includes(item.title) || item.url === '/timbres') {
+        return isAdmin
+      }
+      return true
+    })
+  })).filter(group => group.items.length > 0)
 
   return (
     <Sidebar collapsible={collapsible} variant={variant}>
@@ -35,7 +50,7 @@ export function AppSidebar() {
             <span>Cargando navegación...</span>
           </div>
         ) : (
-          dynamicNavGroups.map((props) => (
+          filteredNavGroups.map((props) => (
             <NavGroup key={props.title} {...props} />
           ))
         )}

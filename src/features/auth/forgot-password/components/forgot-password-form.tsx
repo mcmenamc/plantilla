@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
-import { ArrowRight, Loader2 } from 'lucide-react'
+import { Loader2, Mail, Send } from 'lucide-react'
 import { toast } from 'sonner'
 import { api } from '@/lib/api'
 import { cn } from '@/lib/utils'
@@ -65,7 +65,7 @@ export function ForgotPasswordForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className={cn('grid gap-2', className)}
+        className={cn('space-y-6', className)}
         {...props}
       >
         <FormField
@@ -73,21 +73,32 @@ export function ForgotPasswordForm({
           name='email'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Correo Electrónico</FormLabel>
+              <FormLabel className='text-gray-700 dark:text-gray-300 font-medium'>Correo electrónico</FormLabel>
               <FormControl>
-                <Input placeholder='nombre@ejemplo.com' {...field} />
+                <div className='relative group'>
+                  <Input
+                    placeholder='tu@empresa.com'
+                    className='h-12 pl-11 bg-gray-50/50 dark:bg-muted/50 border-gray-200 dark:border-border focus:bg-white dark:focus:bg-muted focus:border-orange-500/50 focus:ring-4 focus:ring-orange-500/10 transition-all duration-200 rounded-xl'
+                    {...field}
+                  />
+                  <Mail className='w-5 h-5 text-gray-400 dark:text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 group-focus-within:text-orange-500 transition-colors' />
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button className='mt-2' disabled={isLoading}>
-          Continuar
+        <Button
+          type='submit'
+          disabled={isLoading}
+          className='w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold h-12 rounded-xl shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200'
+        >
           {isLoading ? (
-            <Loader2 className='ml-2 h-4 w-4 animate-spin' />
+            <Loader2 className='mr-2 h-5 w-5 animate-spin' />
           ) : (
-            <ArrowRight className='ml-2 h-4 w-4' />
+            <Send className='mr-2 h-5 w-5' />
           )}
+          Enviar enlace
         </Button>
       </form>
     </Form>

@@ -6,6 +6,187 @@ import { LongText } from '@/components/long-text'
 import { WorkCenter } from '../data/schema'
 import { DataTableRowActions } from './work-centers-row-actions'
 import { WorkCentersLogoColumn } from './work-centers-logo-column'
+import { useWorkCenters } from './work-centers-provider'
+import { usePermissions } from '@/hooks/use-permissions'
+
+
+const FielCell = ({ row }: { row: WorkCenter }) => {
+    const { setOpen, setCurrentRow } = useWorkCenters()
+    const { can } = usePermissions()
+    const hasFiel = row.hasFiel as boolean
+    const dateStr = row.fielVencimiento
+
+    const onOpen = () => {
+        if (!can('Subir FIEL')) return
+        setCurrentRow(row)
+        setOpen('upload-fiel')
+    }
+
+    if (!hasFiel) {
+        return (
+            <button
+                onClick={onOpen}
+                disabled={!can('Subir FIEL')}
+                className='bg-slate-100 text-slate-500 w-fit rounded-full px-2 py-0.5 text-[10px] font-medium text-nowrap hover:bg-slate-200 transition-colors cursor-pointer disabled:cursor-not-allowed'
+            >
+                No cargada
+            </button>
+        )
+    }
+
+    if (!dateStr) {
+        return (
+            <button
+                onClick={onOpen}
+                className='bg-green-100 text-green-700 w-fit rounded-full px-2 py-0.5 text-[10px] font-medium text-nowrap hover:bg-green-200 transition-colors cursor-pointer'
+            >
+                Cargada (Sin fecha)
+            </button>
+        )
+    }
+
+    try {
+        const date = parseISO(dateStr)
+        const relativeTime = formatDistanceToNow(date, { locale: es, addSuffix: true })
+        const isExpired = date < new Date()
+
+        return (
+            <button
+                onClick={onOpen}
+                className='flex flex-col gap-0.5 text-left hover:opacity-80 transition-opacity cursor-pointer group'
+            >
+                <div className={cn(
+                    'w-fit rounded-full px-2 py-0.5 text-[10px] font-medium group-hover:scale-105 transition-transform',
+                    isExpired ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'
+                )}>
+                    {isExpired ? 'Expirada' : 'Cargada'}
+                </div>
+                <div className='text-[11px] font-bold text-nowrap'>
+                    {formatDateUnshifted(dateStr)}
+                </div>
+                <div className='text-[10px] text-muted-foreground italic text-nowrap'>
+                    ({relativeTime})
+                </div>
+            </button>
+        )
+    } catch (e) {
+        return <div className='text-destructive text-xs italic'>Error fecha</div>
+    }
+}
+
+const CsdCell = ({ row }: { row: WorkCenter }) => {
+    const { setOpen, setCurrentRow } = useWorkCenters()
+    const { can } = usePermissions()
+    const hasStamps = row.hasStamps as boolean
+    const dateStr = row.fechaVencimiento
+
+    const onOpen = () => {
+        if (!can('Subir CSD')) return
+        setCurrentRow(row)
+        setOpen('upload-cert')
+    }
+
+    if (!hasStamps) {
+        return (
+            <button
+                onClick={onOpen}
+                disabled={!can('Subir CSD')}
+                className='bg-slate-100 text-slate-500 w-fit rounded-full px-2 py-0.5 text-[10px] font-medium text-nowrap hover:bg-slate-200 transition-colors cursor-pointer disabled:cursor-not-allowed'
+            >
+                No cargados
+            </button>
+        )
+    }
+
+    if (!dateStr) {
+        return (
+            <button
+                onClick={onOpen}
+                className='bg-green-100 text-green-700 w-fit rounded-full px-2 py-0.5 text-[10px] font-medium text-nowrap hover:bg-green-200 transition-colors cursor-pointer'
+            >
+                Cargados (Sin fecha)
+            </button>
+        )
+    }
+
+    try {
+        const date = parseISO(dateStr)
+        const relativeTime = formatDistanceToNow(date, { locale: es, addSuffix: true })
+        const isExpired = date < new Date()
+
+        return (
+            <button
+                onClick={onOpen}
+                className='flex flex-col gap-0.5 text-left hover:opacity-80 transition-opacity cursor-pointer group'
+            >
+                <div className={cn(
+                    'w-fit rounded-full px-2 py-0.5 text-[10px] font-medium group-hover:scale-105 transition-transform',
+                    isExpired ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'
+                )}>
+                    {isExpired ? 'Expirados' : 'Cargados'}
+                </div>
+                <div className='text-[11px] font-bold text-nowrap'>
+                    {formatDateUnshifted(dateStr)}
+                </div>
+                <div className='text-[10px] text-muted-foreground italic text-nowrap'>
+                    ({relativeTime})
+                </div>
+            </button>
+        )
+    } catch (e) {
+        return <div className='text-destructive text-xs italic'>Error fecha</div>
+    }
+}
+
+const OpinionSatCell = ({ row }: { row: WorkCenter }) => {
+    const { setOpen, setCurrentRow } = useWorkCenters()
+    const { can } = usePermissions()
+    const op = row.opinionCumplimiento
+
+    const onOpen = () => {
+        if (!can('Subir Opinión de Cumplimiento')) return
+        setCurrentRow(row)
+        setOpen('upload-opinion')
+    }
+
+    if (!op || !op.url) {
+        return (
+            <button
+                onClick={onOpen}
+                disabled={!can('Subir Opinión de Cumplimiento')}
+                className='bg-slate-100 text-slate-500 w-fit rounded-full px-2 py-0.5 text-[10px] font-medium hover:bg-slate-200 transition-colors cursor-pointer disabled:cursor-not-allowed'
+            >
+                No cargada
+            </button>
+        )
+    }
+
+    const opinionDate = op.fecha ? parseISO(op.fecha) : null
+    const isFresh = opinionDate ? (new Date().getTime() - opinionDate.getTime()) < (180 * 24 * 60 * 60 * 1000) : false
+    const relativeTime = opinionDate ? formatDistanceToNow(opinionDate, { locale: es, addSuffix: true }) : null
+
+    return (
+        <button
+            onClick={onOpen}
+            className='flex flex-col gap-0.5 text-left hover:opacity-80 transition-opacity cursor-pointer group'
+        >
+            <div className={cn(
+                'w-fit rounded-full px-2 py-0.5 text-[10px] font-medium group-hover:scale-105 transition-transform',
+                op.valida && isFresh ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+            )}>
+                {op.valida && isFresh ? 'Positiva' : (!op.valida ? 'Negativa' : 'Desactualizada')}
+            </div>
+            {relativeTime && (
+                <div className={cn(
+                    'text-[10px] text-muted-foreground italic text-nowrap',
+                    !(op.valida && isFresh) && 'text-orange-600'
+                )}>
+                    {op.valida && isFresh ? `(${relativeTime})` : `Hace ${relativeTime.replace('hace ', '')}`}
+                </div>
+            )}
+        </button>
+    )
+}
 
 export const workCentersColumns: ColumnDef<WorkCenter>[] = [
     {
@@ -39,150 +220,18 @@ export const workCentersColumns: ColumnDef<WorkCenter>[] = [
     {
         accessorKey: 'hasFiel',
         header: 'FIEL / Vencimiento',
-        cell: ({ row }) => {
-            const hasFiel = row.original.hasFiel as boolean
-            const dateStr = row.original.fielVencimiento
-
-            if (!hasFiel) {
-                return (
-                    <div className='bg-slate-100 text-slate-500 w-fit rounded-full px-2 py-0.5 text-[10px] font-medium text-nowrap'>
-                        No cargada
-                    </div>
-                )
-            }
-
-            if (!dateStr) {
-                return (
-                    <div className='bg-green-100 text-green-700 w-fit rounded-full px-2 py-0.5 text-[10px] font-medium text-nowrap'>
-                        Cargada (Sin fecha)
-                    </div>
-                )
-            }
-
-            try {
-                const date = parseISO(dateStr)
-                const relativeTime = formatDistanceToNow(date, { locale: es, addSuffix: true })
-                const isExpired = date < new Date()
-
-                return (
-                    <div className='flex flex-col gap-0.5'>
-                        <div className={cn(
-                            'w-fit rounded-full px-2 py-0.5 text-[10px] font-medium',
-                            isExpired ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'
-                        )}>
-                            {isExpired ? 'Expirada' : 'Cargada'}
-                        </div>
-                        <div className='text-[11px] font-medium text-nowrap'>
-                            {formatDateUnshifted(dateStr)}
-                        </div>
-                        <div className='text-[10px] text-muted-foreground italic text-nowrap'>
-                            ({relativeTime})
-                        </div>
-                    </div>
-                )
-            } catch (e) {
-                return <div className='text-destructive text-xs italic'>Error fecha</div>
-            }
-        },
+        cell: ({ row }) => <FielCell row={row.original} />,
     },
     {
         accessorKey: 'hasStamps',
         header: 'CSD / Vencimiento',
-        cell: ({ row }) => {
-            const hasStamps = row.getValue('hasStamps') as boolean
-            const dateStr = row.original.fechaVencimiento
-
-            if (!hasStamps) {
-                return (
-                    <div className='bg-slate-100 text-slate-500 w-fit rounded-full px-2 py-0.5 text-[10px] font-medium text-nowrap'>
-                        No cargados
-                    </div>
-                )
-            }
-
-            if (!dateStr) {
-                return (
-                    <div className='bg-green-100 text-green-700 w-fit rounded-full px-2 py-0.5 text-[10px] font-medium text-nowrap'>
-                        Cargados (Sin fecha)
-                    </div>
-                )
-            }
-
-            try {
-                const date = parseISO(dateStr)
-                const relativeTime = formatDistanceToNow(date, { locale: es, addSuffix: true })
-                const isExpired = date < new Date()
-
-                return (
-                    <div className='flex flex-col gap-0.5'>
-                        <div className={cn(
-                            'w-fit rounded-full px-2 py-0.5 text-[10px] font-medium',
-                            isExpired ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'
-                        )}>
-                            {isExpired ? 'Expirados' : 'Cargados'}
-                        </div>
-                        <div className='text-[11px] font-medium text-nowrap'>
-                            {formatDateUnshifted(dateStr)}
-                        </div>
-                        <div className='text-[10px] text-muted-foreground italic text-nowrap'>
-                            ({relativeTime})
-                        </div>
-                    </div>
-                )
-            } catch (e) {
-                return <div className='text-destructive text-xs italic'>Error fecha</div>
-            }
-        },
+        cell: ({ row }) => <CsdCell row={row.original} />,
     },
 
     {
         id: 'opinion_sat',
         header: 'Opinión SAT',
-        cell: ({ row }) => {
-            const op = row.original.opinionCumplimiento
-            if (!op || !op.url) {
-                return (
-                    <div className='bg-slate-100 text-slate-500 w-fit rounded-full px-2 py-0.5 text-[10px] font-medium'>
-                        No cargada
-                    </div>
-                )
-            }
-
-            const opinionDate = op.fecha ? parseISO(op.fecha) : null
-            const isFresh = opinionDate ? (new Date().getTime() - opinionDate.getTime()) < (180 * 24 * 60 * 60 * 1000) : false
-            const relativeTime = opinionDate ? formatDistanceToNow(opinionDate, { locale: es, addSuffix: true }) : null
-
-            if (op.valida && isFresh) {
-                return (
-                    <div className='flex flex-col gap-0.5'>
-                        <div className='bg-green-100 text-green-700 w-fit rounded-full px-2 py-0.5 text-[10px] font-medium'>
-                            Positiva
-                        </div>
-                        {relativeTime && (
-                            <div className='text-[10px] text-muted-foreground italic text-nowrap'>
-                                ({relativeTime})
-                            </div>
-                        )}
-                    </div>
-                )
-            }
-
-            return (
-                <div className='flex flex-col gap-0.5'>
-                    <div className={cn(
-                        'w-fit rounded-full px-2 py-0.5 text-[10px] font-medium',
-                        'bg-orange-100 text-orange-700'
-                    )}>
-                        {!op.valida ? 'Negativa' : 'Desactualizada'}
-                    </div>
-                    {relativeTime && (
-                        <div className='text-[10px] text-muted-foreground italic text-nowrap text-orange-600'>
-                            Hace {relativeTime.replace('hace ', '')}
-                        </div>
-                    )}
-                </div>
-            )
-        },
+        cell: ({ row }) => <OpinionSatCell row={row.original} />,
     },
 
 

@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { Sparkles, Building2, UserCog, Settings, LogOut } from 'lucide-react'
 import useDialogState from '@/hooks/use-dialog-state'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -9,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { SignOutDialog } from '@/components/sign-out-dialog'
@@ -17,6 +19,7 @@ import { useAuthStore } from '@/stores/auth-store'
 export function ProfileDropdown() {
   const [open, setOpen] = useDialogState()
   const { auth } = useAuthStore()
+  const isAdmin = auth.user?.role === 'Admin' || auth.user?.role === 'Root'
 
   return (
     <>
@@ -32,36 +35,52 @@ export function ProfileDropdown() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className='w-56' align='end' forceMount>
-          <DropdownMenuLabel className='font-normal'>
+          <DropdownMenuLabel className='font-normal border-b pb-2 mb-2'>
             <div className='flex flex-col gap-1.5'>
-              <p className='text-sm leading-none font-medium'>{auth.user?.nombre} {auth.user?.apellidos}</p>
-              <p className='text-muted-foreground text-xs leading-none'>
+              <p className='text-sm leading-none font-semibold'>{auth.user?.nombre} {auth.user?.apellidos}</p>
+              <p className='text-muted-foreground text-[11px] leading-none'>
                 {auth.user?.email}
               </p>
             </div>
           </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
+          <DropdownMenuGroup className='space-y-1'>
+            {isAdmin && (
+              <DropdownMenuItem asChild>
+                <Link to='/timbres' className='flex items-center text-primary font-bold'>
+                  <Sparkles size={16} className='me-2 fill-primary/20' />
+                  Comprar Timbres
+                </Link>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem asChild>
               <Link to='/settings'>
-                Perfil
+                <UserCog size={16} className='me-2' />
+                Mi Perfil
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to='/settings/business'>
-                Facturación
-              </Link>
-            </DropdownMenuItem>
+            {isAdmin && (
+              <DropdownMenuItem asChild>
+                <Link to='/settings/business'>
+                  <Building2 size={16} className='me-2' />
+                  Datos Fiscales
+                </Link>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem asChild>
               <Link to='/settings'>
+                <Settings size={16} className='me-2' />
                 Configuración
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem disabled>Nuevo Equipo</DropdownMenuItem>
           </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem variant='destructive' onClick={() => setOpen(true)}>
+          <DropdownMenuSeparator className='my-2' />
+          <DropdownMenuItem
+            className='text-destructive focus:bg-destructive/10 focus:text-destructive'
+            onClick={() => setOpen(true)}
+          >
+            <LogOut size={16} className='me-2' />
             Cerrar sesión
+            <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

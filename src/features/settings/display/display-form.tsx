@@ -17,33 +17,33 @@ import {
 const items = [
   {
     id: 'recents',
-    label: 'Recents',
+    label: 'Recientes',
   },
   {
     id: 'home',
-    label: 'Home',
+    label: 'Inicio',
   },
   {
     id: 'applications',
-    label: 'Applications',
+    label: 'Aplicaciones',
   },
   {
     id: 'desktop',
-    label: 'Desktop',
+    label: 'Escritorio',
   },
   {
     id: 'downloads',
-    label: 'Downloads',
+    label: 'Descargas',
   },
   {
     id: 'documents',
-    label: 'Documents',
+    label: 'Documentos',
   },
 ] as const
 
 const displayFormSchema = z.object({
   items: z.array(z.string()).refine((value) => value.some((item) => item), {
-    message: 'You have to select at least one item.',
+    message: 'Debes seleccionar al menos un elemento.',
   }),
 })
 
@@ -72,9 +72,9 @@ export function DisplayForm() {
           render={() => (
             <FormItem>
               <div className='mb-4'>
-                <FormLabel className='text-base'>Sidebar</FormLabel>
+                <FormLabel className='text-base'>Barra Lateral</FormLabel>
                 <FormDescription>
-                  Select the items you want to display in the sidebar.
+                  Selecciona los elementos que deseas mostrar en la barra lateral.
                 </FormDescription>
               </div>
               {items.map((item) => (
@@ -114,7 +114,7 @@ export function DisplayForm() {
             </FormItem>
           )}
         />
-        <Button type='submit'>Update display</Button>
+        <Button type='submit'>Actualizar visualización</Button>
       </form>
     </Form>
   )

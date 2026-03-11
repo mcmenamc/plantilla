@@ -1,40 +1,40 @@
-import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis } from 'recharts'
+import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts'
 
 const data = [
   {
-    name: 'Mon',
-    clicks: Math.floor(Math.random() * 900) + 100,
-    uniques: Math.floor(Math.random() * 700) + 80,
+    name: 'Lun',
+    timbres: Math.floor(Math.random() * 50) + 10,
+    facturas: Math.floor(Math.random() * 40) + 5,
   },
   {
-    name: 'Tue',
-    clicks: Math.floor(Math.random() * 900) + 100,
-    uniques: Math.floor(Math.random() * 700) + 80,
+    name: 'Mar',
+    timbres: Math.floor(Math.random() * 50) + 10,
+    facturas: Math.floor(Math.random() * 40) + 5,
   },
   {
-    name: 'Wed',
-    clicks: Math.floor(Math.random() * 900) + 100,
-    uniques: Math.floor(Math.random() * 700) + 80,
+    name: 'Mie',
+    timbres: Math.floor(Math.random() * 50) + 10,
+    facturas: Math.floor(Math.random() * 40) + 5,
   },
   {
-    name: 'Thu',
-    clicks: Math.floor(Math.random() * 900) + 100,
-    uniques: Math.floor(Math.random() * 700) + 80,
+    name: 'Jue',
+    timbres: Math.floor(Math.random() * 50) + 10,
+    facturas: Math.floor(Math.random() * 40) + 5,
   },
   {
-    name: 'Fri',
-    clicks: Math.floor(Math.random() * 900) + 100,
-    uniques: Math.floor(Math.random() * 700) + 80,
+    name: 'Vie',
+    timbres: Math.floor(Math.random() * 50) + 10,
+    facturas: Math.floor(Math.random() * 40) + 5,
   },
   {
-    name: 'Sat',
-    clicks: Math.floor(Math.random() * 900) + 100,
-    uniques: Math.floor(Math.random() * 700) + 80,
+    name: 'Sab',
+    timbres: Math.floor(Math.random() * 20) + 5,
+    facturas: Math.floor(Math.random() * 10) + 2,
   },
   {
-    name: 'Sun',
-    clicks: Math.floor(Math.random() * 900) + 100,
-    uniques: Math.floor(Math.random() * 700) + 80,
+    name: 'Dom',
+    timbres: Math.floor(Math.random() * 10) + 1,
+    facturas: Math.floor(Math.random() * 5) + 0,
   },
 ]
 
@@ -55,9 +55,13 @@ export function AnalyticsChart() {
           tickLine={false}
           axisLine={false}
         />
+        <Tooltip
+          contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+        />
         <Area
           type='monotone'
-          dataKey='clicks'
+          dataKey='timbres'
+          name='Timbres'
           stroke='currentColor'
           className='text-primary'
           fill='currentColor'
@@ -65,7 +69,8 @@ export function AnalyticsChart() {
         />
         <Area
           type='monotone'
-          dataKey='uniques'
+          dataKey='facturas'
+          name='Facturas'
           stroke='currentColor'
           className='text-muted-foreground'
           fill='currentColor'

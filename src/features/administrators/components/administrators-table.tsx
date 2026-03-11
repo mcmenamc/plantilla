@@ -112,7 +112,7 @@ export function AdministratorsTable({ data, search, navigate }: AdministratorsTa
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={columns.length} className='h-24 text-center'>
-                                    Sin resultados.
+                                    No hay resultados.
                                 </TableCell>
                             </TableRow>
                         )}
