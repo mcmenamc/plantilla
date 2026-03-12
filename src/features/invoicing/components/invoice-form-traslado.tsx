@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus, Trash2, Save, Zap, Truck, Loader2, CalendarIcon, FileStack, Globe } from 'lucide-react'
+import { Plus, Trash2, Save, Zap, Truck, Loader2, CalendarIcon, FileStack, Globe, Eye, ArrowLeft } from 'lucide-react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -37,8 +37,8 @@ import { Calendar } from '@/components/ui/calendar'
 import { cn } from '@/lib/utils'
 import { useWorkCenterStore } from '@/stores/work-center-store'
 import { getClientsByWorkCenter } from '@/features/clients/data/clients-api'
+import { createInvoice, previewInvoicePdf, getExportationOptions, getCfdiUses, getRelationTypes, CLAVE_UNIDAD_PESO_CATALOG } from '../data/invoicing-api'
 import { getSeriesConfig } from '@/features/series/data/series-api'
-import { createInvoice, getExportationOptions, getCfdiUses, getRelationTypes, CLAVE_UNIDAD_PESO_CATALOG } from '../data/invoicing-api'
 import { searchSatProducts, searchSatUnits, getProductosByWorkCenter } from '@/features/products/data/products-api'
 import { ClientCreateModal } from '@/features/clients/components/client-create-modal'
 import { ProductCreateModal } from '@/features/products/components/product-create-modal'
@@ -46,6 +46,7 @@ import { Switch } from '@/components/ui/switch'
 
 // ─── Schema ────────────────────────────────────────────────────────────────────
 const trasladoItemSchema = z.object({
+    product_id: z.string().optional(),
     product_key: z.string().min(1, 'Clave SAT requerida'),
     product_key_label: z.string().optional(),
     description: z.string().min(1, 'Descripción requerida'),
@@ -121,6 +122,9 @@ const createInvoiceTrasladoSchema = z.object({
     related_documents: z.array(relatedDocumentSchema).optional(),
     carta_porte: cartaPorteSchema.optional(),
     comercio_exterior: comercioExteriorSchema.optional(),
+    series: z.string().optional(),
+    folio_number: z.coerce.number().optional(),
+    facturaIdParaEditar: z.string().optional(),
 })
 
 type CreateInvoiceTrasladoPayload = z.infer<typeof createInvoiceTrasladoSchema>
@@ -171,9 +175,11 @@ const emptyDraft: ItemDraft = {
 interface Props {
     onSubmitSuccess: () => void
     onCancel: () => void
+    currentRow?: any | null
+    readOnly?: boolean
 }
 
-export function InvoiceFormTraslado({ onSubmitSuccess, onCancel }: Props) {
+export function InvoiceFormTraslado({ onSubmitSuccess, onCancel, currentRow, readOnly = false }: Props) {
     const queryClient = useQueryClient()
     const { selectedWorkCenterId } = useWorkCenterStore()
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -345,6 +351,117 @@ export function InvoiceFormTraslado({ onSubmitSuccess, onCancel }: Props) {
         name: 'carta_porte.Ubicaciones',
     })
 
+    // Populate form if editing
+    useEffect(() => {
+        if (currentRow) {
+            console.log('Populating Traslado form with draft data:', currentRow)
+            
+            // Extract items
+            const items = (currentRow.items || []).map((item: any) => {
+                return {
+                    product_id: item.product || '',
+                    product_key: item.product_key || '',
+                    product_key_label: item.description || '', // Mapping description as label
+                    description: item.description || '',
+                    unit_key: item.unit_key || '',
+                    unit_name: item.unit_name || '',
+                    quantity: item.quantity || 1,
+                    weight: item.weight || 1,
+                    sku: item.sku || '',
+                    customs_keys: Array.isArray(item.customs_keys) ? item.customs_keys.join(', ') : (item.customs_keys || ''),
+                    // Comercio Exterior handled if present
+                    valor_dolares: item.valor_dolares || 0,
+                    fraccion_arancelaria: item.fraccion_arancelaria || '',
+                    cantidad_aduana: item.cantidad_aduana || 0,
+                    unidad_aduana: item.unidad_aduana || '',
+                    valor_unitario_aduana: item.valor_unitario_aduana || 0,
+                }
+            })
+
+            // Extract related documents
+            const related_documents: any[] = []
+            if (currentRow.related_documents && Array.isArray(currentRow.related_documents)) {
+                currentRow.related_documents.forEach((rel: any) => {
+                    const relationship = rel.relationship
+                    if (rel.documents && Array.isArray(rel.documents)) {
+                        rel.documents.forEach((uuid: string) => {
+                            related_documents.push({ relationship, uuid })
+                        })
+                    }
+                })
+            }
+
+            // Extract carta_porte
+            let carta_porte: any = undefined
+            if (currentRow.complements && Array.isArray(currentRow.complements)) {
+                const cpComp = currentRow.complements.find((c: any) => c.type === 'carta_porte')
+                if (cpComp && cpComp.data) {
+                    const d = cpComp.data
+                    carta_porte = {
+                        enabled: true,
+                        TranspInternac: d.TranspInternac || 'No',
+                        UnidadPeso: d.Mercancias?.UnidadPeso || 'KGM',
+                        IdCCP: d.IdCCP || '',
+                        Ubicaciones: d.Ubicaciones || []
+                    }
+                }
+            }
+
+            // Extract comercio_exterior
+            let comercio_exterior: any = undefined
+            if (currentRow.complements && Array.isArray(currentRow.complements)) {
+                const ceComp = currentRow.complements.find((c: any) => c.type === 'comercio_exterior')
+                if (ceComp && ceComp.data) {
+                    const d = ceComp.data
+                    comercio_exterior = {
+                        enabled: true,
+                        ClaveDePedimento: d.ClaveDePedimento || 'A1',
+                        CertificadoOrigen: String(d.CertificadoOrigen || '0'),
+                        NumCertificadoOrigen: d.NumCertificadoOrigen || '',
+                        NumeroExportadorConfiable: d.NumeroExportadorConfiable || '',
+                        Incoterm: d.Incoterm || '',
+                        Observaciones: d.Observaciones || '',
+                        TipoCambioUSD: d.TipoCambioUSD || 1,
+                        TotalUSD: d.TotalUSD || 0,
+                        MotivoTraslado: d.MotivoTraslado || '01',
+                        propietario_id: d.Propietario?.[0]?.id || '',
+                        receptor_id: d.Receptor?.id || '',
+                        destinatario_id: d.Destinatario?.[0]?.id || '',
+                    }
+                }
+            }
+
+            form.reset({
+                workCenterId: (currentRow as any).workCenter?._id || selectedWorkCenterId || '',
+                customer_id: (currentRow as any).customer?._id || '',
+                date: (currentRow as any).date ? (currentRow as any).date.slice(0, 10) : '',
+                use: (currentRow as any).receptor?.uso_cfdi || 'G01',
+                currency: (currentRow as any).currency || 'MXN',
+                export: (currentRow as any).exportacion || '01',
+                items: items,
+                related_documents: related_documents,
+                carta_porte: carta_porte || {
+                    enabled: false,
+                    TranspInternac: 'No',
+                    UnidadPeso: 'KGM',
+                    IdCCP: '',
+                    Ubicaciones: [],
+                },
+                comercio_exterior: comercio_exterior || {
+                    enabled: false,
+                    ClaveDePedimento: 'A1',
+                    CertificadoOrigen: '0',
+                    MotivoTraslado: '01',
+                },
+                series: currentRow.serie || '',
+                folio_number: currentRow.folio_number || undefined,
+                facturaIdParaEditar: currentRow._id
+            })
+            
+            if (related_documents.length > 0) setShowRelatedDocs(true)
+        }
+    }, [currentRow, form, selectedWorkCenterId])
+
     // ─── Draft validation & add ────────────────────────────────────────────────
     const validateDraft = (): boolean => {
         const errors: Partial<Record<keyof ItemDraft, string>> = {}
@@ -380,6 +497,7 @@ export function InvoiceFormTraslado({ onSubmitSuccess, onCancel }: Props) {
                 status: isDraft ? 'draft' : 'pending',
                 items: values.items.map(item => {
                     const mappedItem: any = {
+                        product_id: item.product_id,
                         product: {
                             description: item.description,
                             product_key: item.product_key,
@@ -392,7 +510,7 @@ export function InvoiceFormTraslado({ onSubmitSuccess, onCancel }: Props) {
                             taxability: '01',
                         },
                         quantity: item.quantity,
-                        weight: item.weight, // Used later for carta_porte manually in local logic if needed
+                        weight: item.weight,
                         parts: [],
                         complement: 'null'
                     }
@@ -510,6 +628,7 @@ export function InvoiceFormTraslado({ onSubmitSuccess, onCancel }: Props) {
     return (
         <Form {...form}>
             <form className='space-y-6'>
+                <fieldset disabled={readOnly} className='space-y-6 border-none p-0 m-0'>
 
                 {/* ── Encabezado ── */}
                 <div className='rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-black shadow-sm overflow-hidden'>
@@ -1270,24 +1389,87 @@ export function InvoiceFormTraslado({ onSubmitSuccess, onCancel }: Props) {
                     </div>
                 </div>
 
-                {/* ── Acciones ── */}
-                <div className='flex items-center justify-between pt-2'>
-                    <Button type='button' variant='ghost' size='sm' className='text-xs text-slate-500' onClick={onCancel}>
-                        Cancelar
+            </fieldset>
+
+            {!readOnly && (
+                <div className='flex gap-2 justify-end mt-4'>
+                    <Button
+                        type='button'
+                        variant='outline'
+                        size='sm'
+                        className='h-9 text-xs gap-2 border-slate-200'
+                        onClick={onCancel}
+                    >
+                        <ArrowLeft size={14} /> Cancelar
                     </Button>
-                    <div className='flex gap-2'>
-                        <Button type='button' variant='outline' size='sm'
-                            className='h-9 text-xs gap-2 border-slate-200' onClick={handleDraft} disabled={isSubmitting}>
-                            {isSubmitting && submitType === 'draft' ? <Loader2 size={14} className='animate-spin' /> : <Save size={14} />}
-                            Borrador
-                        </Button>
-                        <Button type='button' size='sm'
-                            className='h-9 text-xs gap-2 bg-orange-500 hover:bg-orange-600 text-white' onClick={handleGenerate} disabled={isSubmitting}>
-                            {isSubmitting && submitType === 'pending' ? <Loader2 size={14} className='animate-spin' /> : <Truck size={14} />}
-                            Generar CFDI
-                        </Button>
-                    </div>
+                    <Button
+                        type='button'
+                        variant='outline'
+                        size='sm'
+                        className='h-9 text-xs gap-2 border-slate-200'
+                        disabled={isSubmitting}
+                        onClick={async () => {
+                            try {
+                                setIsSubmitting(true)
+                                const values = form.getValues()
+                                if (!values.items || values.items.length === 0) {
+                                    toast.error('Agrega al menos un concepto para la vista previa')
+                                    setIsSubmitting(false)
+                                    return
+                                }
+                                toast.loading('Generando vista previa...')
+                                
+                                // Transform values for Facturapi
+                                const transformedValues = {
+                                    ...values,
+                                    tipo: 'T',
+                                    status: 'draft',
+                                    items: values.items.map(item => ({
+                                        product_id: item.product_id,
+                                        product: {
+                                            description: item.description,
+                                            product_key: item.product_key,
+                                            unit_key: item.unit_key,
+                                            unit_name: item.unit_name || item.unit_key,
+                                            ...(item.sku ? { sku: item.sku } : {}),
+                                            taxes: [],
+                                            price: 0,
+                                            tax_included: false,
+                                            taxability: '01',
+                                        },
+                                        quantity: item.quantity,
+                                        weight: item.weight,
+                                        parts: [],
+                                        complement: 'null'
+                                    }))
+                                }
+
+                                const blob = await previewInvoicePdf(transformedValues as any)
+                                const url = window.URL.createObjectURL(blob)
+                                window.open(url, '_blank')
+                                toast.dismiss()
+                            } catch (e: any) {
+                                toast.dismiss()
+                                toast.error(e.response?.data?.message || 'Error al generar vista previa')
+                            } finally {
+                                setIsSubmitting(false)
+                            }
+                        }}
+                    >
+                        <Eye size={14} /> Vista Previa
+                    </Button>
+                    <Button type='button' variant='outline' size='sm'
+                        className='h-9 text-xs gap-2 border-slate-200' onClick={handleDraft} disabled={isSubmitting}>
+                        {isSubmitting && submitType === 'draft' ? <Loader2 size={14} className='animate-spin' /> : <Save size={14} />}
+                        Borrador
+                    </Button>
+                    <Button type='button' size='sm'
+                        className='h-9 text-xs gap-2 bg-orange-500 hover:bg-orange-600 text-white' onClick={handleGenerate} disabled={isSubmitting}>
+                        {isSubmitting && submitType === 'pending' ? <Loader2 size={14} className='animate-spin' /> : <Zap size={14} />}
+                        Generar CFDI
+                    </Button>
                 </div>
+            )}
             </form>
 
             <ClientCreateModal

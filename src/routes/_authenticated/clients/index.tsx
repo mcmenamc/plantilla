@@ -7,8 +7,9 @@ const clientsSearchSchema = z.object({
   perPage: z.number().catch(10),
   sort: z.string().optional(),
   name: z.string().optional(),
-  status: z.array(z.string()).optional(),
-  type: z.array(z.string()).optional(),
+  q: z.string().optional(),
+  status: z.union([z.string(), z.array(z.string())]).optional(),
+  type: z.union([z.string(), z.array(z.string())]).optional(),
 })
 
 export const Route = createFileRoute('/_authenticated/clients/')({

@@ -44,7 +44,7 @@ export function ClientsTable({ data, search, navigate, isLoading }: DataTablePro
     } = useTableUrlState({
         search,
         navigate,
-        globalFilter: { enabled: true },
+        globalFilter: { enabled: true, key: 'q' },
         columnFilters: [
             { columnId: 'tipo_persona', searchKey: 'type', type: 'array' },
         ],

@@ -81,6 +81,9 @@ export const invoicesColumns: ColumnDef<Invoice>[] = [
             }
             return <div className='w-fit text-nowrap text-xs font-bold uppercase text-slate-500'>{labels[tipo] || tipo}</div>
         },
+        filterFn: (row, id, value) => {
+            return value.includes(row.getValue(id))
+        },
     },
     {
         accessorKey: 'fecha_emision',
@@ -151,6 +154,9 @@ export const invoicesColumns: ColumnDef<Invoice>[] = [
             const val = row.getValue('metodo_pago') as string
             return <div className='text-[10px] font-bold uppercase'>{val === 'PUE' ? 'PUE - Una exhibición' : val === 'PPD' ? 'PPD - Diferido' : val || '-'}</div>
         },
+        filterFn: (row, id, value) => {
+            return value.includes(row.getValue(id))
+        },
     },
     {
         accessorKey: 'forma_pago',
@@ -175,6 +181,7 @@ export const invoicesColumns: ColumnDef<Invoice>[] = [
             const status = row.getValue('status') as string
             const labels: Record<string, string> = {
                 valid: 'Válida',
+                canceled: 'Cancelada',
                 cancelled: 'Cancelada',
                 draft: 'Borrador',
                 pending: 'Pendiente'
@@ -190,6 +197,9 @@ export const invoicesColumns: ColumnDef<Invoice>[] = [
                     {labels[status] || status}
                 </div>
             )
+        },
+        filterFn: (row, id, value) => {
+            return value.includes(row.getValue(id))
         },
     },
     {

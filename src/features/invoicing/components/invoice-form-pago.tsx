@@ -3,7 +3,7 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useForm, useFieldArray, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus, Trash2, Save, Zap, CreditCard, Loader2, MapPin, Users, ChevronDown, ChevronRight, Edit2, Info, Percent, ArrowUpRight, ArrowDownLeft, Calendar as CalendarIcon, Clock } from 'lucide-react'
+import { Plus, Trash2, Save, Zap, CreditCard, Loader2, MapPin, Users, ChevronDown, ChevronRight, Edit2, Info, Percent, ArrowUpRight, ArrowDownLeft, Calendar as CalendarIcon, Clock, Eye, ArrowLeft } from 'lucide-react'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
@@ -47,18 +47,22 @@ import {
     getCfdiUses,
     createInvoice,
     TAXABILITY_CATALOG,
-    getPaymentForms
+    getPaymentForms,
+    previewInvoicePdf
 } from '../data/invoicing-api'
 import { getSeriesConfig } from '@/features/series/data/series-api'
 import { ClientCreateModal } from '@/features/clients/components/client-create-modal'
 import { getTaxRegimes } from '@/features/work-centers/data/work-centers-api'
+import { type Invoice } from '../data/schema'
 
 interface InvoiceFormPagoProps {
     onSubmitSuccess: () => void
     onCancel: () => void
+    currentRow?: Invoice | null
+    readOnly?: boolean
 }
 
-export function InvoiceFormPago({ onSubmitSuccess, onCancel }: InvoiceFormPagoProps) {
+export function InvoiceFormPago({ onSubmitSuccess, onCancel, currentRow, readOnly = false }: InvoiceFormPagoProps) {
     const queryClient = useQueryClient()
     const { selectedWorkCenterId } = useWorkCenterStore()
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -203,10 +207,77 @@ export function InvoiceFormPago({ onSubmitSuccess, onCancel }: InvoiceFormPagoPr
     })
 
     useEffect(() => {
-        if (selectedWorkCenterId) {
+        if (selectedWorkCenterId && !currentRow) {
             form.setValue('workCenterId', selectedWorkCenterId)
         }
-    }, [selectedWorkCenterId, form])
+    }, [selectedWorkCenterId, form, currentRow])
+
+    // Populate form if editing
+    useEffect(() => {
+        if (currentRow) {
+            console.log('Populating Pago form with draft data:', currentRow)
+            
+            // Extract payments from complements
+            let payments: any[] = []
+            if (currentRow.complements && Array.isArray(currentRow.complements)) {
+                const pagoComp = currentRow.complements.find(c => c.type === 'pago') || (currentRow as any).complements?.[0]
+                if (pagoComp && pagoComp.data) {
+                    payments = Array.isArray(pagoComp.data) ? pagoComp.data : [pagoComp.data]
+                }
+            } else if ((currentRow as any).complements?.data) {
+                // If it's not an array of objects but just the object
+                 payments = Array.isArray((currentRow as any).complements.data) ? (currentRow as any).complements.data : [(currentRow as any).complements.data]
+            }
+
+            form.reset({
+                workCenterId: (currentRow as any).workCenter?._id || selectedWorkCenterId || '',
+                customer_id: (currentRow as any).customer?._id || '',
+                tipo: 'P',
+                folio_number: currentRow.folio_number || undefined,
+                series: currentRow.serie || '',
+                use: (currentRow as any).receptor?.uso_cfdi || 'CP01',
+                export: (currentRow as any).exportacion || '01',
+                status: (currentRow.status as any) || 'draft',
+                comments: (currentRow as any).conditions || '',
+                payments: payments.map(p => ({
+                    payment_form: p.payment_form || '03',
+                    amount: p.amount || 0,
+                    currency: p.currency || 'MXN',
+                    exchange: p.exchange || 1,
+                    date: p.date ? p.date.slice(0, 16) : new Date().toISOString().slice(0, 16),
+                    numOperacion: p.num_operacion || '',
+                    rfcEmisorCtaOrd: p.rfc_emisor_cta_ord || '',
+                    nomBancoOrdExt: p.nom_banco_ord_ext || '',
+                    ctaOrdenante: p.cta_ordenante || '',
+                    rfcEmisorCtaBen: p.rfc_emisor_cta_ben || '',
+                    ctaBeneficiario: p.cta_beneficiario || '',
+                    tipoCadPago: p.tipo_cad_pago || '',
+                    certPago: p.cert_pago || '',
+                    cadPago: p.cad_pago || '',
+                    selloPago: p.sello_pago || '',
+                    related_documents: (p.related_documents || []).map((doc: any) => ({
+                        uuid: doc.uuid || '',
+                        amount: doc.amount || 0,
+                        installment: doc.installment || 1,
+                        previous_balance: doc.previous_balance || 0,
+                        last_balance: doc.last_balance || 0,
+                        currency: doc.currency || 'MXN',
+                        exchange: doc.exchange || 1,
+                        taxability: doc.taxability || '01',
+                        taxes: (doc.taxes || []).map((t: any) => ({
+                            type: t.type || 'IVA',
+                            rate: t.rate && t.rate <= 1 ? t.rate * 100 : (t.rate || 16),
+                            factor: t.factor || 'Tasa',
+                            withholding: !!t.withholding
+                        })),
+                        folio_number: doc.folio_number || '',
+                        series: doc.series || ''
+                    }))
+                })),
+                facturaIdParaEditar: currentRow._id
+            })
+        }
+    }, [currentRow, form, selectedWorkCenterId])
 
     const watchTipo = form.watch('tipo')
     useEffect(() => {
@@ -425,6 +496,7 @@ export function InvoiceFormPago({ onSubmitSuccess, onCancel }: InvoiceFormPagoPr
                 address: values.address?.zip ? values.address : undefined,
                 third_party: values.third_party?.tax_id ? values.third_party : undefined,
                 pdf_options: values.pdf_options,
+                facturaIdParaEditar: values.facturaIdParaEditar,
                 items: [
                     {
                         quantity: 1,
@@ -525,6 +597,7 @@ export function InvoiceFormPago({ onSubmitSuccess, onCancel }: InvoiceFormPagoPr
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className='space-y-8'>
+                <fieldset disabled={readOnly} className="space-y-8 border-none p-0 m-0">
 
                 <div className='bg-white dark:bg-black rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm overflow-hidden'>
                     <div className='pb-4 px-4 md:px-6 pt-6 border-b border-slate-100 dark:border-zinc-900'>
@@ -1478,9 +1551,129 @@ export function InvoiceFormPago({ onSubmitSuccess, onCancel }: InvoiceFormPagoPr
                         </div>
                     </div>
 
-                    <div className='md:col-span-12 lg:col-span-7 space-y-4'>
-                        <div className='flex items-center gap-4'>
-                            <Button type='button' variant='outline' className='text-slate-500'
+                </div>
+            </fieldset>
+
+                {!readOnly && (
+                    <div className='md:col-span-12 lg:col-span-5'>
+                        <div className="flex flex-col sm:flex-row gap-3 mt-6">
+                            <Button
+                                type='button'
+                                variant='outline'
+                                className='flex-1 border-slate-200 text-slate-700 h-12 rounded-xl text-sm font-bold shadow-sm'
+                                onClick={onCancel}
+                            >
+                                <ArrowLeft className='mr-2 h-4 w-4' /> Cancelar
+                            </Button>
+
+                            <Button
+                                type='button'
+                                variant='outline'
+                                className='flex-1 border-slate-200 text-slate-700 h-12 rounded-xl text-sm font-bold shadow-sm'
+                                disabled={isSubmitting}
+                                onClick={async () => {
+                                    try {
+                                        setIsSubmitting(true)
+                                        const values = form.getValues()
+                                        if (!values.payments || values.payments.length === 0) {
+                                            toast.error('Agrega al menos un pago para la vista previa')
+                                            setIsSubmitting(false)
+                                            return
+                                        }
+                                        toast.loading('Generando vista previa...')
+                                        
+                                        // Transform values similarly to onSubmit
+                                        const transformedValues = {
+                                            ...values,
+                                            tipo: 'P',
+                                            date: values.date || 'now',
+                                            use: values.use || 'CP01',
+                                            payment_form: '99',
+                                            payment_method: 'PPD',
+                                            currency: 'XXX',
+                                            exchange: 1,
+                                            export: values.export || '01',
+                                            status: 'draft',
+                                            items: [
+                                                {
+                                                    quantity: 1,
+                                                    description: 'PAGO',
+                                                    product_key: '84111506',
+                                                    price: 0,
+                                                    tax_included: false,
+                                                    taxability: '01',
+                                                    unit_key: 'ACT',
+                                                    unit_name: 'Actividad',
+                                                    discount: 0,
+                                                    discount_type: 'amount',
+                                                    taxes: [],
+                                                    local_taxes: []
+                                                }
+                                            ],
+                                            complements: (values.payments || []).map((p) => {
+                                                const mappedRelated = (p.related_documents || []).map((doc: any) => {
+                                                    const previousBalance = Number(doc.last_balance)
+                                                    const amountPaid = Number(doc.amount)
+                                                    const docTaxes = (doc.taxes || []).map((t: any) => ({
+                                                        type: t.type || 'IVA',
+                                                        rate: t.rate > 1 ? t.rate / 100 : t.rate,
+                                                        base: Number(t.base),
+                                                        factor: t.factor || 'Tasa',
+                                                        withholding: !!t.withholding
+                                                    }))
+                                                    const taxability = doc.taxability || (docTaxes.length > 0 ? '02' : '01')
+                                                    const relatedDoc: any = {
+                                                        uuid: doc.uuid,
+                                                        amount: amountPaid,
+                                                        installment: Number(doc.installment),
+                                                        last_balance: previousBalance,
+                                                        taxability: taxability,
+                                                        currency: doc.currency || 'MXN',
+                                                        exchange: Number(doc.exchange) || 1,
+                                                        taxes: taxability === '02' ? docTaxes : []
+                                                    }
+                                                    if (doc.folio_number) relatedDoc.folio_number = doc.folio_number
+                                                    if (doc.series) relatedDoc.series = doc.series
+                                                    return relatedDoc
+                                                })
+                                                const complement: any = {
+                                                    payment_form: p.payment_form,
+                                                    amount: Number(p.amount),
+                                                    currency: p.currency || 'MXN',
+                                                    exchange: Number(p.exchange) || 1,
+                                                    date: p.date || undefined,
+                                                    related_documents: mappedRelated
+                                                }
+                                                if (p.numOperacion) complement.numOperacion = p.numOperacion
+                                                if (p.rfcEmisorCtaOrd) complement.rfcEmisorCtaOrd = p.rfcEmisorCtaOrd
+                                                if (p.nomBancoOrdExt) complement.nomBancoOrdExt = p.nomBancoOrdExt
+                                                if (p.ctaOrdenante) complement.ctaOrdenante = p.ctaOrdenante
+                                                if (p.rfcEmisorCtaBen) complement.rfcEmisorCtaBen = p.rfcEmisorCtaBen
+                                                if (p.ctaBeneficiario) complement.ctaBeneficiario = p.ctaBeneficiario
+                                                return complement
+                                            })
+                                        }
+
+                                        const blob = await previewInvoicePdf(transformedValues as any)
+                                        const url = window.URL.createObjectURL(blob)
+                                        window.open(url, '_blank')
+                                        toast.dismiss()
+                                    } catch (e: any) {
+                                        toast.dismiss()
+                                        toast.error(e.response?.data?.message || 'Error al generar vista previa')
+                                    } finally {
+                                        setIsSubmitting(false)
+                                    }
+                                }}
+                            >
+                                <Eye className='mr-2 h-4 w-4' /> Vista Previa
+                            </Button>
+
+                            <Button
+                                type='button'
+                                variant='secondary'
+                                className='flex-1 h-12 rounded-xl text-sm font-bold shadow-sm'
+                                disabled={isSubmitting}
                                 onClick={() => {
                                     setSubmitType('draft')
                                     form.setValue('status', 'draft')
@@ -1489,40 +1682,21 @@ export function InvoiceFormPago({ onSubmitSuccess, onCancel }: InvoiceFormPagoPr
                             >
                                 <Save className='mr-2 h-4 w-4' /> Guardar Borrador
                             </Button>
-                            <Button type='button' variant='ghost' className='text-slate-400 hover:text-slate-600'
-                                onClick={onCancel}
+
+                            <Button
+                                type='submit'
+                                className='flex-1 bg-orange-600 hover:bg-orange-700 text-white font-black h-12 rounded-xl text-sm shadow-lg shadow-orange-100 dark:shadow-none transition-all active:scale-[0.98]'
+                                disabled={isSubmitting}
+                                onClick={() => {
+                                    setSubmitType('pending')
+                                    form.setValue('status', 'pending')
+                                }}
                             >
-                                Cancelar
+                                <Zap className='mr-2 h-4 w-4' strokeWidth={3} /> GENERAR PAGO
                             </Button>
                         </div>
                     </div>
-
-                    <div className='md:col-span-12 lg:col-span-5'>
-                        <div className='rounded-xl border border-slate-200 bg-white dark:bg-black overflow-hidden shadow-sm'>
-                            <Table>
-                                <TableBody>
-                                    <TableRow className='bg-orange-600 hover:bg-orange-600'>
-                                        <TableCell className='text-[11px] font-medium uppercase text-white py-4'>Total Pagado (Acumulado)</TableCell>
-                                        <TableCell className='text-right text-xl font-medium text-white py-4'>
-                                            {paymentSessions.reduce((acc, _, idx) => acc + (Number(form.watch(`payments.${idx}.amount` as any)) || 0), 0).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}
-                                        </TableCell>
-                                    </TableRow>
-                                </TableBody>
-                            </Table>
-                        </div>
-                        <Button
-                            type='submit'
-                            className='w-full bg-orange-600 hover:bg-orange-700 text-white font-medium h-12 rounded-xl mt-4 shadow-xl'
-                            disabled={isSubmitting}
-                            onClick={() => {
-                                setSubmitType('pending')
-                                form.setValue('status', 'pending')
-                            }}
-                        >
-                            <Zap className='mr-2 h-4 w-4' strokeWidth={2} /> GENERAR PAGO CFDI
-                        </Button>
-                    </div>
-                </div>
+                )}
             </form>
 
             {

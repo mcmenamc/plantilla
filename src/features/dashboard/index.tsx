@@ -16,7 +16,7 @@ import { Analytics } from './components/analytics'
 import { AnalyticsChart } from './components/analytics-chart'
 import { Overview } from './components/overview'
 import { RecentSales } from './components/recent-sales'
-import { Users, FileCheck, Zap, TrendingUp } from 'lucide-react'
+import { Users, FileCheck, TrendingUp } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { getWorkCenters } from '../work-centers/data/work-centers-api'
 import {

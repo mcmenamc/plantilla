@@ -16,6 +16,31 @@ export const getInvoiceById = async (id: string): Promise<{ facturaHaz: Invoice,
     return response.data
 }
 
+export const cancelInvoice = async (data: { facturaId: string, motive: string, substitution?: string }): Promise<any> => {
+    const response = await api.post(`/factura/cancelar`, data)
+    return response.data
+}
+
+export const stampDraft = async (facturaId: string): Promise<any> => {
+    const response = await api.post(`/factura/timbrar-borrador`, { facturaId })
+    return response.data
+}
+
+export const previewInvoicePdf = async (data: CreateInvoiceIngresoPayload): Promise<Blob> => {
+    const response = await api.post('/factura', { ...data, isVistaPrevia: true }, { responseType: 'blob' })
+    return response.data
+}
+
+export const downloadCancellationReceipt = async (facturaId: string): Promise<Blob> => {
+    const response = await api.get(`/factura/acuse-cancelacion/${facturaId}`, { responseType: 'blob' })
+    return response.data
+}
+
+export const resendInvoiceEmail = async (facturaId: string): Promise<any> => {
+    const response = await api.post('/factura/reenviar', { facturaId })
+    return response.data
+}
+
 export const getSignedUrl = async (path: string): Promise<{ signedUrl: string }> => {
     const response = await api.post('/generales/signed-url', { path })
     return response.data

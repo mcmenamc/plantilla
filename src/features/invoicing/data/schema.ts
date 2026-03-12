@@ -263,6 +263,7 @@ export const createInvoiceIngresoBaseSchema = z.object({
     related_uuids: z.array(z.string()).optional(),
     comments: z.string().optional().default(''),
     status: z.enum(['draft', 'pending']).default('pending'),
+    facturaIdParaEditar: z.string().optional(),
 })
 
 // Refined Schema for validation
@@ -370,6 +371,7 @@ export const invoiceSchema = z.object({
         type: z.string(),
         data: z.any(),
     })).optional().nullable(),
+    createdAt: z.string().optional(),
 })
 
 export type Invoice = z.infer<typeof invoiceSchema>

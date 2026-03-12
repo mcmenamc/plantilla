@@ -60,6 +60,7 @@ import { Route as AuthenticatedSeriesCreateRouteImport } from './routes/_authent
 import { Route as AuthenticatedProductsAddRouteImport } from './routes/_authenticated/products/add'
 import { Route as AuthenticatedMassiveDownloadsAddRouteImport } from './routes/_authenticated/massive-downloads/add'
 import { Route as AuthenticatedInvoicingNewRouteImport } from './routes/_authenticated/invoicing/new'
+import { Route as AuthenticatedInvoicingInvoiceIdRouteImport } from './routes/_authenticated/invoicing/$invoiceId'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
 import { Route as AuthenticatedClientsAddRouteImport } from './routes/_authenticated/clients/add'
 import { Route as AuthenticatedReportsSalesIndexRouteImport } from './routes/_authenticated/reports/sales/index'
@@ -351,6 +352,12 @@ const AuthenticatedInvoicingNewRoute =
     path: '/invoicing/new',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedInvoicingInvoiceIdRoute =
+  AuthenticatedInvoicingInvoiceIdRouteImport.update({
+    id: '/invoicing/$invoiceId',
+    path: '/invoicing/$invoiceId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedErrorsErrorRoute =
   AuthenticatedErrorsErrorRouteImport.update({
     id: '/errors/$error',
@@ -444,6 +451,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/clients/add': typeof AuthenticatedClientsAddRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/invoicing/$invoiceId': typeof AuthenticatedInvoicingInvoiceIdRoute
   '/invoicing/new': typeof AuthenticatedInvoicingNewRoute
   '/massive-downloads/add': typeof AuthenticatedMassiveDownloadsAddRoute
   '/products/add': typeof AuthenticatedProductsAddRoute
@@ -504,6 +512,7 @@ export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/clients/add': typeof AuthenticatedClientsAddRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/invoicing/$invoiceId': typeof AuthenticatedInvoicingInvoiceIdRoute
   '/invoicing/new': typeof AuthenticatedInvoicingNewRoute
   '/massive-downloads/add': typeof AuthenticatedMassiveDownloadsAddRoute
   '/products/add': typeof AuthenticatedProductsAddRoute
@@ -570,6 +579,7 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/clients/add': typeof AuthenticatedClientsAddRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/_authenticated/invoicing/$invoiceId': typeof AuthenticatedInvoicingInvoiceIdRoute
   '/_authenticated/invoicing/new': typeof AuthenticatedInvoicingNewRoute
   '/_authenticated/massive-downloads/add': typeof AuthenticatedMassiveDownloadsAddRoute
   '/_authenticated/products/add': typeof AuthenticatedProductsAddRoute
@@ -635,6 +645,7 @@ export interface FileRouteTypes {
     | '/'
     | '/clients/add'
     | '/errors/$error'
+    | '/invoicing/$invoiceId'
     | '/invoicing/new'
     | '/massive-downloads/add'
     | '/products/add'
@@ -695,6 +706,7 @@ export interface FileRouteTypes {
     | '/'
     | '/clients/add'
     | '/errors/$error'
+    | '/invoicing/$invoiceId'
     | '/invoicing/new'
     | '/massive-downloads/add'
     | '/products/add'
@@ -760,6 +772,7 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/_authenticated/clients/add'
     | '/_authenticated/errors/$error'
+    | '/_authenticated/invoicing/$invoiceId'
     | '/_authenticated/invoicing/new'
     | '/_authenticated/massive-downloads/add'
     | '/_authenticated/products/add'
@@ -1180,6 +1193,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInvoicingNewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/invoicing/$invoiceId': {
+      id: '/_authenticated/invoicing/$invoiceId'
+      path: '/invoicing/$invoiceId'
+      fullPath: '/invoicing/$invoiceId'
+      preLoaderRoute: typeof AuthenticatedInvoicingInvoiceIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/errors/$error': {
       id: '/_authenticated/errors/$error'
       path: '/errors/$error'
@@ -1318,6 +1338,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedClientsAddRoute: typeof AuthenticatedClientsAddRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
+  AuthenticatedInvoicingInvoiceIdRoute: typeof AuthenticatedInvoicingInvoiceIdRoute
   AuthenticatedInvoicingNewRoute: typeof AuthenticatedInvoicingNewRoute
   AuthenticatedMassiveDownloadsAddRoute: typeof AuthenticatedMassiveDownloadsAddRoute
   AuthenticatedProductsAddRoute: typeof AuthenticatedProductsAddRoute
@@ -1354,6 +1375,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedClientsAddRoute: AuthenticatedClientsAddRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
+  AuthenticatedInvoicingInvoiceIdRoute: AuthenticatedInvoicingInvoiceIdRoute,
   AuthenticatedInvoicingNewRoute: AuthenticatedInvoicingNewRoute,
   AuthenticatedMassiveDownloadsAddRoute: AuthenticatedMassiveDownloadsAddRoute,
   AuthenticatedProductsAddRoute: AuthenticatedProductsAddRoute,

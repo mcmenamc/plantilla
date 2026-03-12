@@ -3,7 +3,7 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useForm, useFieldArray, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus, Trash2, Save, Zap, CreditCard, Eye, AlertCircle, Loader2 } from 'lucide-react'
+import { Plus, Trash2, Save, Zap, CreditCard, Eye, AlertCircle, Loader2, ArrowLeft } from 'lucide-react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -41,14 +41,15 @@ import {
 import { useWorkCenterStore } from '@/stores/work-center-store'
 import { getClientsByWorkCenter } from '@/features/clients/data/clients-api'
 import { getProductosByWorkCenter } from '@/features/products/data/products-api'
-import { createInvoiceIngresoSchema, type CreateInvoiceIngresoPayload } from '../data/schema'
+import { createInvoiceIngresoSchema, type CreateInvoiceIngresoPayload, type Invoice } from '../data/schema'
 import {
     getPaymentForms,
     getCfdiUses,
     getExportationOptions,
     createInvoice,
     TAXABILITY_CATALOG,
-    RELATION_TYPES_CATALOG
+    RELATION_TYPES_CATALOG,
+    previewInvoicePdf
 } from '../data/invoicing-api'
 import { searchSatProducts, searchSatUnits } from '@/features/products/data/products-api'
 import { getSeriesConfig } from '@/features/series/data/series-api'
@@ -58,9 +59,11 @@ import { ProductCreateModal } from '@/features/products/components/product-creat
 interface InvoiceFormIngresoProps {
     onSubmitSuccess: () => void
     onCancel: () => void
+    currentRow?: Invoice | null
+    readOnly?: boolean
 }
 
-export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps) {
+export function InvoiceFormIngreso({ onSubmitSuccess, onCancel, currentRow, readOnly = false }: InvoiceFormIngresoProps) {
     const queryClient = useQueryClient()
     const { selectedWorkCenterId } = useWorkCenterStore()
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -186,15 +189,71 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
             num_decimales: 2,
             date: 'now',
             items: [],
-            comments: ''
+            comments: '',
+            series: '',
+            folio_number: 0,
+            global: {
+                periodicity: '01',
+                months: '01',
+                year: new Date().getFullYear()
+            },
+            related_documents: []
         }
     })
 
     useEffect(() => {
-        if (selectedWorkCenterId) {
+        if (selectedWorkCenterId && !currentRow) {
             form.setValue('workCenterId', selectedWorkCenterId)
         }
-    }, [selectedWorkCenterId, form])
+    }, [selectedWorkCenterId, form, currentRow])
+
+    // Populate form if editing
+    useEffect(() => {
+        if (currentRow) {
+            console.log('Populating form with draft data:', currentRow)
+            form.reset({
+                workCenterId: (currentRow as any).workCenter?._id || selectedWorkCenterId || '',
+                customer_id: (currentRow as any).customer?._id || '',
+                tipo: (currentRow as any).tipo_cfdi || 'I',
+                folio_number: currentRow.folio_number || 0,
+                series: currentRow.serie || '',
+                currency: (currentRow as any).moneda || 'MXN',
+                exchange: (currentRow as any).tipo_cambio || 1,
+                payment_method: (currentRow as any).metodo_pago || 'PUE',
+                payment_form: (currentRow as any).forma_pago || '01',
+                use: (currentRow as any).receptor?.uso_cfdi || 'G03',
+                export: (currentRow as any).exportacion || '01',
+                status: (currentRow.status as any) || 'draft',
+                comments: (currentRow as any).conditions || '',
+                items: (currentRow as any).items?.map((item: any) => ({
+                    product_id: item.product || '',
+                    description: item.description || '',
+                    product_key: item.product_key || '',
+                    unit_key: item.unit_key || 'H87',
+                    unit_name: item.unit_name || 'Pieza',
+                    quantity: item.quantity || 1,
+                    price: item.price || 0,
+                    tax_included: item.tax_included || false,
+                    discount: item.discount || 0,
+                    discount_type: 'amount',
+                    taxability: item.taxability || '02',
+                    taxes: (item.taxes || []).map((t: any) => ({
+                        type: t.type || 'IVA',
+                        rate: t.rate && t.rate <= 1 ? t.rate * 100 : (t.rate || 16),
+                        factor: t.factor || 'Tasa',
+                        withholding: !!t.withholding
+                    })),
+                    local_taxes: (item.local_taxes || []).map((t: any) => ({
+                        type: t.type,
+                        rate: t.rate && t.rate <= 1 ? t.rate * 100 : (t.rate || 0),
+                        factor: t.factor || 'Tasa',
+                        withholding: !!t.withholding
+                    }))
+                })) || [],
+                facturaIdParaEditar: currentRow._id
+            })
+        }
+    }, [currentRow, form, selectedWorkCenterId])
 
     // Auto-fill series and folio based on configuration
     const watchTipo = form.watch('tipo')
@@ -452,6 +511,7 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
                 use: values.use,
                 currency: values.currency,
                 exchange: values.exchange || 1,
+                facturaIdParaEditar: values.facturaIdParaEditar,
                 conditions: values.conditions || values.comments,
                 exportation: values.export || '01',
                 status: isDraft ? 'draft' : 'pending',
@@ -491,9 +551,9 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
 
                     return {
                         quantity: item.quantity || 1,
+                        product_id: item.product_id,
                         discount: Number(discountAmount.toFixed(2)),
                         product: {
-                            // id: item.product_id || undefined,
                             description: item.description,
                             product_key: item.product_key,
                             price: item.price || 0,
@@ -741,6 +801,7 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit as any)} className='space-y-8'>
+                <fieldset disabled={readOnly} className="space-y-8 border-none p-0 m-0">
 
                 {/* Section 1: Billing Details */}
                 <div className='bg-white dark:bg-black rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm overflow-hidden'>
@@ -972,7 +1033,7 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel className='text-xs font-bold text-slate-500 uppercase'>Año</FormLabel>
-                                            <Input type='number' {...field} className='focus:ring-orange-500' />
+                                            <Input type='number' {...field} value={field.value ?? ''} className='focus:ring-orange-500' />
                                         </FormItem>
                                     )}
                                 />
@@ -1016,7 +1077,7 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel className='text-[10px] font-black text-slate-400 uppercase'>UUID (Folio Fiscal)</FormLabel>
-                                                    <Input {...field} placeholder='xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' className='bg-white font-mono text-xs' />
+                                                    <Input {...field} value={field.value ?? ''} placeholder='xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' className='bg-white font-mono text-xs' />
                                                 </FormItem>
                                             )}
                                         />
@@ -1091,6 +1152,7 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
                                             render={({ field }) => (
                                                 <input
                                                     {...field}
+                                                    value={field.value ?? ''}
                                                     placeholder='A'
                                                     className='w-16 border-0 border-r border-input bg-muted/50 px-2 text-center text-sm font-semibold uppercase outline-none'
                                                 />
@@ -1102,6 +1164,7 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
                                             render={({ field }) => (
                                                 <input
                                                     {...field}
+                                                    value={field.value ?? ''}
                                                     type='number'
                                                     placeholder='123'
                                                     className='flex-1 border-0 bg-transparent px-3 text-sm outline-none'
@@ -1604,25 +1667,7 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
                         </div>
                     </div>
 
-                    {/* Actions and Totals Table */}
-                    <div className='md:col-span-7 space-y-4'>
-                        <div className='flex items-center gap-4'>
-                            <Button type='button' variant='outline' className='text-slate-500 border-slate-200 hover:bg-slate-50 h-10'>
-                                <Eye className='mr-2 h-4 w-4' /> Vista Previa
-                            </Button>
-                            <Button type='button' variant='outline' className='text-slate-500 border-slate-200 hover:bg-slate-50 h-10'
-                                onClick={() => {
-                                    setSubmitType('draft')
-                                    form.setValue('status', 'draft')
-                                    form.handleSubmit(onSubmit as any)()
-                                }}
-                            >
-                                <Save className='mr-2 h-4 w-4' /> Guardar Borrador
-                            </Button>
-                        </div>
-                    </div>
-
-                    <div className='md:col-span-5'>
+                    <div className='md:col-span-12 lg:col-span-5'>
                         <div className='rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-black overflow-hidden shadow-sm'>
                             <Table>
                                 <TableBody>
@@ -1680,7 +1725,7 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
                             </Table>
                         </div>
                         {Object.keys(form.formState.errors).length > 0 && (
-                            <div className='mb-4 p-4 rounded-xl bg-destructive/10 border border-destructive/20 animate-in fade-in slide-in-from-top-2 duration-300'>
+                            <div className='mb-4 p-4 rounded-xl bg-destructive/10 border border-destructive/20 animate-in fade-in slide-in-from-top-2 duration-300 mt-4'>
                                 <p className='text-xs font-black text-destructive uppercase mb-2 flex items-center gap-2'>
                                     <AlertCircle size={14} /> Errores detectados ({Object.keys(form.formState.errors).length}):
                                 </p>
@@ -1693,20 +1738,136 @@ export function InvoiceFormIngreso({ onSubmitSuccess }: InvoiceFormIngresoProps)
                                 </ul>
                             </div>
                         )}
-                        <Button
-                            type='submit'
-                            className='w-full bg-orange-600 hover:bg-orange-700 text-white font-black h-12 rounded-xl text-sm shadow-lg shadow-orange-100 dark:shadow-none transition-all active:scale-[0.98]'
-                            disabled={isSubmitting}
-                            onClick={() => {
-                                setSubmitType('pending')
-                                form.setValue('status', 'pending')
-                            }}
-                        >
-                            <Zap className='mr-2 h-4 w-4' strokeWidth={3} /> GENERAR CFDI
-                        </Button>
                     </div>
                 </div>
+            </fieldset>
 
+                {!readOnly && (
+                    <div className='md:col-span-12 lg:col-span-5'>
+                        <div className="flex flex-col sm:flex-row gap-3 mt-6">
+                            <Button
+                                type='button'
+                                variant='outline'
+                                className='flex-1 border-slate-200 text-slate-700 h-12 rounded-xl text-sm font-bold shadow-sm'
+                                onClick={onCancel}
+                            >
+                                <ArrowLeft className='mr-2 h-4 w-4' /> Cancelar
+                            </Button>
+
+                            <Button
+                                type='button'
+                                variant='outline'
+                                className='flex-1 border-slate-200 text-slate-700 h-12 rounded-xl text-sm font-bold shadow-sm'
+                                disabled={isSubmitting}
+                                onClick={async () => {
+                                    try {
+                                        setIsSubmitting(true)
+                                        const values = form.getValues()
+                                        if (!values.items || values.items.length === 0) {
+                                            toast.error('Agrega al menos un concepto para la vista previa')
+                                            setIsSubmitting(false)
+                                            return
+                                        }
+                                        toast.loading('Generando vista previa...')
+                                        
+                                        // Transform values similarly to onSubmit
+                                        const transformedValues = {
+                                            ...values,
+                                            status: 'draft',
+                                            conditions: values.conditions || values.comments,
+                                            exportation: values.export || '01',
+                                            items: values.items.map(item => {
+                                                const taxes = (item.taxes || []).map((tax: any) => {
+                                                    let rate = tax.rate > 1 ? tax.rate / 100 : tax.rate
+                                                    rate = Math.round(rate * 10000) / 10000
+                                                    if (tax.type === 'IVA' && rate > 0.16) rate = 0.16
+                                                    return {
+                                                        type: tax.type,
+                                                        rate: rate,
+                                                        base: Number((tax.base || (item.quantity * (item.price || 0))).toFixed(2)),
+                                                        withholding: tax.withholding,
+                                                        factor: tax.factor || 'Tasa'
+                                                    }
+                                                })
+
+                                                const local_taxes = (item.local_taxes || []).map((tax: any) => {
+                                                    let rate = tax.rate > 1 ? tax.rate / 100 : tax.rate
+                                                    rate = Math.round(rate * 10000) / 10000
+                                                    return {
+                                                        type: tax.type,
+                                                        rate: rate,
+                                                        base: Number((tax.base || (item.quantity * (item.price || 0))).toFixed(2)),
+                                                        withholding: tax.withholding
+                                                    }
+                                                })
+
+                                                const discountAmount = item.discount_type === 'percentage'
+                                                    ? (item.quantity * (item.price || 0)) * (item.discount / 100)
+                                                    : (item.discount || 0)
+
+                                                return {
+                                                    quantity: item.quantity || 1,
+                                                    product_id: item.product_id,
+                                                    discount: Number(discountAmount.toFixed(2)),
+                                                    product: {
+                                                        description: item.description,
+                                                        product_key: item.product_key,
+                                                        price: item.price || 0,
+                                                        tax_included: item.tax_included || false,
+                                                        taxability: item.taxability || '02',
+                                                        taxes,
+                                                        local_taxes,
+                                                        unit_key: item.unit_key || 'H87',
+                                                        unit_name: item.unit_name || 'Pieza',
+                                                        sku: item.sku || ''
+                                                    }
+                                                }
+                                            })
+                                        }
+
+                                        const blob = await previewInvoicePdf(transformedValues as any)
+                                        const url = window.URL.createObjectURL(blob)
+                                        window.open(url, '_blank')
+                                        toast.dismiss()
+                                    } catch (e: any) {
+                                        toast.dismiss()
+                                        toast.error(e.response?.data?.message || 'Error al generar vista previa')
+                                    } finally {
+                                        setIsSubmitting(false)
+                                    }
+                                }}
+                            >
+                                <Eye className='mr-2 h-4 w-4' /> Vista Previa
+                            </Button>
+
+                            <Button
+                                type='button'
+                                variant='secondary'
+                                className='flex-1 h-12 rounded-xl text-sm font-bold shadow-sm'
+                                disabled={isSubmitting}
+                                onClick={() => {
+                                    setSubmitType('draft')
+                                    form.setValue('status', 'draft')
+                                    form.handleSubmit(onSubmit as any)()
+                                }}
+                            >
+                                <Save className='mr-2 h-4 w-4' /> Guardar Borrador
+                            </Button>
+
+                            <Button
+                                type='submit'
+                                className='flex-1 bg-orange-600 hover:bg-orange-700 text-white font-black h-12 rounded-xl text-sm shadow-lg shadow-orange-100 dark:shadow-none transition-all active:scale-[0.98]'
+                                disabled={isSubmitting}
+                                onClick={() => {
+                                    setSubmitType('pending')
+                                    form.setValue('status', 'pending')
+                                }}
+                            >
+                                <Zap className='mr-2 h-4 w-4' strokeWidth={3} /> GENERAR CFDI
+                            </Button>
+                        </div>
+                    </div>
+                )}
             </form >
 
             {isSubmitting && (

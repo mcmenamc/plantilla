@@ -98,8 +98,9 @@ export function useTableUrlState(
         }
       } else {
         // default to array type
-        const value = (deserialize(raw) as unknown[]) ?? []
-        if (Array.isArray(value) && value.length > 0) {
+        const rawValue = deserialize(raw)
+        const value = Array.isArray(rawValue) ? rawValue : rawValue ? [rawValue] : []
+        if (value.length > 0) {
           collected.push({ id: cfg.columnId, value })
         }
       }

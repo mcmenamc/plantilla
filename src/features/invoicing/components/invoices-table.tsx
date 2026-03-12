@@ -89,7 +89,7 @@ export function InvoicesTable({ data, search, navigate }: DataTableProps) {
                             { label: 'Válida', value: 'valid' },
                             { label: 'Borrador', value: 'draft' },
                             { label: 'Pendiente', value: 'pending' },
-                            { label: 'Cancelada', value: 'cancelled' },
+                            { label: 'Cancelada', value: 'canceled' },
                         ],
                     },
                     {
