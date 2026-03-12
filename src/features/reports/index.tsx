@@ -14,8 +14,41 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Overview } from '@/features/dashboard/components/overview'
 import { RecentSales } from '@/features/dashboard/components/recent-sales'
+import { useQuery } from '@tanstack/react-query'
+import { getDashboardData } from '@/features/dashboard/data/dashboard-api'
+import { useMemo } from 'react'
+import { TrendingUp, FileCheck, CircleDollarSign, BarChart3, Loader2 } from 'lucide-react'
 
 export function Reports() {
+    const { data: dashData, isLoading } = useQuery({
+        queryKey: ['dashboard-data', 'all'],
+        queryFn: () => getDashboardData('all'),
+    })
+
+    const processedBillingHistory = useMemo(() => {
+        if (!dashData?.billingHistory) return []
+        const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+        return dashData.billingHistory.map((item: any) => ({
+            name: `${months[item._id.month - 1]} ${item._id.year}`,
+            total: item.total
+        }))
+    }, [dashData])
+
+    if (isLoading) {
+        return (
+            <div className='flex h-[80vh] items-center justify-center'>
+                <Loader2 className='h-8 w-8 animate-spin text-primary' />
+            </div>
+        )
+    }
+
+    const summary = dashData?.summary || {
+        totalBilled: 0,
+        timbresLibres: 0,
+        pendingInvoicesCount: 0,
+        activeClientsCount: 0
+    }
+
     return (
         <>
             <Header fixed>
@@ -28,8 +61,11 @@ export function Reports() {
             </Header>
 
             <Main>
-                <div className='flex items-center justify-between space-y-2'>
-                    <h2 className='text-3xl font-bold tracking-tight'>Reporte de Ventas</h2>
+                <div className='flex items-center justify-between space-y-2 mb-6'>
+                    <div>
+                        <h2 className='text-3xl font-bold tracking-tight'>Reporte de Ventas</h2>
+                        <p className='text-muted-foreground'>Resumen ejecutivo de ingresos y facturación.</p>
+                    </div>
                 </div>
                 <Tabs defaultValue='overview' className='space-y-4'>
                     <TabsList>
@@ -43,126 +79,80 @@ export function Reports() {
                     </TabsList>
                     <TabsContent value='overview' className='space-y-4'>
                         <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
-                            <Card>
+                            <Card className='border-l-4 border-l-emerald-500 shadow-sm'>
                                 <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                                    <CardTitle className='text-sm font-medium'>
-                                        Ingresos Totales
+                                    <CardTitle className='text-xs font-bold uppercase tracking-wider text-muted-foreground'>
+                                        Ingresos Totales (Mes)
                                     </CardTitle>
-                                    <svg
-                                        xmlns='http://www.w3.org/2000/svg'
-                                        viewBox='0 0 24 24'
-                                        fill='none'
-                                        stroke='currentColor'
-                                        strokeLinecap='round'
-                                        strokeLinejoin='round'
-                                        strokeWidth='2'
-                                        className='h-4 w-4 text-muted-foreground'
-                                    >
-                                        <path d='M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6' />
-                                    </svg>
+                                    <TrendingUp className='h-4 w-4 text-emerald-500' />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className='text-2xl font-bold'>$45,231.89</div>
-                                    <p className='text-xs text-muted-foreground'>
-                                        +20.1% respecto al mes pasado
+                                    <div className='text-2xl font-bold'>{summary.totalBilled.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</div>
+                                    <p className='text-[10px] text-muted-foreground mt-1'>
+                                        Monto acumulado facturado
                                     </p>
                                 </CardContent>
                             </Card>
-                            <Card>
+                            <Card className='border-l-4 border-l-blue-500 shadow-sm'>
                                 <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                                    <CardTitle className='text-sm font-medium'>
-                                        Facturas
+                                    <CardTitle className='text-xs font-bold uppercase tracking-wider text-muted-foreground'>
+                                        Timbres Restantes
                                     </CardTitle>
-                                    <svg
-                                        xmlns='http://www.w3.org/2000/svg'
-                                        viewBox='0 0 24 24'
-                                        fill='none'
-                                        stroke='currentColor'
-                                        strokeLinecap='round'
-                                        strokeLinejoin='round'
-                                        strokeWidth='2'
-                                        className='h-4 w-4 text-muted-foreground'
-                                    >
-                                        <path d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2' />
-                                        <circle cx='9' cy='7' r='4' />
-                                        <path d='M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75' />
-                                    </svg>
+                                    <BarChart3 className='h-4 w-4 text-blue-500' />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className='text-2xl font-bold'>+2350</div>
-                                    <p className='text-xs text-muted-foreground'>
-                                        +180.1% respecto al mes pasado
+                                    <div className='text-2xl font-bold'>{summary.timbresLibres.toLocaleString()}</div>
+                                    <p className='text-[10px] text-muted-foreground mt-1'>
+                                        Folios disponibles para emitir
                                     </p>
                                 </CardContent>
                             </Card>
-                            <Card>
+                            <Card className='border-l-4 border-l-orange-500 shadow-sm'>
                                 <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                                    <CardTitle className='text-sm font-medium'>Ventas</CardTitle>
-                                    <svg
-                                        xmlns='http://www.w3.org/2000/svg'
-                                        viewBox='0 0 24 24'
-                                        fill='none'
-                                        stroke='currentColor'
-                                        strokeLinecap='round'
-                                        strokeLinejoin='round'
-                                        strokeWidth='2'
-                                        className='h-4 w-4 text-muted-foreground'
-                                    >
-                                        <rect width='20' height='14' x='2' y='5' rx='2' />
-                                        <path d='M2 10h20' />
-                                    </svg>
+                                    <CardTitle className='text-xs font-bold uppercase tracking-wider text-muted-foreground'>Por Cobrar</CardTitle>
+                                    <CircleDollarSign className='h-4 w-4 text-orange-500' />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className='text-2xl font-bold'>+12,234</div>
-                                    <p className='text-xs text-muted-foreground'>
-                                        +19% respecto al mes pasado
+                                    <div className='text-2xl font-bold'>{summary.pendingInvoicesCount}</div>
+                                    <p className='text-[10px] text-muted-foreground mt-1'>
+                                        Comprobantes pendientes de pago
                                     </p>
                                 </CardContent>
                             </Card>
-                            <Card>
+                            <Card className='border-l-4 border-l-primary shadow-sm'>
                                 <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                                    <CardTitle className='text-sm font-medium'>
-                                        Activos
+                                    <CardTitle className='text-xs font-bold uppercase tracking-wider text-muted-foreground'>
+                                        Facturas Emitidas
                                     </CardTitle>
-                                    <svg
-                                        xmlns='http://www.w3.org/2000/svg'
-                                        viewBox='0 0 24 24'
-                                        fill='none'
-                                        stroke='currentColor'
-                                        strokeLinecap='round'
-                                        strokeLinejoin='round'
-                                        strokeWidth='2'
-                                        className='h-4 w-4 text-muted-foreground'
-                                    >
-                                        <path d='M22 12h-4l-3 9L9 3l-3 9H2' />
-                                    </svg>
+                                    <FileCheck className='h-4 w-4 text-primary' />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className='text-2xl font-bold'>+573</div>
-                                    <p className='text-xs text-muted-foreground'>
-                                        +201 desde la última hora
+                                    <div className='text-2xl font-bold'>{dashData?.recentInvoices?.length || 0}</div>
+                                    <p className='text-[10px] text-muted-foreground mt-1'>
+                                        Registros recientes en el sistema
                                     </p>
                                 </CardContent>
                             </Card>
                         </div>
                         <div className='grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-7'>
-                            <Card className='col-span-4'>
+                            <Card className='col-span-4 shadow-sm'>
                                 <CardHeader>
-                                    <CardTitle>Resumen General</CardTitle>
+                                    <CardTitle className='text-lg font-bold'>Histórico de Ventas</CardTitle>
+                                    <CardDescription className='text-xs'>Ingresos acumulados por mes</CardDescription>
                                 </CardHeader>
                                 <CardContent className='pl-2'>
-                                    <Overview />
+                                    <Overview data={processedBillingHistory} />
                                 </CardContent>
                             </Card>
-                            <Card className='col-span-3'>
+                            <Card className='col-span-3 shadow-sm'>
                                 <CardHeader>
-                                    <CardTitle>Ventas Recientes</CardTitle>
-                                    <CardDescription>
-                                        Hiciste 265 ventas este mes.
+                                    <CardTitle className='text-lg font-bold'>Transacciones Recientes</CardTitle>
+                                    <CardDescription className='text-xs'>
+                                        Últimos movimientos detectados en la plataforma.
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <RecentSales />
+                                    <RecentSales invoices={dashData?.recentInvoices || []} />
                                 </CardContent>
                             </Card>
                         </div>

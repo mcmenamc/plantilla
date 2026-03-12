@@ -16,7 +16,7 @@ import { Analytics } from './components/analytics'
 import { AnalyticsChart } from './components/analytics-chart'
 import { Overview } from './components/overview'
 import { RecentSales } from './components/recent-sales'
-import { Users, FileCheck, TrendingUp, Timer, FileSpreadsheet, PlusCircle, Loader2 } from 'lucide-react'
+import { Users, FileCheck, TrendingUp, Timer, PlusCircle, Loader2 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { getWorkCenters } from '../work-centers/data/work-centers-api'
 import { getDashboardData } from './data/dashboard-api'
@@ -136,7 +136,7 @@ export function Dashboard() {
               <FileSpreadsheet className="mr-2 h-4 w-4" />
               Exportar Excel
             </Button> */}
-            <Button 
+            <Button
               onClick={() => navigate({ to: '/invoicing' })}
               className='flex-1 md:flex-none h-10 text-sm shadow-md shadow-primary/20'
             >
@@ -251,9 +251,9 @@ export function Dashboard() {
             <CardContent>
               <RecentSales invoices={dashData?.recentInvoices || []} />
               <div className='mt-6 pt-4 border-t border-zinc-100 dark:border-zinc-800/60 flex justify-center'>
-                <Button 
+                <Button
                   onClick={() => navigate({ to: '/invoicing' })}
-                  variant='link' 
+                  variant='link'
                   className='p-0 h-auto text-[10px] text-primary font-bold uppercase tracking-widest hover:no-underline'
                 >
                   Ir al listado completo ➔
