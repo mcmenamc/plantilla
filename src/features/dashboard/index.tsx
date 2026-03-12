@@ -16,9 +16,10 @@ import { Analytics } from './components/analytics'
 import { AnalyticsChart } from './components/analytics-chart'
 import { Overview } from './components/overview'
 import { RecentSales } from './components/recent-sales'
-import { Users, FileCheck, TrendingUp } from 'lucide-react'
+import { Users, FileCheck, TrendingUp, Timer, FileSpreadsheet, PlusCircle, Loader2 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { getWorkCenters } from '../work-centers/data/work-centers-api'
+import { getDashboardData } from './data/dashboard-api'
 import {
   Select,
   SelectContent,
@@ -26,30 +27,74 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { useState } from 'react'
-import { Timer, FileSpreadsheet, PlusCircle } from 'lucide-react'
+import { useState, useMemo } from 'react'
 import { usePermissions } from '@/hooks/use-permissions'
 import { NotAuthorized } from '@/components/not-authorized'
+import { useAuthStore } from '@/stores/auth-store'
+import { useNavigate } from '@tanstack/react-router'
 
 export function Dashboard() {
+  const { auth } = useAuthStore()
+  const navigate = useNavigate()
   const [selectedWorkCenter, setSelectedWorkCenter] = useState('all')
 
-  // Check if admin (this would normally come from an auth hook, 
-  // using a dummy true for demonstration based on the request)
-  const isAdmin = true
+  const isAdmin = auth.user?.role === 'Admin' || auth.user?.role === 'SuperAdmin'
 
-  const { data: workCenters = [], isLoading } = useQuery({
-    queryKey: ['work-centers', selectedWorkCenter],
+  // Fetch workcenters if admin to populate the filter
+  const { data: workCenters = [], isLoading: isLoadingWCs } = useQuery({
+    queryKey: ['work-centers-list'],
     queryFn: getWorkCenters,
     enabled: isAdmin
   })
 
+  // Fetch dashboard data based on selected workcenter
+  const { data: dashData, isLoading: isLoadingDash } = useQuery({
+    queryKey: ['dashboard-data', selectedWorkCenter],
+    queryFn: () => getDashboardData(selectedWorkCenter),
+    // If not admin, the backend will automatically filter by user's assigned workcenters
+    // but we still want to fetch it.
+  })
+
   const { can, isLoading: isLoadingPermissions } = usePermissions()
+
+  // Transform billing history for the Overview chart
+  const processedBillingHistory = useMemo(() => {
+    if (!dashData?.billingHistory) return []
+    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+    return dashData.billingHistory.map((item: any) => ({
+      name: `${months[item._id.month - 1]} ${item._id.year}`,
+      total: item.total
+    }))
+  }, [dashData])
+
+  // Transform stamp usage for AnalyticsChart
+  const processedStampUsage = useMemo(() => {
+    if (!dashData?.stampUsage) return []
+    return dashData.stampUsage.map((item: any) => ({
+      name: item._id.split('-').slice(1).join('/'), // DD/MM pattern
+      count: item.count
+    }))
+  }, [dashData])
+
   if (!isLoadingPermissions && !can('Ver')) return <NotAuthorized />
+
+  if (isLoadingDash) {
+    return (
+      <div className="flex h-[80vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  const summary = dashData?.summary || {
+    totalBilled: 0,
+    timbresLibres: 0,
+    pendingInvoicesCount: 0,
+    activeClientsCount: 0
+  }
 
   return (
     <>
-
       <Header>
         <div className='ml-auto flex items-center gap-2 sm:gap-4'>
           {isAdmin && (
@@ -57,10 +102,10 @@ export function Dashboard() {
               <Select
                 value={selectedWorkCenter}
                 onValueChange={setSelectedWorkCenter}
-                disabled={isLoading}
+                disabled={isLoadingWCs}
               >
                 <SelectTrigger className="h-9 bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 focus:ring-1 focus:ring-primary">
-                  <SelectValue placeholder={isLoading ? "..." : "Filtrar por Centro"} />
+                  <SelectValue placeholder={isLoadingWCs ? "..." : "Filtrar por Centro"} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos los Centros</SelectItem>
@@ -87,11 +132,14 @@ export function Dashboard() {
             <p className='text-muted-foreground text-sm'>Gestión inmediata de folios, facturas y métricas fiscales.</p>
           </div>
           <div className='flex items-center gap-2 w-full md:w-auto mt-2 md:mt-0'>
-            <Button variant='outline' className='flex-1 md:flex-none h-10 border-zinc-200 dark:border-zinc-800 text-sm'>
+            {/* <Button variant='outline' className='flex-1 md:flex-none h-10 border-zinc-200 dark:border-zinc-800 text-sm'>
               <FileSpreadsheet className="mr-2 h-4 w-4" />
               Exportar Excel
-            </Button>
-            <Button className='flex-1 md:flex-none h-10 text-sm shadow-md shadow-primary/20'>
+            </Button> */}
+            <Button 
+              onClick={() => navigate({ to: '/invoicing' })}
+              className='flex-1 md:flex-none h-10 text-sm shadow-md shadow-primary/20'
+            >
               <PlusCircle className="mr-2 h-4 w-4" />
               Nueva Factura
             </Button>
@@ -103,10 +151,10 @@ export function Dashboard() {
             <Select
               value={selectedWorkCenter}
               onValueChange={setSelectedWorkCenter}
-              disabled={isLoading}
+              disabled={isLoadingWCs}
             >
               <SelectTrigger className="w-full h-10 bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-sm">
-                <SelectValue placeholder={isLoading ? "Cargando centros..." : "Filtrar por Centro"} />
+                <SelectValue placeholder={isLoadingWCs ? "Cargando centros..." : "Filtrar por Centro"} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos los Centros</SelectItem>
@@ -128,7 +176,9 @@ export function Dashboard() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className='text-3xl font-bold tabular-nums text-zinc-800 dark:text-zinc-100'>$45,231.89</div>
+              <div className='text-3xl font-bold tabular-nums text-zinc-800 dark:text-zinc-100'>
+                {summary.totalBilled.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}
+              </div>
               <p className='text-zinc-500 text-[10px] font-medium mt-1 uppercase tracking-tight'>Monto acumulado del mes</p>
             </CardContent>
           </Card>
@@ -141,34 +191,40 @@ export function Dashboard() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className='text-3xl font-bold tabular-nums text-zinc-800 dark:text-zinc-100'>1,250</div>
+              <div className='text-3xl font-bold tabular-nums text-zinc-800 dark:text-zinc-100'>
+                {summary.timbresLibres.toLocaleString()}
+              </div>
               <p className='text-zinc-500 text-[10px] font-medium mt-1 leading-tight'>Folios listos para emitir</p>
             </CardContent>
           </Card>
 
           <Card className='shadow-sm border-zinc-100 dark:border-zinc-800/50 bg-gradient-to-br from-white to-blue-50/20 dark:from-zinc-950 dark:to-blue-950/10'>
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-[11px] font-bold uppercase tracking-wider text-zinc-500'>Faltan por Cobrar</CardTitle>
+              <CardTitle className='text-[11px] font-bold uppercase tracking-wider text-zinc-500'>Pendientes</CardTitle>
               <div className='p-1.5 bg-blue-100/50 dark:bg-blue-500/10 rounded-lg'>
                 <FileCheck className='h-3.5 w-3.5 text-blue-600 dark:text-blue-400' />
               </div>
             </CardHeader>
             <CardContent>
-              <div className='text-3xl font-bold tabular-nums text-zinc-800 dark:text-zinc-100'>234</div>
-              <p className='text-zinc-500 text-[10px] font-medium mt-1 uppercase tracking-tight'>Facturas vigentes hoy</p>
+              <div className='text-3xl font-bold tabular-nums text-zinc-800 dark:text-zinc-100'>
+                {summary.pendingInvoicesCount}
+              </div>
+              <p className='text-zinc-500 text-[10px] font-medium mt-1 uppercase tracking-tight'>Borradores o por cobrar</p>
             </CardContent>
           </Card>
 
           <Card className='shadow-sm border-zinc-100 dark:border-zinc-800/50 bg-gradient-to-br from-white to-purple-50/20 dark:from-zinc-950 dark:to-purple-950/10'>
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-[11px] font-bold uppercase tracking-wider text-zinc-500'>Clientes Activos</CardTitle>
+              <CardTitle className='text-[11px] font-bold uppercase tracking-wider text-zinc-500'>Clientes en Centros</CardTitle>
               <div className='p-1.5 bg-purple-100/50 dark:bg-purple-500/10 rounded-lg'>
                 <Users className='h-3.5 w-3.5 text-purple-600 dark:text-purple-400' />
               </div>
             </CardHeader>
             <CardContent>
-              <div className='text-3xl font-bold tabular-nums text-zinc-800 dark:text-zinc-100'>57</div>
-              <p className='text-zinc-500 text-[10px] font-medium mt-1 uppercase tracking-tight'>Cartera total de clientes</p>
+              <div className='text-3xl font-bold tabular-nums text-zinc-800 dark:text-zinc-100'>
+                {summary.activeClientsCount}
+              </div>
+              <p className='text-zinc-500 text-[10px] font-medium mt-1 uppercase tracking-tight'>Cartera asignada</p>
             </CardContent>
           </Card>
         </div>
@@ -181,25 +237,26 @@ export function Dashboard() {
                 <CardTitle className="text-lg font-bold">Historial de Facturación</CardTitle>
                 <CardDescription className="text-xs">Ingresos mensuales totales</CardDescription>
               </div>
-              <div className='hidden md:block'>
-                <Button variant='ghost' size='sm' className='text-[10px] font-bold uppercase tracking-tighter'>Este Año</Button>
-              </div>
             </CardHeader>
             <CardContent className='pt-4 px-2'>
-              <Overview />
+              <Overview data={processedBillingHistory} />
             </CardContent>
           </Card>
 
           <Card className='lg:col-span-3 shadow-sm border-zinc-100 dark:border-zinc-800/50'>
             <CardHeader className="space-y-1">
               <CardTitle className="text-lg font-bold">Facturas Recientes</CardTitle>
-              <CardDescription className="text-xs">Últimos comprobantes emitidos</CardDescription>
+              <CardDescription className="text-xs">Últimos comprobantes editados o emitidos</CardDescription>
             </CardHeader>
             <CardContent>
-              <RecentSales />
+              <RecentSales invoices={dashData?.recentInvoices || []} />
               <div className='mt-6 pt-4 border-t border-zinc-100 dark:border-zinc-800/60 flex justify-center'>
-                <Button variant='link' className='p-0 h-auto text-[10px] text-primary font-bold uppercase tracking-widest hover:no-underline'>
-                  Ver todo el historial ➔
+                <Button 
+                  onClick={() => navigate({ to: '/invoicing' })}
+                  variant='link' 
+                  className='p-0 h-auto text-[10px] text-primary font-bold uppercase tracking-widest hover:no-underline'
+                >
+                  Ir al listado completo ➔
                 </Button>
               </div>
             </CardContent>
@@ -210,20 +267,20 @@ export function Dashboard() {
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
           <Card className='shadow-none bg-zinc-50/30 dark:bg-zinc-900/40 border border-zinc-200/60 dark:border-zinc-800/60'>
             <CardHeader className="pb-4">
-              <CardTitle className='text-[10px] uppercase tracking-[0.2em] font-black text-zinc-400/80'>Distribución Fiscal</CardTitle>
+              <CardTitle className='text-[10px] uppercase tracking-[0.2em] font-black text-zinc-400/80'>Resumen de Operación</CardTitle>
             </CardHeader>
             <CardContent>
-              <Analytics />
+              <Analytics stats={dashData?.analytics} />
             </CardContent>
           </Card>
 
           <Card className='lg:col-span-2 shadow-sm border-zinc-100 dark:border-zinc-800/50'>
             <CardHeader className='pb-4'>
-              <CardTitle className="text-md font-bold">Uso de Timbres (Consumo Semanal)</CardTitle>
-              <CardDescription className="text-xs text-zinc-500">Folios fiscales consumidos por día</CardDescription>
+              <CardTitle className="text-md font-bold">Uso de Timbres (Consumo Reciente)</CardTitle>
+              <CardDescription className="text-xs text-zinc-500">Folios fiscales consumidos en los últimos días</CardDescription>
             </CardHeader>
             <CardContent>
-              <AnalyticsChart />
+              <AnalyticsChart data={processedStampUsage} />
             </CardContent>
           </Card>
         </div>
@@ -231,4 +288,3 @@ export function Dashboard() {
     </>
   )
 }
-
