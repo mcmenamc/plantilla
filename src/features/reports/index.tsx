@@ -103,7 +103,7 @@ export function Reports() {
                                 <CardContent>
                                     <div className='text-2xl font-bold'>{summary.timbresLibres.toLocaleString()}</div>
                                     <p className='text-[10px] text-muted-foreground mt-1'>
-                                        Folios disponibles para emitir
+                                        Timbres disponibles para emitir
                                     </p>
                                 </CardContent>
                             </Card>

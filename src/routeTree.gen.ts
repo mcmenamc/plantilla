@@ -8,6 +8,8 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
+import { createFileRoute } from '@tanstack/react-router'
+
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PruebaGratisRouteImport } from './routes/prueba-gratis'
 import { Route as ConfigurarCuentaRouteImport } from './routes/configurar-cuenta'
@@ -67,6 +69,19 @@ import { Route as AuthenticatedSeriesSeriesIdEditRouteImport } from './routes/_a
 import { Route as AuthenticatedProductsProductIdEditRouteImport } from './routes/_authenticated/products/$productId/edit'
 import { Route as AuthenticatedMassiveDownloadsViewerDownloadIdRouteImport } from './routes/_authenticated/massive-downloads/viewer.$downloadId'
 import { Route as AuthenticatedClientsClientIdEditRouteImport } from './routes/_authenticated/clients/$clientId/edit'
+
+const AuthenticatedTicketsIndexLazyRouteImport = createFileRoute(
+  '/_authenticated/tickets/',
+)()
+const AuthenticatedTicketsAddLazyRouteImport = createFileRoute(
+  '/_authenticated/tickets/add',
+)()
+const AuthenticatedTicketsIdSeguimientoLazyRouteImport = createFileRoute(
+  '/_authenticated/tickets/$id/seguimiento',
+)()
+const AuthenticatedTicketsIdEditLazyRouteImport = createFileRoute(
+  '/_authenticated/tickets/$id/edit',
+)()
 
 const PruebaGratisRoute = PruebaGratisRouteImport.update({
   id: '/prueba-gratis',
@@ -154,6 +169,14 @@ const AuthenticatedSeriesRouteRoute =
     path: '/series',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedTicketsIndexLazyRoute =
+  AuthenticatedTicketsIndexLazyRouteImport.update({
+    id: '/tickets/',
+    path: '/tickets/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/tickets/index.lazy').then((d) => d.Route),
+  )
 const AuthenticatedWorkCentersIndexRoute =
   AuthenticatedWorkCentersIndexRouteImport.update({
     id: '/work-centers/',
@@ -246,6 +269,14 @@ const AuthenticatedAppsIndexRoute = AuthenticatedAppsIndexRouteImport.update({
   path: '/apps/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTicketsAddLazyRoute =
+  AuthenticatedTicketsAddLazyRouteImport.update({
+    id: '/tickets/add',
+    path: '/tickets/add',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/tickets/add.lazy').then((d) => d.Route),
+  )
 const AuthenticatedWorkCentersAddRoute =
   AuthenticatedWorkCentersAddRouteImport.update({
     id: '/work-centers/add',
@@ -358,6 +389,26 @@ const AuthenticatedInvoicingBillOfLadingIndexRoute =
     path: '/invoicing/bill-of-lading/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedTicketsIdSeguimientoLazyRoute =
+  AuthenticatedTicketsIdSeguimientoLazyRouteImport.update({
+    id: '/tickets/$id/seguimiento',
+    path: '/tickets/$id/seguimiento',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/tickets/$id/seguimiento.lazy').then(
+      (d) => d.Route,
+    ),
+  )
+const AuthenticatedTicketsIdEditLazyRoute =
+  AuthenticatedTicketsIdEditLazyRouteImport.update({
+    id: '/tickets/$id/edit',
+    path: '/tickets/$id/edit',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/tickets/$id/edit.lazy').then(
+      (d) => d.Route,
+    ),
+  )
 const AuthenticatedWorkCentersWorkCenterIdEditRoute =
   AuthenticatedWorkCentersWorkCenterIdEditRouteImport.update({
     id: '/work-centers/$workCenterId/edit',
@@ -427,6 +478,7 @@ export interface FileRoutesByFullPath {
   '/users/$adminId': typeof AuthenticatedUsersAdminIdRoute
   '/users/add': typeof AuthenticatedUsersAddRoute
   '/work-centers/add': typeof AuthenticatedWorkCentersAddRoute
+  '/tickets/add': typeof AuthenticatedTicketsAddLazyRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
   '/catalogs': typeof AuthenticatedCatalogsIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
@@ -443,12 +495,15 @@ export interface FileRoutesByFullPath {
   '/users': typeof AuthenticatedUsersIndexRoute
   '/viewer': typeof AuthenticatedViewerIndexRoute
   '/work-centers': typeof AuthenticatedWorkCentersIndexRoute
+  '/tickets': typeof AuthenticatedTicketsIndexLazyRoute
   '/clients/$clientId/edit': typeof AuthenticatedClientsClientIdEditRoute
   '/massive-downloads/viewer/$downloadId': typeof AuthenticatedMassiveDownloadsViewerDownloadIdRoute
   '/products/$productId/edit': typeof AuthenticatedProductsProductIdEditRoute
   '/series/$seriesId/edit': typeof AuthenticatedSeriesSeriesIdEditRoute
   '/series/edit/$seriesId': typeof AuthenticatedSeriesEditSeriesIdRoute
   '/work-centers/$workCenterId/edit': typeof AuthenticatedWorkCentersWorkCenterIdEditRoute
+  '/tickets/$id/edit': typeof AuthenticatedTicketsIdEditLazyRoute
+  '/tickets/$id/seguimiento': typeof AuthenticatedTicketsIdSeguimientoLazyRoute
   '/invoicing/bill-of-lading': typeof AuthenticatedInvoicingBillOfLadingIndexRoute
   '/invoicing/credit-notes': typeof AuthenticatedInvoicingCreditNotesIndexRoute
   '/invoicing/payment-complements': typeof AuthenticatedInvoicingPaymentComplementsIndexRoute
@@ -484,6 +539,7 @@ export interface FileRoutesByTo {
   '/users/$adminId': typeof AuthenticatedUsersAdminIdRoute
   '/users/add': typeof AuthenticatedUsersAddRoute
   '/work-centers/add': typeof AuthenticatedWorkCentersAddRoute
+  '/tickets/add': typeof AuthenticatedTicketsAddLazyRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
   '/catalogs': typeof AuthenticatedCatalogsIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
@@ -500,12 +556,15 @@ export interface FileRoutesByTo {
   '/users': typeof AuthenticatedUsersIndexRoute
   '/viewer': typeof AuthenticatedViewerIndexRoute
   '/work-centers': typeof AuthenticatedWorkCentersIndexRoute
+  '/tickets': typeof AuthenticatedTicketsIndexLazyRoute
   '/clients/$clientId/edit': typeof AuthenticatedClientsClientIdEditRoute
   '/massive-downloads/viewer/$downloadId': typeof AuthenticatedMassiveDownloadsViewerDownloadIdRoute
   '/products/$productId/edit': typeof AuthenticatedProductsProductIdEditRoute
   '/series/$seriesId/edit': typeof AuthenticatedSeriesSeriesIdEditRoute
   '/series/edit/$seriesId': typeof AuthenticatedSeriesEditSeriesIdRoute
   '/work-centers/$workCenterId/edit': typeof AuthenticatedWorkCentersWorkCenterIdEditRoute
+  '/tickets/$id/edit': typeof AuthenticatedTicketsIdEditLazyRoute
+  '/tickets/$id/seguimiento': typeof AuthenticatedTicketsIdSeguimientoLazyRoute
   '/invoicing/bill-of-lading': typeof AuthenticatedInvoicingBillOfLadingIndexRoute
   '/invoicing/credit-notes': typeof AuthenticatedInvoicingCreditNotesIndexRoute
   '/invoicing/payment-complements': typeof AuthenticatedInvoicingPaymentComplementsIndexRoute
@@ -545,6 +604,7 @@ export interface FileRoutesById {
   '/_authenticated/users/$adminId': typeof AuthenticatedUsersAdminIdRoute
   '/_authenticated/users/add': typeof AuthenticatedUsersAddRoute
   '/_authenticated/work-centers/add': typeof AuthenticatedWorkCentersAddRoute
+  '/_authenticated/tickets/add': typeof AuthenticatedTicketsAddLazyRoute
   '/_authenticated/apps/': typeof AuthenticatedAppsIndexRoute
   '/_authenticated/catalogs/': typeof AuthenticatedCatalogsIndexRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexRoute
@@ -561,12 +621,15 @@ export interface FileRoutesById {
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
   '/_authenticated/viewer/': typeof AuthenticatedViewerIndexRoute
   '/_authenticated/work-centers/': typeof AuthenticatedWorkCentersIndexRoute
+  '/_authenticated/tickets/': typeof AuthenticatedTicketsIndexLazyRoute
   '/_authenticated/clients/$clientId/edit': typeof AuthenticatedClientsClientIdEditRoute
   '/_authenticated/massive-downloads/viewer/$downloadId': typeof AuthenticatedMassiveDownloadsViewerDownloadIdRoute
   '/_authenticated/products/$productId/edit': typeof AuthenticatedProductsProductIdEditRoute
   '/_authenticated/series/$seriesId/edit': typeof AuthenticatedSeriesSeriesIdEditRoute
   '/_authenticated/series/edit/$seriesId': typeof AuthenticatedSeriesEditSeriesIdRoute
   '/_authenticated/work-centers/$workCenterId/edit': typeof AuthenticatedWorkCentersWorkCenterIdEditRoute
+  '/_authenticated/tickets/$id/edit': typeof AuthenticatedTicketsIdEditLazyRoute
+  '/_authenticated/tickets/$id/seguimiento': typeof AuthenticatedTicketsIdSeguimientoLazyRoute
   '/_authenticated/invoicing/bill-of-lading/': typeof AuthenticatedInvoicingBillOfLadingIndexRoute
   '/_authenticated/invoicing/credit-notes/': typeof AuthenticatedInvoicingCreditNotesIndexRoute
   '/_authenticated/invoicing/payment-complements/': typeof AuthenticatedInvoicingPaymentComplementsIndexRoute
@@ -606,6 +669,7 @@ export interface FileRouteTypes {
     | '/users/$adminId'
     | '/users/add'
     | '/work-centers/add'
+    | '/tickets/add'
     | '/apps'
     | '/catalogs'
     | '/chats'
@@ -622,12 +686,15 @@ export interface FileRouteTypes {
     | '/users'
     | '/viewer'
     | '/work-centers'
+    | '/tickets'
     | '/clients/$clientId/edit'
     | '/massive-downloads/viewer/$downloadId'
     | '/products/$productId/edit'
     | '/series/$seriesId/edit'
     | '/series/edit/$seriesId'
     | '/work-centers/$workCenterId/edit'
+    | '/tickets/$id/edit'
+    | '/tickets/$id/seguimiento'
     | '/invoicing/bill-of-lading'
     | '/invoicing/credit-notes'
     | '/invoicing/payment-complements'
@@ -663,6 +730,7 @@ export interface FileRouteTypes {
     | '/users/$adminId'
     | '/users/add'
     | '/work-centers/add'
+    | '/tickets/add'
     | '/apps'
     | '/catalogs'
     | '/chats'
@@ -679,12 +747,15 @@ export interface FileRouteTypes {
     | '/users'
     | '/viewer'
     | '/work-centers'
+    | '/tickets'
     | '/clients/$clientId/edit'
     | '/massive-downloads/viewer/$downloadId'
     | '/products/$productId/edit'
     | '/series/$seriesId/edit'
     | '/series/edit/$seriesId'
     | '/work-centers/$workCenterId/edit'
+    | '/tickets/$id/edit'
+    | '/tickets/$id/seguimiento'
     | '/invoicing/bill-of-lading'
     | '/invoicing/credit-notes'
     | '/invoicing/payment-complements'
@@ -723,6 +794,7 @@ export interface FileRouteTypes {
     | '/_authenticated/users/$adminId'
     | '/_authenticated/users/add'
     | '/_authenticated/work-centers/add'
+    | '/_authenticated/tickets/add'
     | '/_authenticated/apps/'
     | '/_authenticated/catalogs/'
     | '/_authenticated/chats/'
@@ -739,12 +811,15 @@ export interface FileRouteTypes {
     | '/_authenticated/users/'
     | '/_authenticated/viewer/'
     | '/_authenticated/work-centers/'
+    | '/_authenticated/tickets/'
     | '/_authenticated/clients/$clientId/edit'
     | '/_authenticated/massive-downloads/viewer/$downloadId'
     | '/_authenticated/products/$productId/edit'
     | '/_authenticated/series/$seriesId/edit'
     | '/_authenticated/series/edit/$seriesId'
     | '/_authenticated/work-centers/$workCenterId/edit'
+    | '/_authenticated/tickets/$id/edit'
+    | '/_authenticated/tickets/$id/seguimiento'
     | '/_authenticated/invoicing/bill-of-lading/'
     | '/_authenticated/invoicing/credit-notes/'
     | '/_authenticated/invoicing/payment-complements/'
@@ -889,6 +964,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSeriesRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/tickets/': {
+      id: '/_authenticated/tickets/'
+      path: '/tickets'
+      fullPath: '/tickets'
+      preLoaderRoute: typeof AuthenticatedTicketsIndexLazyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/work-centers/': {
       id: '/_authenticated/work-centers/'
       path: '/work-centers'
@@ -999,6 +1081,13 @@ declare module '@tanstack/react-router' {
       path: '/apps'
       fullPath: '/apps'
       preLoaderRoute: typeof AuthenticatedAppsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tickets/add': {
+      id: '/_authenticated/tickets/add'
+      path: '/tickets/add'
+      fullPath: '/tickets/add'
+      preLoaderRoute: typeof AuthenticatedTicketsAddLazyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/work-centers/add': {
@@ -1134,6 +1223,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInvoicingBillOfLadingIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/tickets/$id/seguimiento': {
+      id: '/_authenticated/tickets/$id/seguimiento'
+      path: '/tickets/$id/seguimiento'
+      fullPath: '/tickets/$id/seguimiento'
+      preLoaderRoute: typeof AuthenticatedTicketsIdSeguimientoLazyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tickets/$id/edit': {
+      id: '/_authenticated/tickets/$id/edit'
+      path: '/tickets/$id/edit'
+      fullPath: '/tickets/$id/edit'
+      preLoaderRoute: typeof AuthenticatedTicketsIdEditLazyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/work-centers/$workCenterId/edit': {
       id: '/_authenticated/work-centers/$workCenterId/edit'
       path: '/work-centers/$workCenterId/edit'
@@ -1237,6 +1340,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedUsersAdminIdRoute: typeof AuthenticatedUsersAdminIdRoute
   AuthenticatedUsersAddRoute: typeof AuthenticatedUsersAddRoute
   AuthenticatedWorkCentersAddRoute: typeof AuthenticatedWorkCentersAddRoute
+  AuthenticatedTicketsAddLazyRoute: typeof AuthenticatedTicketsAddLazyRoute
   AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
   AuthenticatedCatalogsIndexRoute: typeof AuthenticatedCatalogsIndexRoute
   AuthenticatedChatsIndexRoute: typeof AuthenticatedChatsIndexRoute
@@ -1251,10 +1355,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
   AuthenticatedViewerIndexRoute: typeof AuthenticatedViewerIndexRoute
   AuthenticatedWorkCentersIndexRoute: typeof AuthenticatedWorkCentersIndexRoute
+  AuthenticatedTicketsIndexLazyRoute: typeof AuthenticatedTicketsIndexLazyRoute
   AuthenticatedClientsClientIdEditRoute: typeof AuthenticatedClientsClientIdEditRoute
   AuthenticatedMassiveDownloadsViewerDownloadIdRoute: typeof AuthenticatedMassiveDownloadsViewerDownloadIdRoute
   AuthenticatedProductsProductIdEditRoute: typeof AuthenticatedProductsProductIdEditRoute
   AuthenticatedWorkCentersWorkCenterIdEditRoute: typeof AuthenticatedWorkCentersWorkCenterIdEditRoute
+  AuthenticatedTicketsIdEditLazyRoute: typeof AuthenticatedTicketsIdEditLazyRoute
+  AuthenticatedTicketsIdSeguimientoLazyRoute: typeof AuthenticatedTicketsIdSeguimientoLazyRoute
   AuthenticatedInvoicingBillOfLadingIndexRoute: typeof AuthenticatedInvoicingBillOfLadingIndexRoute
   AuthenticatedInvoicingCreditNotesIndexRoute: typeof AuthenticatedInvoicingCreditNotesIndexRoute
   AuthenticatedInvoicingPaymentComplementsIndexRoute: typeof AuthenticatedInvoicingPaymentComplementsIndexRoute
@@ -1274,6 +1381,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedUsersAdminIdRoute: AuthenticatedUsersAdminIdRoute,
   AuthenticatedUsersAddRoute: AuthenticatedUsersAddRoute,
   AuthenticatedWorkCentersAddRoute: AuthenticatedWorkCentersAddRoute,
+  AuthenticatedTicketsAddLazyRoute: AuthenticatedTicketsAddLazyRoute,
   AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
   AuthenticatedCatalogsIndexRoute: AuthenticatedCatalogsIndexRoute,
   AuthenticatedChatsIndexRoute: AuthenticatedChatsIndexRoute,
@@ -1289,6 +1397,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
   AuthenticatedViewerIndexRoute: AuthenticatedViewerIndexRoute,
   AuthenticatedWorkCentersIndexRoute: AuthenticatedWorkCentersIndexRoute,
+  AuthenticatedTicketsIndexLazyRoute: AuthenticatedTicketsIndexLazyRoute,
   AuthenticatedClientsClientIdEditRoute: AuthenticatedClientsClientIdEditRoute,
   AuthenticatedMassiveDownloadsViewerDownloadIdRoute:
     AuthenticatedMassiveDownloadsViewerDownloadIdRoute,
@@ -1296,6 +1405,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedProductsProductIdEditRoute,
   AuthenticatedWorkCentersWorkCenterIdEditRoute:
     AuthenticatedWorkCentersWorkCenterIdEditRoute,
+  AuthenticatedTicketsIdEditLazyRoute: AuthenticatedTicketsIdEditLazyRoute,
+  AuthenticatedTicketsIdSeguimientoLazyRoute:
+    AuthenticatedTicketsIdSeguimientoLazyRoute,
   AuthenticatedInvoicingBillOfLadingIndexRoute:
     AuthenticatedInvoicingBillOfLadingIndexRoute,
   AuthenticatedInvoicingCreditNotesIndexRoute:

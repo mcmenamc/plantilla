@@ -16,7 +16,7 @@ import { Analytics } from './components/analytics'
 import { AnalyticsChart } from './components/analytics-chart'
 import { Overview } from './components/overview'
 import { RecentSales } from './components/recent-sales'
-import { Users, FileCheck, TrendingUp, Timer, PlusCircle, Loader2 } from 'lucide-react'
+import { Users, FileCheck, TrendingUp, PlusCircle, Loader2, Stamp } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { getWorkCenters } from '../work-centers/data/work-centers-api'
 import { getDashboardData } from './data/dashboard-api'
@@ -32,10 +32,16 @@ import { usePermissions } from '@/hooks/use-permissions'
 import { NotAuthorized } from '@/components/not-authorized'
 import { useAuthStore } from '@/stores/auth-store'
 import { useNavigate } from '@tanstack/react-router'
+import { RootDashboard } from './components/root-dashboard'
 
 export function Dashboard() {
   const { auth } = useAuthStore()
   const navigate = useNavigate()
+
+  if (auth.user?.role === 'Root') {
+    return <RootDashboard />
+  }
+
   const [selectedWorkCenter, setSelectedWorkCenter] = useState('all')
 
   const isAdmin = auth.user?.role === 'Admin' || auth.user?.role === 'SuperAdmin'
@@ -187,14 +193,14 @@ export function Dashboard() {
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
               <CardTitle className='text-[11px] font-bold text-primary uppercase tracking-wider'>Timbres Libres</CardTitle>
               <div className='p-1.5 bg-primary/10 rounded-lg'>
-                <Timer className="h-3.5 w-3.5 text-primary" />
+                <Stamp className="h-3.5 w-3.5 text-primary" />
               </div>
             </CardHeader>
             <CardContent>
               <div className='text-3xl font-bold tabular-nums text-zinc-800 dark:text-zinc-100'>
                 {summary.timbresLibres.toLocaleString()}
               </div>
-              <p className='text-zinc-500 text-[10px] font-medium mt-1 leading-tight'>Folios listos para emitir</p>
+              <p className='text-zinc-500 text-[10px] font-medium mt-1 leading-tight'>Timbres listos para emitir</p>
             </CardContent>
           </Card>
 

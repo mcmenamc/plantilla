@@ -7,10 +7,9 @@ import {
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { Loader2, CreditCard } from 'lucide-react'
-import { api } from '@/lib/api'
 
 interface StripeCheckoutFormProps {
-  onSuccess: () => void
+  onSuccess: (status: 'succeeded' | 'processing' | 'requires_action', paymentIntentId?: string) => void
   onCancel: () => void
   amount: number
   timbres: number
@@ -49,16 +48,11 @@ export function StripeCheckoutForm({ onSuccess, amount }: StripeCheckoutFormProp
       setIsProcessing(false)
     } else if (paymentIntent) {
       if (paymentIntent.status === 'succeeded') {
-        try {
-          await api.post('/pagos/confirm-payment', { paymentIntentId: paymentIntent.id })
-        } catch (err: any) {
-          console.error("Error confirmando pago en backend:", err.response?.data || err.message)
-        }
-        toast.success('¡Pago completado con éxito!')
-        onSuccess()
-      } else if (paymentIntent.status === 'requires_action') {
-        toast.info('Se ha generado tu referencia de pago. Revisa tu correo.')
-        onSuccess()
+        toast.success('¡Pago procesado con éxito! Tus timbres se acreditarán en breve.')
+        onSuccess('succeeded', paymentIntent.id)
+      } else if (paymentIntent.status === 'requires_action' || paymentIntent.status === 'processing') {
+        toast.info('Se ha generado tu referencia de pago o el pago está en proceso. Revisa tu correo.')
+        onSuccess(paymentIntent.status as any, paymentIntent.id)
       } else {
         setIsProcessing(false)
       }
@@ -113,7 +107,7 @@ export function StripeCheckoutForm({ onSuccess, amount }: StripeCheckoutFormProp
             </Button>
             
             <p className="text-center text-[8px] md:text-[9px] text-zinc-400 font-medium px-4 leading-relaxed">
-              Al confirmar, tus timbres se acreditarán de <span className="text-primary font-bold">forma inmediata</span>.
+              Al confirmar, tus timbres se acreditarán en cuanto <span className="text-primary font-bold">Stripe confirme el pago</span>.
             </p>
           </div>
         </div>

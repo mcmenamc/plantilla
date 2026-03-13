@@ -4,7 +4,6 @@ import { toast } from 'sonner'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements } from '@stripe/react-stripe-js'
 import {
-  Sparkles,
   Zap,
   Clock,
   ArrowLeft,
@@ -12,25 +11,31 @@ import {
   Users,
   Building2,
   Headphones,
-  CheckCircle2
+  CheckCircle2,
+  Stamp
 } from 'lucide-react'
 import {
   crearIntentoPago,
 } from './data/timbres-api'
 import { TimbresPackageCard } from './components/timbres-package-card'
+import { Header } from '@/components/layout/header'
+import { ProfileDropdown } from '@/components/profile-dropdown'
+import { ThemeSwitch } from '@/components/theme-switch'
+import { ConfigDrawer } from '@/components/config-drawer'
+import { Search } from '@/components/search'
 import { StripeCheckoutForm } from './components/stripe-checkout-form'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
 import { Main } from '@/components/layout/main'
 import { useTheme } from '@/context/theme-provider'
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
+// stripePromise now managed inside TimbresPage for lazy loading
 
 // Packages are now fetched from the backend
 
 const GLOBAL_BENEFITS = [
   { icon: Clock, title: 'Vigencia ilimitada', desc: 'Tus timbres nunca caducan' },
-  { icon: Zap, title: 'Emisión inmediata', desc: 'Folios disponibles al instante' },
+  { icon: Zap, title: 'Emisión inmediata', desc: 'Timbres disponibles al instante' },
   { icon: ShieldCheck, title: 'Gerente de cuenta', desc: 'Atención personalizada' },
   { icon: Users, title: 'Multi-usuarios', desc: 'Colabora con tu equipo' },
   { icon: Building2, title: 'Centros ilimitados', desc: 'Gestiona todas tus sucursales' },
@@ -45,17 +50,47 @@ export default function TimbresPage() {
     amount: number,
     timbres: number
   } | null>(null)
+  const [paymentStatus, setPaymentStatus] = useState<'succeeded' | 'processing' | 'requires_action' | null>(null)
   const [isSuccessScreen, setIsSuccessScreen] = useState(false)
 
   // Handle success from a redirect
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
+    const pi = urlParams.get('payment_intent')
     if (urlParams.get('success') === 'true') {
       setIsSuccessScreen(true)
-      queryClient.invalidateQueries({ queryKey: ['business-data'] })
+      setPaymentStatus('succeeded')
+      
+      if (pi) {
+        verifyAndFetch(pi)
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['business-data'] })
+      }
+      
       window.history.replaceState({}, '', window.location.pathname)
     }
   }, [queryClient])
+
+  // Función para re-intentar fetch hasta que el webhook termine
+  const verifyAndFetch = async (paymentIntentId: string) => {
+    let attempts = 0
+    const maxAttempts = 8 // ~16 segundos de espera max
+    
+    const interval = setInterval(async () => {
+      attempts++
+      try {
+        const res = await api.post('/pagos/confirm-payment', { paymentIntentId })
+        if (res.data.acreditado) {
+          queryClient.invalidateQueries({ queryKey: ['business-data'] })
+          clearInterval(interval)
+        }
+      } catch (e) {
+        console.error("Error verificando pago:", e)
+      }
+      
+      if (attempts >= maxAttempts) clearInterval(interval)
+    }, 2000)
+  }
 
   // Business info for balance
   const { theme } = useTheme()
@@ -64,8 +99,16 @@ export default function TimbresPage() {
     queryFn: async () => {
       const response = await api.get('/business/data-business')
       return response.data
-    }
+    },
   })
+
+  // Invalidar y refrescar datos CADA VEZ que el estado Success cambie
+  // Aunque ahora lo hacemos de forma más granulada arriba
+  useEffect(() => {
+    if (isSuccessScreen) {
+      queryClient.invalidateQueries({ queryKey: ['business-data'] })
+    }
+  }, [isSuccessScreen, queryClient])
 
   const { data: packagesData, isLoading: isLoadingPackages } = useQuery({
     queryKey: ['packages-data'],
@@ -76,11 +119,17 @@ export default function TimbresPage() {
     }
   })
 
+  const [stripePromise, setStripePromise] = useState<any>(null)
+
   const mutation = useMutation({
     mutationFn: crearIntentoPago,
     onSuccess: (data, variables) => {
       const selectedPkg = packagesData?.find((p: any) => p.timbres === variables)
       const amount = selectedPkg ? selectedPkg.price * 100 : 0
+
+      // Inicializar Stripe solo en este punto
+      const key = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
+      setStripePromise(loadStripe(key))
 
       setCheckoutData({
         clientSecret: data.clientSecret,
@@ -98,19 +147,39 @@ export default function TimbresPage() {
     mutation.mutate(timbres)
   }
 
-  const handlePaymentSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ['business-data'] })
+  const handlePaymentSuccess = (status: 'succeeded' | 'processing' | 'requires_action', pi?: string) => {
+    setPaymentStatus(status)
     setIsSuccessScreen(true)
+    // Limpiar Stripe al terminar
+    setStripePromise(null)
+
+    if (pi) {
+      verifyAndFetch(pi)
+    } else {
+      queryClient.invalidateQueries({ queryKey: ['business-data'] })
+    }
   }
 
   const handleReturnToPackages = () => {
     setIsSuccessScreen(false)
     setShowCheckout(false)
     setCheckoutData(null)
+    setPaymentStatus(null)
+    // "Matar" el proceso de Stripe al salir del método de pago
+    setStripePromise(null)
   }
 
   return (
     <>
+      <Header fixed>
+        <Search />
+        <div className='ms-auto flex items-center space-x-4'>
+          <ThemeSwitch />
+          <ConfigDrawer />
+          <ProfileDropdown />
+        </div>
+      </Header>
+
       <Main className='flex flex-1 flex-col gap-6 px-4 md:px-8 max-w-[1400px] mx-auto w-full'>
         <div className="relative overflow-hidden">
           {/* Dynamic Background Effects */}
@@ -120,20 +189,23 @@ export default function TimbresPage() {
             {!showCheckout && !isSuccessScreen && (
               <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 border-b border-zinc-200 dark:border-zinc-800/60 pb-6 mt-1">
                 <div className="space-y-1.5 max-w-2xl">
-                  <h1 className="text-2xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100">
+                  <h1 className="text-2xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <Stamp className="w-5 h-5 text-primary" />
+                    </div>
                     Comprar <span className="text-primary italic font-extrabold tracking-tighter">Timbres</span>
                   </h1>
                   <p className="text-xs md:text-sm text-zinc-500 font-medium leading-relaxed max-w-xl">
-                    Adquiere folios con vigencia ilimitada y soporte premium incluido.
+                    Adquiere timbres con vigencia ilimitada y soporte premium incluido.
                   </p>
                 </div>
 
                 <div className="w-full lg:w-auto bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 p-4 rounded-2xl flex items-center gap-4 shadow-sm group transition-all duration-500">
                   <div className="bg-primary/10 dark:bg-primary/20 p-2.5 rounded-xl group-hover:bg-primary transition-colors">
-                    <Sparkles className="w-5 h-5 text-primary group-hover:text-white transition-colors" />
+                    <Stamp className="w-5 h-5 text-primary group-hover:text-white transition-colors" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Folios Disponibles</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Timbres Disponibles</p>
                     <p className="text-xl md:text-2xl font-bold tabular-nums text-zinc-800 dark:text-zinc-100 leading-none">
                       {isLoadingBusiness ? '...' : (businessData?.timbresDisponibles ?? 0).toLocaleString()}
                     </p>
@@ -154,20 +226,23 @@ export default function TimbresPage() {
                     </div>
                     
                     <h2 className="text-3xl md:text-5xl font-black tracking-tighter text-zinc-900 dark:text-zinc-50 mb-4 relative z-10">
-                      ¡Pago Completado!
+                      {paymentStatus === 'succeeded' ? '¡Pago Completado!' : '¡Referencia Generada!'}
                     </h2>
                     
                     <p className="text-zinc-500 dark:text-zinc-400 font-medium mb-10 max-w-md mx-auto text-sm md:text-base leading-relaxed relative z-10">
-                      Tus folios se han acreditado de manera inmediata a tu cuenta de Haz Factura. Estás listo para emitir.
+                      {paymentStatus === 'succeeded' 
+                        ? 'Tus folios se acreditarán en unos momentos tras la confirmación de nuestro sistema seguro.'
+                        : 'Tu orden ha sido registrada. Una vez que realices el pago en OXXO o vía Transferencia, tus timbres se activarán automáticamente mediante el sistema de Stripe.'
+                      }
                     </p>
                     
                     <div className="w-full flex flex-col sm:flex-row items-stretch justify-center gap-4 mb-10 relative z-10">
                       <div className="bg-white dark:bg-zinc-950 w-full sm:w-auto px-6 md:px-10 py-5 md:py-8 rounded-[1.5rem] md:rounded-[2rem] border border-zinc-200 dark:border-zinc-800 flex flex-col justify-center items-center shadow-sm">
-                         <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-zinc-400 mb-2">Timbres Adquiridos</span>
+                         <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-zinc-400 mb-2">Timbres Solicitados</span>
                          <span className="text-4xl md:text-5xl font-black text-primary tabular-nums">{(checkoutData?.timbres || 0).toLocaleString()}</span>
                       </div>
                       <div className="bg-white dark:bg-zinc-950 w-full sm:w-auto px-6 md:px-10 py-5 md:py-8 rounded-[1.5rem] md:rounded-[2rem] border border-zinc-200 dark:border-zinc-800 flex flex-col justify-center items-center shadow-sm">
-                         <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-zinc-400 mb-2">Disponibles en Total</span>
+                         <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-zinc-400 mb-2">Saldo Actual</span>
                          <span className="text-4xl md:text-5xl font-black text-zinc-800 dark:text-zinc-100 tabular-nums">{(isLoadingBusiness ? '...' : (businessData?.timbresDisponibles ?? 0)).toLocaleString()}</span>
                       </div>
                     </div>
@@ -176,18 +251,18 @@ export default function TimbresPage() {
                       onClick={handleReturnToPackages}
                       className="w-full sm:w-auto px-10 h-14 md:h-16 text-base md:text-lg font-bold rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all duration-300 bg-primary text-white relative z-10"
                     >
-                      Volver a Mi Cuenta
+                      {paymentStatus === 'succeeded' ? 'Volver a Mi Cuenta' : 'Entendido, volver'}
                     </Button>
                   </div>
                 </div>
-              ) : showCheckout && checkoutData ? (
+              ) : showCheckout && checkoutData && stripePromise ? (
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 w-full mx-auto">
                   {/* Checkout Header style Image 2 */}
                   <div className="flex items-center gap-4 mb-8">
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => setShowCheckout(false)}
+                      onClick={() => handleReturnToPackages()}
                       className="h-10 w-10 shrink-0 rounded-xl border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-sm transition-all hover:bg-zinc-50 dark:hover:bg-zinc-900"
                     >
                       <ArrowLeft className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />

@@ -24,7 +24,7 @@ export function Settings() {
       href: '/settings/appearance',
       icon: <Palette size={18} />,
     },
-    ...(user?.role === 'Admin' || user?.role === 'Root' ? [{
+    ...(user?.role === 'Admin' ? [{
       title: 'Datos Fiscales',
       href: '/settings/business',
       icon: <Building2 size={18} />,

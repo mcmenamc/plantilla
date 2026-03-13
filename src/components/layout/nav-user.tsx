@@ -3,9 +3,9 @@ import {
   ChevronsUpDown,
   LogOut,
   Palette,
-  Sparkles,
   User,
   Building2,
+  Stamp,
 } from 'lucide-react'
 import useDialogState from '@/hooks/use-dialog-state'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -85,7 +85,7 @@ export function NavUser() {
                   <DropdownMenuGroup>
                     <DropdownMenuItem asChild>
                       <Link to='/timbres' className='w-full cursor-pointer'>
-                        <Sparkles />
+                        <Stamp className="w-5 h-5" />
                         Comprar Timbres
                       </Link>
                     </DropdownMenuItem>

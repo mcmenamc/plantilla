@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { Sparkles, Building2, UserCog, Settings, LogOut } from 'lucide-react'
+import { Building2, UserCog, Settings, LogOut, Stamp } from 'lucide-react'
 import useDialogState from '@/hooks/use-dialog-state'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -19,7 +19,7 @@ import { useAuthStore } from '@/stores/auth-store'
 export function ProfileDropdown() {
   const [open, setOpen] = useDialogState()
   const { auth } = useAuthStore()
-  const isAdmin = auth.user?.role === 'Admin' || auth.user?.role === 'Root'
+  const isAdmin = auth.user?.role === 'Admin'
 
   return (
     <>
@@ -47,7 +47,7 @@ export function ProfileDropdown() {
             {isAdmin && (
               <DropdownMenuItem asChild>
                 <Link to='/timbres' className='flex items-center text-primary font-bold'>
-                  <Sparkles size={16} className='me-2 fill-primary/20' />
+                  <Stamp className="w-5 h-5 text-primary" />
                   Comprar Timbres
                 </Link>
               </DropdownMenuItem>

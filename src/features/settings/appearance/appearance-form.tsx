@@ -29,15 +29,22 @@ const appearanceFormSchema = z.object({
 
 type AppearanceFormValues = z.infer<typeof appearanceFormSchema>
 
+const VALID_FONTS = fonts as readonly string[]
+const VALID_THEMES = ['light', 'dark', 'system'] as const
+
 export function AppearanceForm() {
   const queryClient = useQueryClient()
   const { auth: { user } } = useAuthStore()
   const { font: currentFont, setFont } = useFont()
   const { theme: currentTheme, setTheme } = useTheme()
 
+  // Sanitize: if stored value is not a valid option, fallback to default
+  const safeFont = VALID_FONTS.includes(user?.font ?? '') ? user!.font : (VALID_FONTS.includes(currentFont ?? '') ? currentFont : 'inter')
+  const safeTheme = VALID_THEMES.includes((user?.theme ?? '') as any) ? user!.theme : (VALID_THEMES.includes((currentTheme ?? '') as any) ? currentTheme : 'system')
+
   const defaultValues: Partial<AppearanceFormValues> = {
-    theme: (user?.theme as any) || currentTheme || 'system',
-    font: (user?.font as any) || currentFont || 'Outfit',
+    theme: safeTheme as any,
+    font: safeFont as any,
   }
 
   const form = useForm<AppearanceFormValues>({

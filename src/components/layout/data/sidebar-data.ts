@@ -8,6 +8,8 @@ import {
   FileText,
   Users,
   Download,
+  Ticket,
+  Stamp,
   LucideIcon
 } from 'lucide-react'
 import { type NavGroup } from '../types'
@@ -24,6 +26,8 @@ const ICON_MAP: Record<string, LucideIcon> = {
   administrators: Users,
   series: FileText,
   settings: Settings,
+  tickets: Ticket,
+  timbres: Stamp,
 }
 
 /**
