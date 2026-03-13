@@ -57,10 +57,10 @@ import { ArrowLeft } from 'lucide-react'
 export function TicketForm({ initialData, onSubmit, isSubmitting, title, description }: TicketFormProps) {
   const navigate = useNavigate()
   const [images, setImages] = useState<string[]>(initialData?.images || [])
-  const [imagePreviews, setImagePreviews] = useState<string[]>(initialData?.images || []) // En edición, esto idealmente deberían ser URLs firmadas, pero por simplicidad...
+  const [imagePreviews, setImagePreviews] = useState<string[]>(initialData?.imagePreviews || []) 
   const [isUploading, setIsUploading] = useState(false)
-  const [selectedModule, setSelectedModule] = useState('')
-  const [customModule, setCustomModule] = useState('')
+  const [selectedModule, setSelectedModule] = useState(initialData?.module?.startsWith('Otro: ') ? 'Otro' : initialData?.module || '')
+  const [customModule, setCustomModule] = useState(initialData?.module?.startsWith('Otro: ') ? initialData.module.replace('Otro: ', '') : '')
 
   // Obtener módulos de la DB
   const { data: dbModules = [], isLoading: isLoadingModules } = useQuery({
@@ -83,16 +83,23 @@ export function TicketForm({ initialData, onSubmit, isSubmitting, title, descrip
   const watchComment = form.watch('comment')
 
   useEffect(() => {
-    if (initialData) {
-      const isCustom = !dbModules.some(m => m.nombre === initialData.module)
-      if (isCustom && initialData.module.startsWith('Otro: ')) {
+    if (initialData?.module) {
+      if (initialData.module.startsWith('Otro: ')) {
         setSelectedModule('Otro')
         setCustomModule(initialData.module.replace('Otro: ', ''))
       } else {
         setSelectedModule(initialData.module)
       }
+      form.reset({
+        module: initialData.module,
+        type: (initialData.type as any) || 'Bug',
+        priority: (initialData.priority as any) || 'Media',
+        comment: initialData.comment || '',
+        images: initialData.images || [],
+        status: initialData.status || 'Pendiente'
+      })
     }
-  }, [initialData, dbModules])
+  }, [initialData, form])
 
   const handleModuleChange = (value: string) => {
     setSelectedModule(value)
@@ -184,13 +191,16 @@ export function TicketForm({ initialData, onSubmit, isSubmitting, title, descrip
                       >
                         <FormControl>
                           <SelectTrigger className='h-11'>
-                            <SelectValue placeholder={isLoadingModules ? 'Cargando módulos...' : 'Selecciona el módulo'} />
+                            <SelectValue placeholder='Selecciona el módulo' />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
                           {dbModules.map((mod: any) => (
                             <SelectItem key={mod._id} value={mod.nombre}>{mod.nombre}</SelectItem>
                           ))}
+                          {selectedModule && selectedModule !== 'Otro' && !dbModules.some((m: any) => m.nombre === selectedModule) && (
+                            <SelectItem value={selectedModule}>{selectedModule}</SelectItem>
+                          )}
                           <SelectItem value='Otro'>Otro / No listado</SelectItem>
                         </SelectContent>
                       </Select>
@@ -326,24 +336,41 @@ export function TicketForm({ initialData, onSubmit, isSubmitting, title, descrip
                 )}
               />
 
-              {/* Imágenes */}
+              {/* Archivos Adjuntos */}
               <FormItem>
-                <FormLabel className='font-semibold'>Evidencia visual (Capturas)</FormLabel>
+                <FormLabel className='font-semibold'>Archivos y Evidencia</FormLabel>
                 <div className='grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 gap-3 p-4 border-2 border-dashed rounded-xl bg-muted/10'>
-                  {imagePreviews.map((previewUrl, index) => (
-                    <div key={index} className='relative aspect-square rounded-lg overflow-hidden border bg-background group shadow-sm'>
-                      <img src={previewUrl} className='w-full h-full object-cover transition-transform group-hover:scale-105' alt='preview' />
-                      <div className='absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-1'>
-                        <button
-                          type='button'
-                          onClick={() => removeImage(index)}
-                          className='bg-destructive text-destructive-foreground rounded-full p-1.5 hover:bg-destructive/90 transition-colors'
-                        >
-                          <X size={14} />
-                        </button>
+                  {imagePreviews.map((previewUrl, index) => {
+                    const s3Key = images[index] || ''
+                    const isImage = s3Key.match(/\.(jpg|jpeg|png|gif|webp|svg)/i)
+                    const fileName = s3Key.split('/').pop() || 'archivo'
+                    const extension = fileName.split('.').pop()?.toUpperCase() || 'FILE'
+                    
+                    return (
+                      <div key={index} className='relative aspect-square rounded-lg overflow-hidden border bg-background group shadow-sm'>
+                        {isImage ? (
+                          <img src={previewUrl} className='w-full h-full object-cover transition-transform group-hover:scale-105' alt='preview' />
+                        ) : (
+                          <a href={previewUrl} target='_blank' rel='noopener noreferrer' className='w-full h-full flex flex-col items-center justify-center bg-muted/50 text-muted-foreground hover:bg-muted transition-colors'>
+                            <span className='font-black text-primary/40 text-[10px] mb-0.5'>{extension}</span>
+                            <ImageIcon size={20} className='opacity-40' />
+                            <span className='text-[7px] mt-1 font-bold uppercase truncate px-1 w-full text-center'>
+                              {fileName.slice(-12)}
+                            </span>
+                          </a>
+                        )}
+                        <div className='absolute top-0.5 right-0.5 z-10 opacity-0 group-hover:opacity-100 transition-opacity'>
+                          <button
+                            type='button'
+                            onClick={() => removeImage(index)}
+                            className='bg-destructive/80 text-white rounded-full p-1 hover:bg-destructive transition-colors backdrop-blur-sm'
+                          >
+                            <X size={10} />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                   
                   <label className='aspect-square border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-background hover:border-primary/50 transition-all text-muted-foreground hover:text-primary group'>
                     {isUploading ? (
@@ -359,7 +386,6 @@ export function TicketForm({ initialData, onSubmit, isSubmitting, title, descrip
                     <input
                       type='file'
                       multiple
-                      accept='image/*'
                       className='hidden'
                       onChange={handleImageUpload}
                       disabled={isUploading}

@@ -68,7 +68,27 @@ export function TicketDetails({ ticket, mode, onBack }: TicketDetailsProps) {
         commentRef.current?.focus()
       }, 500)
     }
-  }, [mode])
+
+    // Cargar imágenes prefirmadas del backend si existen
+    const initialSigned: Record<string, string> = {}
+    if (ticket.images && ticket.imagePreviews) {
+      ticket.images.forEach((img, i) => {
+        if (ticket.imagePreviews?.[i]) initialSigned[img] = ticket.imagePreviews[i]
+      })
+    }
+    if (ticket.tracking) {
+      ticket.tracking.forEach((track: any) => {
+        if (track.images && track.imagePreviews) {
+          track.images.forEach((img: string, i: number) => {
+            if (track.imagePreviews[i]) initialSigned[img] = track.imagePreviews[i]
+          })
+        }
+      })
+    }
+    if (Object.keys(initialSigned).length > 0) {
+      setSignedImages(prev => ({ ...prev, ...initialSigned }))
+    }
+  }, [ticket, mode])
 
   const [trackingImages, setTrackingImages] = useState<string[]>([])
   const [trackingPreviews, setTrackingPreviews] = useState<string[]>([])
@@ -128,10 +148,21 @@ export function TicketDetails({ ticket, mode, onBack }: TicketDetailsProps) {
 
   const handleSubmit = () => {
     if (!ticket?._id) return
-    if (!newComment.trim() && !newStatus && trackingImages.length === 0) {
+    
+    const hasImages = trackingImages.length > 0
+    const hasComment = newComment.trim().length > 0
+
+    // Si hay imágenes, el comentario es OBLIGATORIO
+    if (hasImages && !hasComment) {
+      toast.warning('Debes escribir un mensaje si adjuntas una evidencia')
+      return
+    }
+
+    if (!hasComment && !newStatus && !hasImages) {
       toast.warning('Escribe un comentario, cambia el estatus o adjunta una imagen')
       return
     }
+
     trackingMutation.mutate({ id: ticket._id, comment: newComment.trim(), status: newStatus || undefined, images: trackingImages })
   }
 
@@ -226,28 +257,41 @@ export function TicketDetails({ ticket, mode, onBack }: TicketDetailsProps) {
               <ImageIcon size={14} /> Archivos Adjuntos ({ticket.images.length})
             </p>
             <div className='flex flex-wrap gap-3'>
-              {ticket.images.map((img, i) => (
-                <div key={i} className='relative group'>
-                  {signedImages[img] ? (
-                    <a href={signedImages[img]} target='_blank' rel='noopener noreferrer'>
-                      <img
-                        src={signedImages[img]}
-                        alt={`img-${i}`}
-                        className='w-24 h-24 rounded-xl border object-cover transition-all group-hover:ring-2 ring-primary/40 shadow-sm'
-                      />
-                    </a>
-                  ) : (
-                    <button
-                      type='button'
-                      onClick={() => handleSignImage(img)}
-                      className='w-24 h-24 rounded-xl border flex flex-col items-center justify-center bg-muted/50 hover:bg-muted transition-colors'
-                    >
-                      <ImageIcon size={20} className='text-muted-foreground/50' />
-                      <span className='text-[10px] text-muted-foreground mt-2 font-medium'>Revelar</span>
-                    </button>
-                  )}
-                </div>
-              ))}
+              {ticket.images.map((img, i) => {
+                const url = signedImages[img]
+                const isImage = img.match(/\.(jpg|jpeg|png|gif|webp|svg)/i)
+                return (
+                  <div key={i} className='relative group'>
+                    {url ? (
+                      <a href={url} target='_blank' rel='noopener noreferrer'>
+                        {isImage ? (
+                          <img
+                            src={url}
+                            alt={`img-${i}`}
+                            className='w-24 h-24 rounded-xl border object-cover transition-all group-hover:ring-2 ring-primary/40 shadow-sm'
+                          />
+                        ) : (
+                          <div className='w-24 h-24 rounded-xl border flex flex-col items-center justify-center bg-muted/30 group-hover:bg-muted transition-colors text-muted-foreground'>
+                            <ImageIcon size={24} className='opacity-40' />
+                            <span className='text-[8px] mt-1 font-bold uppercase truncate px-2 w-full text-center'>
+                              {img.split('/').pop()?.slice(-15)}
+                            </span>
+                          </div>
+                        )}
+                      </a>
+                    ) : (
+                      <button
+                        type='button'
+                        onClick={() => handleSignImage(img)}
+                        className='w-24 h-24 rounded-xl border flex flex-col items-center justify-center bg-muted/50 hover:bg-muted transition-colors'
+                      >
+                        <ImageIcon size={20} className='text-muted-foreground/50' />
+                        <span className='text-[10px] text-muted-foreground mt-2 font-medium'>Revelar</span>
+                      </button>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           </div>
         )}
@@ -297,25 +341,38 @@ export function TicketDetails({ ticket, mode, onBack }: TicketDetailsProps) {
 
                     {track.images && track.images.length > 0 && (
                       <div className='flex flex-wrap gap-2 mt-3'>
-                        {track.images.map((img, j) => (
-                          <div key={j}>
-                            {signedImages[img] ? (
-                              <a href={signedImages[img]} target='_blank' rel='noopener noreferrer'>
-                                <img
-                                  src={signedImages[img]}
-                                  className='w-16 h-16 rounded-lg border object-cover shadow-sm'
-                                />
-                              </a>
-                            ) : (
-                              <button
-                                onClick={() => handleSignImage(img)}
-                                className='w-16 h-16 rounded-lg border bg-muted/40 flex items-center justify-center'
-                              >
-                                <ImageIcon size={14} className='text-muted-foreground/40' />
-                              </button>
-                            )}
-                          </div>
-                        ))}
+                        {track.images.map((img, j) => {
+                          const url = signedImages[img]
+                          const isImage = img.match(/\.(jpg|jpeg|png|gif|webp|svg)/i)
+                          return (
+                            <div key={j}>
+                              {url ? (
+                                <a href={url} target='_blank' rel='noopener noreferrer'>
+                                  {isImage ? (
+                                    <img
+                                      src={url}
+                                      className='w-16 h-16 rounded-lg border object-cover shadow-sm'
+                                    />
+                                  ) : (
+                                    <div className='w-16 h-16 rounded-lg border flex flex-col items-center justify-center bg-muted/30 text-muted-foreground'>
+                                      <ImageIcon size={18} className='opacity-40' />
+                                      <span className='text-[7px] mt-0.5 font-bold uppercase truncate px-1 w-full text-center'>
+                                        {img.split('/').pop()?.slice(-10)}
+                                      </span>
+                                    </div>
+                                  )}
+                                </a>
+                              ) : (
+                                <button
+                                  onClick={() => handleSignImage(img)}
+                                  className='w-16 h-16 rounded-lg border bg-muted/40 flex items-center justify-center'
+                                >
+                                  <ImageIcon size={14} className='text-muted-foreground/40' />
+                                </button>
+                              )}
+                            </div>
+                          )
+                        })}
                       </div>
                     )}
                   </div>
@@ -364,18 +421,32 @@ export function TicketDetails({ ticket, mode, onBack }: TicketDetailsProps) {
 
               <div className='space-y-2'>
                 <div className='flex flex-wrap gap-2 mb-2'>
-                   {trackingPreviews.map((p, i) => (
-                     <div key={i} className='relative w-12 h-12 rounded-lg overflow-hidden border'>
-                       <img src={p} className='w-full h-full object-cover' />
-                       <button onClick={() => removeTrackingImage(i)} className='absolute inset-0 bg-red-500/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity'>
-                         <X size={12} className='text-white' />
-                       </button>
-                     </div>
-                   ))}
+                   {trackingPreviews.map((p, i) => {
+                     const s3Key = trackingImages[i] || ''
+                     const isImage = s3Key.match(/\.(jpg|jpeg|png|gif|webp|svg)/i)
+                     const fileName = s3Key.split('/').pop() || 'archivo'
+                     const extension = fileName.split('.').pop()?.toUpperCase() || 'FILE'
+                     
+                     return (
+                       <div key={i} className='relative w-12 h-12 rounded-lg overflow-hidden border bg-muted/20 group'>
+                         {isImage ? (
+                           <img src={p} className='w-full h-full object-cover' />
+                         ) : (
+                           <a href={p} target='_blank' rel='noopener noreferrer' className='w-full h-full flex flex-col items-center justify-center text-muted-foreground hover:bg-muted transition-colors'>
+                             <span className='font-black text-[7px] mb-[-2px] opacity-60'>{extension}</span>
+                             <ImageIcon size={14} className='opacity-40' />
+                           </a>
+                         )}
+                         <button onClick={() => removeTrackingImage(i)} className='absolute inset-0 bg-red-500/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity'>
+                           <X size={12} className='text-white' />
+                         </button>
+                       </div>
+                     )
+                   })}
                 </div>
                 <label className='w-full h-20 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 hover:border-primary/50 transition-all text-muted-foreground'>
-                   {isUploading ? <Loader2 size={16} className='animate-spin' /> : <><ImageIcon size={18} /><span className='text-[10px] mt-1 font-bold uppercase'>Adjuntar</span></>}
-                   <input type='file' multiple accept='image/*' className='hidden' onChange={handleTrackingImageUpload} disabled={isUploading} />
+                   {isUploading ? <Loader2 size={16} className='animate-spin' /> : <><ImageIcon size={18} /><span className='text-[10px] mt-1 font-bold uppercase'>Adjuntar Archivo</span></>}
+                   <input type='file' multiple className='hidden' onChange={handleTrackingImageUpload} disabled={isUploading} />
                 </label>
               </div>
 

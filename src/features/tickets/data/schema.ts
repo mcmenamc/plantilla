@@ -8,12 +8,14 @@ export const ticketSchema = z.object({
   priority: z.enum(['Baja', 'Media', 'Alta', 'Crítica']).default('Media'),
   comment: z.string().min(1, 'El comentario es obligatorio'),
   images: z.array(z.string()).default([]),
+  imagePreviews: z.array(z.string()).optional(),
   status: z.enum(['Pendiente', 'En proceso', 'Finalizado', 'Rechazado']).default('Pendiente'),
   state: z.enum(['Activo', 'Eliminado']).default('Activo'),
   tracking: z.array(z.object({
     comment: z.string(),
     user: z.any(),
     images: z.array(z.string()).default([]),
+    imagePreviews: z.array(z.string()).optional(),
     createdAt: z.string().or(z.date())
   })).default([]),
   createdAt: z.string().optional(),
