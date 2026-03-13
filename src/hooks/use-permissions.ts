@@ -24,13 +24,16 @@ export function usePermissions() {
     const userId = auth.user?.id
 
     const { data: permissions = [], isLoading, isError, refetch } = useQuery<UserPermission[]>({
-        queryKey: ['user-permissions', selectedWorkCenterId, userId],
+        queryKey: ['user-permissions', selectedWorkCenterId, userId, auth.user?.role],
         queryFn: async () => {
-            if (!selectedWorkCenterId || !userId) return []
-            const res = await api.get('/user/permissions')
+            if (!userId) return []
+
+            const res = await api.get('/user/permissions', {
+                params: { workCenterId: selectedWorkCenterId || undefined }
+            })
             return res.data
         },
-        enabled: !!selectedWorkCenterId && !!userId,
+        enabled: !!userId,
         refetchOnWindowFocus: true,
         staleTime: 1000 * 60 * 1, // Reducido a 1 minuto para mayor reactividad
         retry: 1,
